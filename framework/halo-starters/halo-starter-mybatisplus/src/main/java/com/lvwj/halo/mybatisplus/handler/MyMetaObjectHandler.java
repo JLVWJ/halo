@@ -1,0 +1,55 @@
+package com.lvwj.halo.mybatisplus.handler;
+
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.reflection.MetaObject;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+
+/**
+ * 基础字段数据自动填充器
+ *
+ * @author lvweijie
+ * @date 2023年11月03日 16:19
+ */
+@Slf4j
+public class MyMetaObjectHandler implements MetaObjectHandler {
+
+    private static final String CREATE_TIME = "createTime";
+    private static final String UPDATE_TIME = "updateTime";
+    private static final String IS_DELETE = "isDelete";
+
+    @Override
+    public void insertFill(MetaObject metaObject) {
+        LocalDateTime now = LocalDateTime.now();
+        fillStrategy(metaObject, CREATE_TIME, now);
+        fillStrategy(metaObject, UPDATE_TIME, now);
+        fillStrategy(metaObject, IS_DELETE, 0);
+        setVersion(metaObject);
+    }
+
+    @Override
+    public void updateFill(MetaObject metaObject) {
+        this.setFieldValByName(UPDATE_TIME, new Date(), metaObject);
+    }
+
+    private void setVersion(MetaObject metaObject) {
+        TableInfo tableInfo = findTableInfo(metaObject);
+        TableFieldInfo tableFieldInfo = tableInfo.getFieldList().stream().filter(TableFieldInfo::isVersion).findFirst().orElse(null);
+        if (null == tableFieldInfo) {
+            return;
+        }
+        Class<?> aClass = tableFieldInfo.getPropertyType();
+        if (aClass.equals(Long.class)) {
+            fillStrategy(metaObject, tableFieldInfo.getColumn(), 0L);
+        } else if (aClass.equals(Integer.class)) {
+            fillStrategy(metaObject, tableFieldInfo.getColumn(), 0);
+        } else if (aClass.equals(Date.class)) {
+            fillStrategy(metaObject, tableFieldInfo.getColumn(), new Date());
+        }
+    }
+}
+

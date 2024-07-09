@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.lvwj.halo</groupId>
+        <artifactId>halo-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>framework/halo-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>halo</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>halo</name>
+    <description>halo: ddd框架</description>
+
+    <modules>
+        <module>framework</module>
+        <module>samples</module>
+    </modules>
+
+</project>

@@ -1,0 +1,3 @@
+com.lvwj.halo.redis.config.RedisIdempotentConfiguration
+com.lvwj.halo.redis.config.RedisRateLimiterConfiguration
+com.lvwj.halo.redis.config.RedisTemplateConfiguration

@@ -1,0 +1,5 @@
+com.lvwj.halo.core.snowflake.SnowflakeConfiguration
+com.lvwj.halo.core.domain.event.EventBusConfiguration
+com.lvwj.halo.core.design.pipeline.PipelineConfiguration
+com.lvwj.halo.core.jackson.config.HaloJacksonConfigration
+com.lvwj.halo.core.threadpool.config.MyThreadPoolTaskConfiguration

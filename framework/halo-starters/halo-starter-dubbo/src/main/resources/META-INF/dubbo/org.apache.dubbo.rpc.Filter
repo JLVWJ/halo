@@ -1,0 +1,6 @@
+myValidationFilter=com.lvwj.halo.dubbo.filter.MyValidationFilter
+myExceptionFilter=com.lvwj.halo.dubbo.filter.MyExceptionFilter
+myGenericFilter=com.lvwj.halo.dubbo.filter.MyGenericFilter
+myConsumerContextFilter=com.lvwj.halo.dubbo.filter.MyConsumerContextFilter
+myContextFilter=com.lvwj.halo.dubbo.filter.MyContextFilter
+

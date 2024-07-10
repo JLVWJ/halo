@@ -59,6 +59,8 @@
         <okhttp3.version>4.12.0</okhttp3.version>
         <caffeine.version>3.1.8</caffeine.version>
 
+        <shenyu-spring-boot-starter-client-apache-dubbo.version>2.5.0</shenyu-spring-boot-starter-client-apache-dubbo.version>
+
         <protobuf-java.version>4.27.2</protobuf-java.version>
 
         <log.record.version>1.6.3</log.record.version>
@@ -374,6 +376,12 @@
                 <groupId>com.ctrip.framework.apollo</groupId>
                 <artifactId>apollo-client</artifactId>
                 <version>${apollo.client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.shenyu</groupId>
+                <artifactId>shenyu-spring-boot-starter-client-apache-dubbo</artifactId>
+                <version>${shenyu-spring-boot-starter-client-apache-dubbo.version}</version>
             </dependency>
 
             <!-- langchain4j

@@ -137,12 +137,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>${okhttp3.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
                 <version>${caffeine.version}</version>
@@ -364,6 +358,17 @@
                 <version>${redisson.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-sse</artifactId>
+                <version>${okhttp3.version}</version>
+            </dependency>
+
             <!-- apollo-client -->
             <dependency>
                 <groupId>com.ctrip.framework.apollo</groupId>
@@ -389,6 +394,11 @@
             </dependency>
 
             <!-- dubbo3 -->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-spring-boot-starter</artifactId>

@@ -69,9 +69,9 @@
         <mybatis.plus.version>3.5.7</mybatis.plus.version>
         <mybatis.spring.version>3.0.3</mybatis.spring.version>
 
-        <swagger.version>2.9.2</swagger.version>
-        <swagger-models.version>1.5.21</swagger-models.version>
-        <swagger-annotations.version>1.5.21</swagger-annotations.version>
+        <swagger.version>3.0.0</swagger.version>
+        <swagger-models.version>1.6.14</swagger-models.version>
+        <swagger-annotations.version>1.6.14</swagger-annotations.version>
 
         <mockito.version>5.12.0</mockito.version>
         <javafaker.version>1.0.2</javafaker.version>
@@ -384,17 +384,22 @@
                 <version>${shenyu-spring-boot-starter-client-apache-dubbo.version}</version>
             </dependency>
 
-            <!-- langchain4j
+            <!-- langchain4j-->
             <dependency>
                 <groupId>io.milvus</groupId>
                 <artifactId>milvus-sdk-java</artifactId>
                 <version>${milvus.version}</version>
-            </dependency>-->
+            </dependency>
             <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-core</artifactId>
+                <version>${langchain4j.version}</version>
+            </dependency>
+            <!--<dependency>
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-milvus</artifactId>
                 <version>${langchain4j.version}</version>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings</artifactId>
@@ -457,6 +462,11 @@
                 <version>${curator.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger2</artifactId>

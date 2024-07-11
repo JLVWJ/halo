@@ -30,7 +30,7 @@ public class R<T> implements Serializable {
 
   private int code;
 
-  private String msg;
+  private String message;
 
   private T data;
 
@@ -42,31 +42,31 @@ public class R<T> implements Serializable {
     this(errorCode, null, errorCode.getDescription(), args);
   }
 
-  protected R(IErrorEnum errorCode, String msg, Object[] args) {
-    this(errorCode, null, msg, args);
+  protected R(IErrorEnum errorCode, String message, Object[] args) {
+    this(errorCode, null, message, args);
   }
 
   protected R(IErrorEnum errorCode, T data) {
     this(errorCode, data, errorCode.getDescription(), null);
   }
 
-  protected R(IErrorEnum errorCode, T data, String msg, Object[] args) {
+  protected R(IErrorEnum errorCode, T data, String message, Object[] args) {
     this.errorCode = errorCode;
     this.code = errorCode.getCode();
     this.data = data;
-    this.msg = null != msg && !msg.isEmpty() ? msg : errorCode.getDescription();
+    this.message = null != message && !message.isEmpty() ? message : errorCode.getDescription();
     this.args = args;
   }
 
-  protected R(int code, T data, String msg, Object[] args) {
+  protected R(int code, T data, String message, Object[] args) {
     this.code = code;
     this.data = data;
-    this.msg = msg;
+    this.message = message;
     this.args = args;
   }
 
-  public String getMsg() {
-    return MessageFormat.format(msg, args);
+  public String getMessage() {
+    return MessageFormat.format(message, args);
   }
 
   @Transient
@@ -114,7 +114,7 @@ public class R<T> implements Serializable {
   @Transient
   private T getOrThrow(boolean throwIfFailed, Supplier<T> supplierIfNull) {
     if (!isSuccess() && throwIfFailed) {
-      throw new BusinessException(BaseErrorEnum.RPC_FAILED, getMsg());
+      throw new BusinessException(BaseErrorEnum.RPC_FAILED, getMessage());
     }
     return Optional.ofNullable(getData()).orElseGet(supplierIfNull);
   }

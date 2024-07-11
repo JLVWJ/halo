@@ -52,7 +52,7 @@ public class I18nResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     }
     if (body instanceof R<?> r) {
       try {
-        r.setMsg(I18nUtil.getMessage(r.getCode() + "", r.getArgs(), r.getMsg()));
+        r.setMessage(I18nUtil.getMessage(r.getCode() + "", r.getArgs(), r.getMessage()));
       } catch (Exception e) {
         log.warn("format international message error for code: {}", r.getCode(), e);
       }

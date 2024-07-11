@@ -49,9 +49,9 @@ public class MilvusEmbeddingStoreProperties implements Serializable {
         private boolean enabled = true;
         private Integer dimension;
         private IndexType indexType = IndexType.HNSW;
-        private MetricType metricType = MetricType.COSINE;
+        private MetricType metricType = MetricType.IP;
         private ConsistencyLevelEnum consistencyLevel = ConsistencyLevelEnum.BOUNDED;
-        private Boolean autoFlushOnInsert = Boolean.TRUE;
-        private Boolean retrieveEmbeddingsOnSearch = Boolean.TRUE;
+        private Boolean autoFlushOnInsert = Boolean.FALSE;
+        private Boolean retrieveEmbeddingsOnSearch = Boolean.FALSE;
     }
 }

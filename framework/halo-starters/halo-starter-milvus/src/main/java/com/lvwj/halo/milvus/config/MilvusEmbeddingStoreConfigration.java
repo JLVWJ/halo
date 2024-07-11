@@ -1,7 +1,7 @@
 package com.lvwj.halo.milvus.config;
 
 import cn.hutool.extra.spring.SpringUtil;
-import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
+import com.lvwj.halo.milvus.core.MilvusEmbeddingStore;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

@@ -24,7 +24,7 @@ public interface IIntegrationEvent extends IEvent {
      * 集成事件tag
      */
     default String tag() {
-        return this.getClass().getSimpleName().replace("IntegrationEvent", "");
+        return this.getClass().getSimpleName().replace("Event", "").replace("Integration", "");
     }
 
     /**

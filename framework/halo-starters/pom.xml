@@ -36,6 +36,7 @@
         <module>halo-starter-embeddingmodel</module>
         <module>halo-starter</module>
         <module>halo-starter-join</module>
+        <module>halo-starter-xxljob</module>
     </modules>
 
     <dependencies>

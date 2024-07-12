@@ -13,12 +13,12 @@ public interface IIntegrationEvent extends IEvent {
     /**
      * 集成事件ID
      */
-    Long getId();
+    Long getEventId();
 
     /**
      * 集成事件生成时间
      */
-    LocalDateTime created();
+    LocalDateTime getEventTime();
 
     /**
      * 集成事件tag

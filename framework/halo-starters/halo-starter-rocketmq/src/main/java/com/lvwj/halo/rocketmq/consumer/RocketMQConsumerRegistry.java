@@ -3,6 +3,7 @@ package com.lvwj.halo.rocketmq.consumer;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.lvwj.halo.common.utils.Exceptions;
+import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.rocketmq.annotation.RocketMQConsumer;
 import com.lvwj.halo.rocketmq.annotation.TagHandler;
 import jakarta.annotation.Resource;
@@ -28,8 +29,10 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -241,6 +244,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
                     //反序列化获取payload
                     payload = methodInvoker.deserialize(messageExt.getBody());
+                    setEventIdIfNecessary(payload, Func.toLong(msgPK));
                     //取出消息体的操作人信息，放到上下文
 
                     //执行消费方法
@@ -333,6 +337,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
                     //反序列化获取payload
                     payload = methodInvoker.deserialize(messageExt.getBody());
+                    setEventIdIfNecessary(payload, Func.toLong(msgPK));
                     //取出消息体的操作人信息，放到上下文
 
                     //执行消费方法
@@ -362,6 +367,18 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                 }
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+        }
+    }
+
+    private static void setEventIdIfNecessary(Object payload, Long eventId) {
+        Field field = ReflectionUtils.findField(payload.getClass(), "eventId");
+        if (null != field && null != eventId) {
+            try {
+                field.setAccessible(true);
+                field.set(payload, eventId);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

@@ -12,25 +12,25 @@ import java.time.LocalDateTime;
  */
 public abstract class IntegrationEvent implements IIntegrationEvent {
 
-    private Long id;
-    private LocalDateTime created;
+    private Long eventId;
+    private LocalDateTime eventTime;
 
     public IntegrationEvent() {
     }
 
     @Override
-    public Long getId() {
-        if (null == this.id) {
-            this.id = SnowflakeUtil.nextId();//雪花ID
+    public Long getEventId() {
+        if (this.eventId == null) {
+            this.eventId = SnowflakeUtil.nextId();
         }
-        return this.id;
+        return eventId;
     }
 
     @Override
-    public LocalDateTime created() {
-        if (null == created) {
-            this.created = LocalDateTime.now();
+    public LocalDateTime getEventTime() {
+        if (null == eventTime) {
+            this.eventTime = LocalDateTime.now();
         }
-        return this.created;
+        return this.eventTime;
     }
 }

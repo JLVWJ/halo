@@ -742,6 +742,11 @@
             </dependency>
             <dependency>
                 <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-starter-xxljob</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
                 <artifactId>halo-starter-number</artifactId>
                 <version>${revision}</version>
             </dependency>

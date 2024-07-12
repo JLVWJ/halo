@@ -4,6 +4,7 @@ import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Bean;
  * @date 2024年07月12日 13:52
  */
 @AutoConfiguration
+@ConditionalOnProperty(prefix = "halo.xxlJob", value = "enable", havingValue = "true")
 public class XxlJobConfigration {
 
     @Value("${halo.xxlJob.admin.addresses}")

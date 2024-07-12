@@ -1,6 +1,7 @@
 package com.lvwj.halo.rocketmq.consumer;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.lvwj.halo.common.utils.Exceptions;
 import com.lvwj.halo.common.utils.Func;
@@ -459,6 +460,11 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
          */
         public Object deserialize(byte[] body) {
             String str = new String(body);
+            //兼容旧消息体(BaseMqDto结构的)，只反回payload
+            if (str.contains("payload")) {
+                JSONObject jsonObject = JSON.parseObject(str);
+                str = jsonObject.getString("payload");
+            }
             return JSON.parseObject(str, this.paramType);
         }
     }

@@ -9,6 +9,7 @@ import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,9 @@ import org.springframework.context.annotation.Bean;
 @AutoConfigureAfter(RocketMQAutoConfiguration.class)
 public class RocketMQProducerConfiguration {
 
+    @Autowired
+    private RocketMQProducerInterceptor rocketMQProducerInterceptor;
+
     @Bean
     public RocketMQProducerHelper rocketMQProducerHelper() {
         return new RocketMQProducerHelper();
@@ -35,7 +39,7 @@ public class RocketMQProducerConfiguration {
 
     @Bean
     public PointcutAdvisor rocketMQPointcutAdvisor() {
-        return new DefaultPointcutAdvisor(new AnnotationMatchingPointcut(null, RocketMQProducer.class), rocketMQProducerInterceptor());
+        return new DefaultPointcutAdvisor(new AnnotationMatchingPointcut(null, RocketMQProducer.class), rocketMQProducerInterceptor);
     }
 
     @Bean

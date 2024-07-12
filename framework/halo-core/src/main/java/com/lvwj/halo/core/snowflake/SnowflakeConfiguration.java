@@ -21,7 +21,7 @@ public class SnowflakeConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  @ConditionalOnProperty(name = "halo.snowflake.enabled", havingValue = "true")
+  @ConditionalOnProperty(name = "halo.snowflake.enabled", havingValue = "true", matchIfMissing = true)
   public SnowflakeGenerator snowflakeGenerator(SnowflakeProperties properties) {
     WorkIdGenerator idGenerator = new ZkWorkIdGenerator(properties.getNodeName(), properties.getZookeeperUrl(), properties.getWorkerIdBits());
     SystemConstant.MACHINE_ID = idGenerator.getWorkId();

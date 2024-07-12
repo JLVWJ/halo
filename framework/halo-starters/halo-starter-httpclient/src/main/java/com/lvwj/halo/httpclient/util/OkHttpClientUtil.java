@@ -1,6 +1,9 @@
 package com.lvwj.halo.httpclient.util;
 
 import cn.hutool.extra.spring.SpringUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.lvwj.halo.common.utils.JsonUtil;
+import com.lvwj.halo.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -40,15 +43,35 @@ public class OkHttpClientUtil {
      * @return string
      */
     public static String doGet(String url) {
-        return doGet(url, null, null);
+        return doGet(url, null);
     }
 
     public static byte[] doGetByte(String url) {
         return doGetByte(url, null, null);
     }
 
-    public static String doPost(String url) {
-        return doPost(url, null, null);
+    public static <T> T doGet(String url, Map<String, String> params, Class<T> clazz) {
+        String resp = doGet(url, params);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, clazz);
+    }
+
+    public static <T> T doGet(String url, Map<String, String> params, TypeReference<T> type) {
+        String resp = doGet(url, params);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, type);
+    }
+
+    public static <T> T doGet(String url, Map<String, String> params, Map<String, String> headers, Class<T> clazz) {
+        String resp = doGet(url, params, headers);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, clazz);
+    }
+
+    public static <T> T doGet(String url, Map<String, String> params, Map<String, String> headers, TypeReference<T> type) {
+        String resp = doGet(url, params, headers);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, type);
     }
 
     /**
@@ -58,19 +81,22 @@ public class OkHttpClientUtil {
      * @param params 请求参数 map
      * @return string
      */
-    public static String doGetWithParams(String url, Map<String, String> params) {
-        return doGet(url, params, null);
-    }
-
-    /**
-     * get 请求
-     *
-     * @param url     请求url地址
-     * @param headers 请求头字段 {k1, v1 k2, v2, ...}
-     * @return string
-     */
-    public static String doGetWithHeaders(String url, Map<String, String> headers) {
-        return doGet(url, null, headers);
+    public static String doGet(String url, Map<String, String> params) {
+        StringBuilder sb = new StringBuilder(url);
+        if (params != null && !params.keySet().isEmpty()) {
+            boolean firstFlag = true;
+            for (String key : params.keySet()) {
+                if (firstFlag) {
+                    sb.append("?").append(key).append("=").append(params.get(key));
+                    firstFlag = false;
+                } else {
+                    sb.append("&").append(key).append("=").append(params.get(key));
+                }
+            }
+        }
+        Request.Builder builder = new Request.Builder();
+        Request request = builder.url(sb.toString()).build();
+        return executeBody(request);
     }
 
     /**
@@ -127,6 +153,30 @@ public class OkHttpClientUtil {
         return executeByte(request);
     }
 
+    public static <T> T doPostForm(String url, Map<String, String> params, Class<T> clazz) {
+        String resp = doPostForm(url, params);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, clazz);
+    }
+
+    public static <T> T doPostForm(String url, Map<String, String> params, TypeReference<T> type) {
+        String resp = doPostForm(url, params);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, type);
+    }
+
+    public static <T> T doPostForm(String url, Map<String, String> params, Map<String, String> headers, Class<T> clazz) {
+        String resp = doPostForm(url, params, headers);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, clazz);
+    }
+
+    public static <T> T doPostForm(String url, Map<String, String> params, Map<String, String> headers, TypeReference<T> type) {
+        String resp = doPostForm(url, params, headers);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, type);
+    }
+
     /**
      * post 请求
      *
@@ -153,7 +203,7 @@ public class OkHttpClientUtil {
      * @param headers 请求头字段 {k1:v1, k2: v2, ...}
      * @return string
      */
-    public static String doPost(String url, Map<String, String> params, Map<String, String> headers) {
+    public static String doPostForm(String url, Map<String, String> params, Map<String, String> headers) {
         FormBody.Builder builder = new FormBody.Builder();
         if (params != null && !params.keySet().isEmpty()) {
             for (String key : params.keySet()) {
@@ -168,6 +218,30 @@ public class OkHttpClientUtil {
         }
         Request request = requestBuilder.url(url).post(builder.build()).build();
         return execute(request);
+    }
+
+    public static <T> T doPostJson(String url, String json, Class<T> clazz) {
+        String resp = doPostJson(url, json);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, clazz);
+    }
+
+    public static <T> T doPostJson(String url, String json, TypeReference<T> type) {
+        String resp = doPostJson(url, json);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, type);
+    }
+
+    public static <T> T doPostJson(String url, String json, Map<String, String> headers, Class<T> clazz) {
+        String resp = doPostJson(url, json, headers);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, clazz);
+    }
+
+    public static <T> T doPostJson(String url, String json, Map<String, String> headers, TypeReference<T> type) {
+        String resp = doPostJson(url, json, headers);
+        if (StringUtil.isBlank(resp)) return null;
+        return JsonUtil.parse(resp, type);
     }
 
     /**

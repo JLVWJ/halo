@@ -16,6 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>halo-starter</module>
         <module>halo-starter-mybatisplus</module>
         <module>halo-starter-rocketmq</module>
         <module>halo-starter-redis</module>
@@ -34,9 +35,9 @@
         <module>halo-starter-elasticsearch</module>
         <module>halo-starter-milvus</module>
         <module>halo-starter-embeddingmodel</module>
-        <module>halo-starter</module>
         <module>halo-starter-join</module>
         <module>halo-starter-xxljob</module>
+        <module>halo-starter-httpclient</module>
     </modules>
 
     <dependencies>

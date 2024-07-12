@@ -16,16 +16,16 @@ import java.util.List;
  */
 public class PR<T> extends R<PR.PD<T>> {
 
-  protected PR(Integer total, Integer page, Integer pageSize, List<T> data) {
-    super(BaseErrorEnum.SUCCESS, new PD<>(total, page, pageSize, data));
+  protected PR(Integer total, Integer pageNo, Integer pageSize, List<T> data) {
+    super(BaseErrorEnum.SUCCESS, new PD<>(total, pageNo, pageSize, data));
   }
 
-  public static <T> PR<T> success(Integer total, Integer page, Integer pageSize, List<T> data) {
-    return new PR<>(total, page, pageSize, data);
+  public static <T> PR<T> success(Integer total, Integer pageNo, Integer pageSize, List<T> data) {
+    return new PR<>(total, pageNo, pageSize, data);
   }
 
-  public static <T> PR<T> success(Integer page, Integer pageSize) {
-    return PR.success(0, page, pageSize, new ArrayList<>());
+  public static <T> PR<T> success(Integer pageNo, Integer pageSize) {
+    return PR.success(0, pageNo, pageSize, new ArrayList<>());
   }
 
   @Data

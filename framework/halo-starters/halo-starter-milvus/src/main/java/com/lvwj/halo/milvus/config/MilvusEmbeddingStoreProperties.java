@@ -48,7 +48,7 @@ public class MilvusEmbeddingStoreProperties implements Serializable {
          */
         private boolean enabled = true;
         private Integer dimension;
-        private IndexType indexType = IndexType.HNSW;
+        private IndexType indexType = IndexType.IVF_SQ8;
         private MetricType metricType = MetricType.IP;
         private ConsistencyLevelEnum consistencyLevel = ConsistencyLevelEnum.BOUNDED;
         private Boolean autoFlushOnInsert = Boolean.FALSE;

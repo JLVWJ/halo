@@ -52,7 +52,7 @@ public class MybatisPlusExtConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "halo.mybatis-plus.block-attack.enable", havingValue = "true")
+    @ConditionalOnProperty(name = "halo.mybatis-plus.block-attack.enabled", havingValue = "true")
     public MyBlockAttackInnerInterceptor myBlockAttackInnerInterceptor() {
         return new MyBlockAttackInnerInterceptor();
     }

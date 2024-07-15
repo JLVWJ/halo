@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
  * @date 2024年07月12日 13:52
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "halo.xxlJob", value = "enable", havingValue = "true")
+@ConditionalOnProperty(prefix = "halo.xxlJob", value = "enabled", havingValue = "true")
 public class XxlJobConfigration {
 
     @Value("${halo.xxlJob.admin.addresses}")

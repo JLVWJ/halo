@@ -17,7 +17,7 @@ import java.util.Map;
  * @date 2024年07月08日 17:10
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "halo.milvus", value = "enable", havingValue = "true")
+@ConditionalOnProperty(prefix = "halo.milvus", value = "enabled", havingValue = "true")
 @EnableConfigurationProperties(MilvusEmbeddingStoreProperties.class)
 public class MilvusEmbeddingStoreConfigration {
 

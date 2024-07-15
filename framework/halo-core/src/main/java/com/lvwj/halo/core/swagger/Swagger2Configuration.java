@@ -20,8 +20,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class Swagger2Configuration {
 
-    @Value("${halo.swagger.enable:true}")
-    private boolean enable = true;
+    @Value("${halo.swagger.enabled:true}")
+    private boolean enabled = true;
     @Value("${halo.swagger.basePackage:com.qudian}")
     private String basePackage;
 
@@ -30,7 +30,7 @@ public class Swagger2Configuration {
 
     @Bean
     public Docket createRestApi() {
-        return (new Docket(DocumentationType.SWAGGER_2)).enable(this.enable).apiInfo(this.apiInfo()).select().apis(RequestHandlerSelectors.basePackage(basePackage)).paths(PathSelectors.any()).build();
+        return (new Docket(DocumentationType.SWAGGER_2)).enable(this.enabled).apiInfo(this.apiInfo()).select().apis(RequestHandlerSelectors.basePackage(basePackage)).paths(PathSelectors.any()).build();
     }
 
     private ApiInfo apiInfo() {

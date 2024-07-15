@@ -64,6 +64,8 @@
 
         <protobuf-java.version>3.24.0</protobuf-java.version>
 
+        <javax.servlet-api>4.0.1</javax.servlet-api>
+
         <log.record.version>1.6.3</log.record.version>
         <sentry.version>7.11.0</sentry.version>
 
@@ -208,12 +210,6 @@
                 <groupId>cn.monitor4all</groupId>
                 <artifactId>log-record-starter</artifactId>
                 <version>${log.record.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.alibaba</groupId>
-                        <artifactId>fastjson</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- sentry -->
@@ -241,6 +237,12 @@
             </dependency>
 
             <!-- javax -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet-api}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>

@@ -2,6 +2,7 @@ package com.lvwj.halo.web.i18n;
 
 import com.lvwj.halo.common.dto.response.PR;
 import com.lvwj.halo.common.dto.response.R;
+import com.lvwj.halo.common.enums.BaseErrorEnum;
 import com.lvwj.halo.core.i18n.I18nUtil;
 import com.lvwj.halo.web.annotation.IgnoreI18nResponseBody;
 import lombok.extern.slf4j.Slf4j;
@@ -51,10 +52,12 @@ public class I18nResponseBodyAdvice implements ResponseBodyAdvice<Object> {
       return null;
     }
     if (body instanceof R<?> r) {
-      try {
-        r.setMessage(I18nUtil.getMessage(r.getCode() + "", r.getArgs(), r.getMessage()));
-      } catch (Exception e) {
-        log.warn("format international message error for code: {}", r.getCode(), e);
+      if (r.getCode() != BaseErrorEnum.SUCCESS.getCode()) {
+        try {
+          r.setMessage(I18nUtil.getMessage(r.getCode() + "", r.getArgs(), r.getMessage()));
+        } catch (Exception e) {
+          log.warn("format international message error for code: {}", r.getCode(), e);
+        }
       }
     }
     return body;

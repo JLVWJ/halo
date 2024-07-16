@@ -43,7 +43,6 @@ public class XxlJobConfigration {
     @Bean
     public XxlJobSpringExecutor xxlJobExecutor() {
         XxlJobHelper.log(">>>>>>>>>>> xxl-job config init.>>>>>>>>>>>");
-        System.out.println("=============== xxl-job config init.===============");
 
         XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
         xxlJobSpringExecutor.setAdminAddresses(adminAddresses);

@@ -8,6 +8,8 @@ import io.milvus.param.collection.FlushParam;
 import io.milvus.param.collection.HasCollectionParam;
 import io.milvus.param.collection.LoadCollectionParam;
 import io.milvus.param.dml.*;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -62,7 +64,11 @@ class CollectionRequestBuilder {
                                           Filter filter,
                                           int maxResults,
                                           MetricType metricType,
-                                          ConsistencyLevelEnum consistencyLevel) {
+                                          ConsistencyLevelEnum consistencyLevel,
+                                          String params,
+                                          String groupByFieldName,
+                                          List<String> partitionNames,
+                                          PartitionKey partitionKey) {
         SearchParam.Builder builder = SearchParam.newBuilder()
                 .withCollectionName(collectionName)
                 .withFloatVectors(singletonList(vector))
@@ -73,7 +79,19 @@ class CollectionRequestBuilder {
                 .withOutFields(asList(ID_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME));
 
         if (filter != null) {
-            builder.withExpr(MilvusMetadataFilterMapper.map(filter));
+            builder.withExpr(MilvusMetadataFilterMapper.map(filter, partitionKey.getFieldName()));
+        }
+
+        if (StringUtils.hasLength(params)) {
+            builder.withParams(params);
+        }
+
+        if (StringUtils.hasLength(groupByFieldName)) {
+            builder.withGroupByFieldName(groupByFieldName);
+        }
+
+        if (!CollectionUtils.isEmpty(partitionNames)) {
+            builder.withPartitionNames(partitionNames);
         }
 
         return builder.build();

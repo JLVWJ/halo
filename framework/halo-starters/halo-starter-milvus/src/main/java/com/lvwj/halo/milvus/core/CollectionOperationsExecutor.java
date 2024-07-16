@@ -2,10 +2,7 @@ package com.lvwj.halo.milvus.core;
 
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
-import io.milvus.grpc.FlushResponse;
-import io.milvus.grpc.MutationResult;
-import io.milvus.grpc.QueryResults;
-import io.milvus.grpc.SearchResults;
+import io.milvus.grpc.*;
 import io.milvus.param.IndexType;
 import io.milvus.param.MetricType;
 import io.milvus.param.R;
@@ -18,6 +15,7 @@ import io.milvus.param.dml.UpsertParam;
 import io.milvus.param.index.CreateIndexParam;
 import io.milvus.response.QueryResultsWrapper;
 import io.milvus.response.SearchResultsWrapper;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -41,34 +39,53 @@ class CollectionOperationsExecutor {
         return response.getData();
     }
 
-    static void createCollection(MilvusServiceClient milvusClient, String collectionName, int dimension) {
+    static void createCollection(MilvusServiceClient milvusClient, String collectionName, PartitionKey partitionKey, int dimension, boolean softDelete) {
+
+        CollectionSchemaParam.Builder builder = CollectionSchemaParam.newBuilder()
+                .addFieldType(FieldType.newBuilder()
+                        .withName(ID_FIELD_NAME)
+                        .withDataType(VarChar)
+                        .withMaxLength(36)
+                        .withPrimaryKey(true)
+                        .withAutoID(false)
+                        .withDescription("主键")
+                        .build())
+                .addFieldType(FieldType.newBuilder()
+                        .withName(TEXT_FIELD_NAME)
+                        .withDataType(VarChar)
+                        .withMaxLength(65535)
+                        .withDescription("向量文本")
+                        .build())
+                .addFieldType(FieldType.newBuilder()
+                        .withName(METADATA_FIELD_NAME)
+                        .withDataType(JSON)
+                        .withDescription("动态元数据")
+                        .build())
+                .addFieldType(FieldType.newBuilder()
+                        .withName(VECTOR_FIELD_NAME)
+                        .withDataType(FloatVector)
+                        .withDimension(dimension)
+                        .withDescription("向量")
+                        .build());
+        if (softDelete) {
+            builder.addFieldType(FieldType.newBuilder()
+                    .withName(DELETE_FIELD_NAME)
+                    .withDataType(Bool)
+                    .withDescription("软删除")
+                    .build());
+        }
+        if (null != partitionKey) {
+            builder.addFieldType(FieldType.newBuilder()
+                    .withName(partitionKey.getFieldName())
+                    .withDataType(partitionKey.getDataType())
+                    .withDescription("分区键:" + partitionKey.getFieldName())
+                    .withPartitionKey(true)
+                    .build());
+        }
 
         CreateCollectionParam request = CreateCollectionParam.newBuilder()
                 .withCollectionName(collectionName)
-                .withSchema(CollectionSchemaParam.newBuilder()
-                        .addFieldType(FieldType.newBuilder()
-                                .withName(ID_FIELD_NAME)
-                                .withDataType(VarChar)
-                                .withMaxLength(36)
-                                .withPrimaryKey(true)
-                                .withAutoID(false)
-                                .build())
-                        .addFieldType(FieldType.newBuilder()
-                                .withName(TEXT_FIELD_NAME)
-                                .withDataType(VarChar)
-                                .withMaxLength(65535)
-                                .build())
-                        .addFieldType(FieldType.newBuilder()
-                                .withName(METADATA_FIELD_NAME)
-                                .withDataType(JSON)
-                                .build())
-                        .addFieldType(FieldType.newBuilder()
-                                .withName(VECTOR_FIELD_NAME)
-                                .withDataType(FloatVector)
-                                .withDimension(dimension)
-                                .build())
-                        .build()
-                )
+                .withSchema(builder.build())
                 .build();
 
         R<RpcStatus> response = milvusClient.createCollection(request);
@@ -83,18 +100,46 @@ class CollectionOperationsExecutor {
 
     static void createIndex(MilvusServiceClient milvusClient,
                             String collectionName,
+                            PartitionKey partitionKey,
                             IndexType indexType,
+                            String indexParam,
                             MetricType metricType) {
-
-        CreateIndexParam request = CreateIndexParam.newBuilder()
+        CreateIndexParam.Builder builder = CreateIndexParam.newBuilder()
                 .withCollectionName(collectionName)
                 .withFieldName(VECTOR_FIELD_NAME)
                 .withIndexType(indexType)
-                .withMetricType(metricType)
-                .build();
+                .withIndexName("idx_" + VECTOR_FIELD_NAME)
+                .withMetricType(metricType);
+        if (!StringUtils.hasLength(indexParam)) {
+            indexParam = defaultIndexParam(indexType);
+        }
+        if (StringUtils.hasLength(indexParam)) {
+            builder.withExtraParam(indexParam);
+        }
+        CreateIndexParam request = builder.build();
 
         R<RpcStatus> response = milvusClient.createIndex(request);
         checkResponseNotFailed(response);
+
+        if (null != partitionKey) {
+            response = milvusClient.createIndex(CreateIndexParam.newBuilder()
+                    .withCollectionName(collectionName)
+                    .withFieldName(partitionKey.getFieldName())
+                    .withIndexType(partitionKey.getDataType().equals(VarChar) ? IndexType.INVERTED : IndexType.STL_SORT)
+                    .withIndexName("idx_" + partitionKey.getFieldName())
+                    .build());
+            checkResponseNotFailed(response);
+        }
+    }
+
+    private static String defaultIndexParam(IndexType indexType) {
+        String indexParam = null;
+        if (indexType.getName().contains("IVF")) {
+            indexParam = "{\"nlist\":1024}";
+        } else if (indexType.equals(IndexType.HNSW)) {
+            indexParam = "{ \"M\": 8, \"efConstruction\": 64 }";
+        }
+        return indexParam;
     }
 
     static void insert(MilvusServiceClient milvusClient, String collectionName, List<InsertParam.Field> fields) {

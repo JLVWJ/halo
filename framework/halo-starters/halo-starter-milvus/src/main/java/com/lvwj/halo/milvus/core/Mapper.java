@@ -28,6 +28,14 @@ import static java.util.stream.Collectors.toList;
 
 class Mapper {
 
+    static List<Boolean> toUnDelete(int size) {
+        List<Boolean> booleans = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            booleans.add(Boolean.FALSE);
+        }
+        return booleans;
+    }
+
     static List<List<Float>> toVectors(List<Embedding> embeddings) {
         return embeddings.stream()
                 .map(Embedding::vectorAsList)

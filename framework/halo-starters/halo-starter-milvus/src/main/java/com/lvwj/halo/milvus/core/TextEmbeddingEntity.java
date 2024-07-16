@@ -25,8 +25,17 @@ public class TextEmbeddingEntity implements Serializable {
         this.textSegment = textSegment;
     }
 
+    public TextEmbeddingEntity(String id, Embedding embedding, TextSegment textSegment, String partitionKey) {
+        this(id, embedding, textSegment);
+        this.partitionKey = partitionKey;
+    }
+
     public static TextEmbeddingEntity from(String id, Embedding embedding, TextSegment textSegment) {
         return new TextEmbeddingEntity(id, embedding, textSegment);
+    }
+
+    public static TextEmbeddingEntity from(String id, Embedding embedding, TextSegment textSegment, String partitionKey) {
+        return new TextEmbeddingEntity(id, embedding, textSegment, partitionKey);
     }
 
     private String id;
@@ -34,5 +43,7 @@ public class TextEmbeddingEntity implements Serializable {
     private Embedding embedding;
 
     private TextSegment textSegment;
+
+    private String partitionKey;
 
 }

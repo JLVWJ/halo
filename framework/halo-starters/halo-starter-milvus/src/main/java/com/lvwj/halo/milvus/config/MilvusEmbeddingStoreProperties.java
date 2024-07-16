@@ -1,5 +1,6 @@
 package com.lvwj.halo.milvus.config;
 
+import com.lvwj.halo.milvus.core.PartitionKey;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.param.IndexType;
 import io.milvus.param.MetricType;
@@ -48,10 +49,13 @@ public class MilvusEmbeddingStoreProperties implements Serializable {
          */
         private boolean enabled = true;
         private Integer dimension;
+        private PartitionKey partitionKey;
         private IndexType indexType = IndexType.IVF_SQ8;
+        private String indexParam = "{\"nlist\":2048}";
         private MetricType metricType = MetricType.IP;
         private ConsistencyLevelEnum consistencyLevel = ConsistencyLevelEnum.BOUNDED;
         private Boolean autoFlushOnInsert = Boolean.FALSE;
         private Boolean retrieveEmbeddingsOnSearch = Boolean.FALSE;
+        private Boolean softDelete = Boolean.FALSE; //是否启用软删除
     }
 }

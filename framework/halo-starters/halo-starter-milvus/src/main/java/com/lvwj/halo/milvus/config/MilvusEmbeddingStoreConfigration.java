@@ -31,32 +31,39 @@ public class MilvusEmbeddingStoreConfigration {
                 return;
 
             MilvusEmbeddingStore.Builder builder = MilvusEmbeddingStore.builder();
+            if (StringUtils.hasLength(properties.getUri())) {
+                builder.uri(properties.getUri().trim());
+            }
+            if (StringUtils.hasLength(properties.getHost())) {
+                builder.host(properties.getHost().trim());
+            }
+            if (null != properties.getPort()) {
+                builder.port(properties.getPort());
+            }
+            if (StringUtils.hasLength(properties.getUsername())) {
+                builder.username(properties.getUsername().trim());
+            }
+            if (StringUtils.hasLength(properties.getPassword())) {
+                builder.password(properties.getPassword().trim());
+            }
+            if (StringUtils.hasLength(properties.getToken())) {
+                builder.token(properties.getToken().trim());
+            }
+            if (StringUtils.hasLength(properties.getDatabaseName())) {
+                builder.databaseName(properties.getDatabaseName().trim());
+            }
+
             for (Map.Entry<String, MilvusEmbeddingStoreProperties.CollectionEntry> entry : properties.getCollections().entrySet()) {
                 if (!entry.getValue().isEnabled()) continue;
 
-                if (StringUtils.hasLength(properties.getUri())) {
-                    builder.uri(properties.getUri().trim());
-                }
-                if (StringUtils.hasLength(properties.getHost())) {
-                    builder.host(properties.getHost().trim());
-                }
-                if (null != properties.getPort()) {
-                    builder.port(properties.getPort());
-                }
-                if (StringUtils.hasLength(properties.getUsername())) {
-                    builder.username(properties.getUsername().trim());
-                }
-                if (StringUtils.hasLength(properties.getPassword())) {
-                    builder.password(properties.getPassword().trim());
-                }
-                if (StringUtils.hasLength(properties.getToken())) {
-                    builder.token(properties.getToken().trim());
-                }
-                if (StringUtils.hasLength(properties.getDatabaseName())) {
-                    builder.databaseName(properties.getDatabaseName().trim());
-                }
                 if (StringUtils.hasLength(entry.getKey())) {
                     builder.collectionName(entry.getKey().trim());
+                }
+                if (StringUtils.hasLength(entry.getValue().getIndexParam())) {
+                    builder.indexParam(entry.getValue().getIndexParam().trim());
+                }
+                if (null != entry.getValue().getPartitionKey()) {
+                    builder.partitionKey(entry.getValue().getPartitionKey());
                 }
                 if (null != entry.getValue().getDimension()) {
                     builder.dimension(entry.getValue().getDimension());

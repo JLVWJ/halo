@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>halo-starter-swagger3</artifactId>
+    <packaging>jar</packaging>
+    <version>${revision}</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

@@ -26,5 +26,5 @@ public class UpdateAuditEntity<ID extends Serializable> extends CreatAuditEntity
   protected LocalDateTime updateTime;
 
   @TableField(fill = FieldFill.INSERT_UPDATE)
-  private Long updateBy;
+  private String updateBy;
 }

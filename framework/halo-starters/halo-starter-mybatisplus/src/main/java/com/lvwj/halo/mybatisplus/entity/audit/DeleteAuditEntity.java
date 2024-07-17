@@ -38,8 +38,8 @@ public class DeleteAuditEntity<ID extends Serializable> extends UpdateAuditEntit
   protected LocalDateTime deleteTime;
 
   /**
-   * 删除人ID
+   * 删除人
    */
   @TableField(fill = FieldFill.UPDATE)
-  private Long deleteBy;
+  private String deleteBy;
 }

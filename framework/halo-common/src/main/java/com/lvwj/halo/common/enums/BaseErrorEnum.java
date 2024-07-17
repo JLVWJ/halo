@@ -32,9 +32,10 @@ public enum BaseErrorEnum implements IErrorEnum{
     PARAM_TYPE_ERROR(400, "请求参数类型错误"),
     PARAM_BIND_ERROR(400, "请求参数绑定错误"),
     PARAM_VALID_ERROR(400, "参数校验失败"),
-    PARAM_EMPTY_ERROR(400, "参数[{}]不能为空"),
+    PARAM_EMPTY_ERROR(400, "参数[{0}]不能为空"),
     NULL_POINT_ERROR(499, "空指针异常"),
     INTERNAL_SERVER_ERROR(500, "服务未知异常"),
+    NOT_EXISTS_ERROR(500, "数据不存在！"),
 
     IDEMPOTENT_ERROR(503, "重复操作，系统已拦截，请{0}再试!"),
     RATE_LIMIT_ERROR(504, "您访问太频繁触发了限流, 请稍后再试! 限定速率[{0}次/{1}秒]"),

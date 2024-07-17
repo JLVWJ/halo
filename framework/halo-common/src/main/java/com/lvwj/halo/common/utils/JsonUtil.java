@@ -584,7 +584,8 @@ public class JsonUtil {
   public static <T> Map<String, T> toMap(String content, Class<T> valueTypeRef) {
     try {
       Map<String, Map<String, Object>> map = getInstance().readValue(content,
-              new TypeReference<Map<String, Map<String, Object>>>() {});
+              new TypeReference<>() {
+              });
       Map<String, T> result = new HashMap<>(16);
       for (Map.Entry<String, Map<String, Object>> entry : map.entrySet()) {
         result.put(entry.getKey(), toPojo(entry.getValue(), valueTypeRef));

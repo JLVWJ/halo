@@ -1818,6 +1818,17 @@ public class Func {
   }
 
   /**
+   * json文本转Map<String,Object>
+   * @author lvweijie
+   * @date 2024/7/17 17:52
+   * @param json json文本
+   * @return java.util.Map<java.lang.String,java.lang.Object>
+   */
+  public static Map<String, Object> toMap(String json) {
+    return JsonUtil.toMap(json);
+  }
+
+  /**
    * 将bean的部分属性转换成map<br>
    * 可选拷贝哪些属性值，默认是不忽略值为{@code null}的值的。
    *

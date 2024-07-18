@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -50,6 +51,10 @@ public class OkHttpClientUtil {
         return doGetByte(url, null, null);
     }
 
+    public static InputStream doGetStream(String url) {
+        return doGetStream(url, null, null);
+    }
+
     public static <T> T doGet(String url, Map<String, String> params, Class<T> clazz) {
         String resp = doGet(url, params);
         if (StringUtil.isBlank(resp)) return null;
@@ -82,21 +87,7 @@ public class OkHttpClientUtil {
      * @return string
      */
     public static String doGet(String url, Map<String, String> params) {
-        StringBuilder sb = new StringBuilder(url);
-        if (params != null && !params.keySet().isEmpty()) {
-            boolean firstFlag = true;
-            for (String key : params.keySet()) {
-                if (firstFlag) {
-                    sb.append("?").append(key).append("=").append(params.get(key));
-                    firstFlag = false;
-                } else {
-                    sb.append("&").append(key).append("=").append(params.get(key));
-                }
-            }
-        }
-        Request.Builder builder = new Request.Builder();
-        Request request = builder.url(sb.toString()).build();
-        return executeBody(request);
+        return execute(getGetRequest(url, params, null));
     }
 
     /**
@@ -108,49 +99,15 @@ public class OkHttpClientUtil {
      * @return string
      */
     public static String doGet(String url, Map<String, String> params, Map<String, String> headers) {
-        StringBuilder sb = new StringBuilder(url);
-        if (params != null && !params.keySet().isEmpty()) {
-            boolean firstFlag = true;
-            for (String key : params.keySet()) {
-                if (firstFlag) {
-                    sb.append("?").append(key).append("=").append(params.get(key));
-                    firstFlag = false;
-                } else {
-                    sb.append("&").append(key).append("=").append(params.get(key));
-                }
-            }
-        }
-        Request.Builder builder = new Request.Builder();
-        if (headers != null && !headers.isEmpty()) {
-            for (String header : headers.keySet()) {
-                builder.addHeader(header, headers.get(header));
-            }
-        }
-        Request request = builder.url(sb.toString()).build();
-        return executeBody(request);
+        return execute(getGetRequest(url, params, headers));
     }
 
     public static byte[] doGetByte(String url, Map<String, String> params, Map<String, String> headers) {
-        StringBuilder sb = new StringBuilder(url);
-        if (params != null && !params.keySet().isEmpty()) {
-            boolean firstFlag = true;
-            for (String key : params.keySet()) {
-                if (firstFlag) {
-                    sb.append("?").append(key).append("=").append(params.get(key));
-                    firstFlag = false;
-                } else {
-                    sb.append("&").append(key).append("=").append(params.get(key));
-                }
-            }
-        }
-        Request.Builder builder = new Request.Builder();
-        if (headers != null && !headers.isEmpty()) {
-            for (String header : headers.keySet()) {
-                builder.addHeader(header, headers.get(header));
-            }
-        }
-        Request request = builder.url(sb.toString()).build();
-        return executeByte(request);
+        return executeByte(getGetRequest(url, params, headers));
+    }
+
+    public static InputStream doGetStream(String url, Map<String, String> params, Map<String, String> headers) {
+        return executeStream(getGetRequest(url, params, headers));
     }
 
     public static <T> T doPostForm(String url, Map<String, String> params, Class<T> clazz) {
@@ -185,14 +142,7 @@ public class OkHttpClientUtil {
      * @return string
      */
     public static String doPostForm(String url, Map<String, String> params) {
-        FormBody.Builder builder = new FormBody.Builder();
-        if (params != null && !params.keySet().isEmpty()) {
-            for (String key : params.keySet()) {
-                builder.add(key, params.get(key));
-            }
-        }
-        Request request = new Request.Builder().url(url).post(builder.build()).build();
-        return execute(request);
+        return execute(getFormBodyPostRequest(url, params, null));
     }
 
     /**
@@ -204,20 +154,7 @@ public class OkHttpClientUtil {
      * @return string
      */
     public static String doPostForm(String url, Map<String, String> params, Map<String, String> headers) {
-        FormBody.Builder builder = new FormBody.Builder();
-        if (params != null && !params.keySet().isEmpty()) {
-            for (String key : params.keySet()) {
-                builder.add(key, params.get(key));
-            }
-        }
-        Request.Builder requestBuilder = new Request.Builder();
-        if (headers != null && !headers.isEmpty()) {
-            for (String header : headers.keySet()) {
-                requestBuilder.addHeader(header, headers.get(header));
-            }
-        }
-        Request request = requestBuilder.url(url).post(builder.build()).build();
-        return execute(request);
+        return execute(getFormBodyPostRequest(url, params, headers));
     }
 
     public static <T> T doPostJson(String url, String json, Class<T> clazz) {
@@ -264,14 +201,7 @@ public class OkHttpClientUtil {
      * @return string
      */
     public static String doPostJson(String url, String json, Map<String, String> headers) {
-        RequestBody requestBody = RequestBody.create(json, JSON);
-        Request.Builder builder = new Request.Builder();
-        if (headers != null && !headers.isEmpty()) {
-            for (String header : headers.keySet()) {
-                builder.addHeader(header, headers.get(header));
-            }
-        }
-        Request request = builder.url(url).post(requestBody).build();
+        Request request = getRequestBodyPostRequest(url, json, headers, JSON);
         return execute(request);
     }
 
@@ -286,26 +216,16 @@ public class OkHttpClientUtil {
         return executePost(url, xml, XML);
     }
 
+
+
     private static String executePost(String url, String data, MediaType contentType) {
-        RequestBody requestBody = RequestBody.create(data, contentType);
-        Request request = new Request.Builder().url(url).post(requestBody).build();
+        Request request = getRequestBodyPostRequest(url, data, null, contentType);
         return execute(request);
     }
 
     private static String execute(Request request) {
         try (Response response = okHttpClient().newCall(request).execute()) {
             if (response.isSuccessful() && null != response.body()) {
-                return response.body().string();
-            }
-        } catch (Exception e) {
-            log.error(ExceptionUtils.getStackTrace(e));
-        }
-        return "";
-    }
-
-    private static String executeBody(Request request) {
-        try (Response response = okHttpClient().newCall(request).execute()) {
-            if (response.body() != null) {
                 return response.body().string();
             }
         } catch (Exception e) {
@@ -323,5 +243,66 @@ public class OkHttpClientUtil {
             log.error(ExceptionUtils.getStackTrace(e));
         }
         return null;
+    }
+
+    private static InputStream executeStream(Request request) {
+        try (Response response = okHttpClient().newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body().byteStream();
+            }
+        } catch (Exception e) {
+            log.error(ExceptionUtils.getStackTrace(e));
+        }
+        return null;
+    }
+
+
+    private static Request getFormBodyPostRequest(String url, Map<String, String> params, Map<String, String> headers) {
+        FormBody.Builder builder = new FormBody.Builder();
+        if (params != null && !params.keySet().isEmpty()) {
+            for (String key : params.keySet()) {
+                builder.add(key, params.get(key));
+            }
+        }
+        Request.Builder requestBuilder = new Request.Builder();
+        if (headers != null && !headers.isEmpty()) {
+            for (String header : headers.keySet()) {
+                requestBuilder.addHeader(header, headers.get(header));
+            }
+        }
+        return requestBuilder.url(url).post(builder.build()).build();
+    }
+
+    private static Request getRequestBodyPostRequest(String url, String data, Map<String, String> headers, MediaType contentType) {
+        RequestBody requestBody = RequestBody.create(data, contentType);
+        Request.Builder requestBuilder = new Request.Builder();
+        if (headers != null && !headers.isEmpty()) {
+            for (String header : headers.keySet()) {
+                requestBuilder.addHeader(header, headers.get(header));
+            }
+        }
+        return requestBuilder.url(url).post(requestBody).build();
+    }
+
+    private static Request getGetRequest(String url, Map<String, String> params, Map<String, String> headers) {
+        StringBuilder sb = new StringBuilder(url);
+        if (params != null && !params.keySet().isEmpty()) {
+            boolean firstFlag = true;
+            for (String key : params.keySet()) {
+                if (firstFlag) {
+                    sb.append("?").append(key).append("=").append(params.get(key));
+                    firstFlag = false;
+                } else {
+                    sb.append("&").append(key).append("=").append(params.get(key));
+                }
+            }
+        }
+        Request.Builder requestBuilder = new Request.Builder();
+        if (headers != null && !headers.isEmpty()) {
+            for (String header : headers.keySet()) {
+                requestBuilder.addHeader(header, headers.get(header));
+            }
+        }
+        return requestBuilder.url(sb.toString()).build();
     }
 }

@@ -1,5 +1,8 @@
 package com.lvwj.halo.tika.core;
 
+import com.lvwj.halo.common.utils.Func;
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.DocumentParser;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -87,7 +90,7 @@ public class TikaDocumentParser implements DocumentParser {
 
     // TODO allow automatically extract metadata (e.g. creator, last-author, created/modified timestamp, etc)
     @Override
-    public String parse(InputStream inputStream) {
+    public Document parse(InputStream inputStream) {
         Parser parser = parserSupplier.get();
         ContentHandler contentHandler = contentHandlerSupplier.get();
         Metadata metadata = metadataSupplier.get();
@@ -97,6 +100,9 @@ public class TikaDocumentParser implements DocumentParser {
         } catch (IOException | SAXException | TikaException e) {
             throw new RuntimeException(e);
         }
-        return contentHandler.toString();
+        if (Func.isBlank(contentHandler.toString())) {
+            return null;
+        }
+        return Document.from(contentHandler.toString());
     }
 }

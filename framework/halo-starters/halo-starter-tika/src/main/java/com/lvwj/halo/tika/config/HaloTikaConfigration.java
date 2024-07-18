@@ -1,7 +1,7 @@
 package com.lvwj.halo.tika.config;
 
-import com.lvwj.halo.tika.core.DocumentParser;
 import com.lvwj.halo.tika.core.TikaDocumentParser;
+import dev.langchain4j.data.document.DocumentParser;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

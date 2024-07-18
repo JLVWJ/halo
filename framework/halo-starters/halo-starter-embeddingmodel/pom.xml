@@ -19,17 +19,6 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-embeddings</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>api</artifactId>
-                    <groupId>ai.djl</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <artifactId>api</artifactId>
-            <groupId>ai.djl</groupId>
-            <version>0.28.0</version>
         </dependency>
     </dependencies>
 

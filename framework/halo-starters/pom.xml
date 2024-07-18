@@ -39,6 +39,7 @@
         <module>halo-starter-xxljob</module>
         <module>halo-starter-httpclient</module>
         <module>halo-starter-swagger3</module>
+        <module>halo-starter-tika</module>
     </modules>
 
     <dependencies>

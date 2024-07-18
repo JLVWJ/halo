@@ -797,6 +797,11 @@
                 <artifactId>halo-starter-httpclient</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-starter-tika</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

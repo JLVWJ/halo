@@ -1,7 +1,9 @@
 package com.lvwj.halo.dubbo.util;
 
+import com.lvwj.halo.common.enums.IEnum;
 import com.lvwj.halo.dubbo.serializer.ISerializer;
 import com.lvwj.halo.dubbo.serializer.SerializerHolder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.config.ConfigurationUtils;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.logger.ErrorTypeAwareLogger;
@@ -64,6 +66,7 @@ import static org.apache.dubbo.common.utils.ClassUtils.isAssignableFrom;
  * <p>
  * TODO: exact PojoUtils to scope bean
  */
+@Slf4j
 public class MyPojoUtils {
 
     private static final ErrorTypeAwareLogger logger = LoggerFactory.getErrorTypeAwareLogger(MyPojoUtils.class);
@@ -349,6 +352,19 @@ public class MyPojoUtils {
             final Map<Object, Object> history) {
         if (pojo == null) {
             return null;
+        }
+
+        //入参是枚举时，判断枚举如果实现IEnum，则用IEnum.byCode来获取枚举，否则用Enum.valueOf
+        if (type != null && type.isEnum()) {
+            Object iEnum = null;
+            if (IEnum.class.isAssignableFrom(type)) {
+                iEnum = IEnum.byCode((Class<IEnum>) type, pojo);
+            }
+            if (null == iEnum && pojo.getClass() == String.class) {
+                iEnum = Enum.valueOf((Class<Enum>) type, (String) pojo);
+            }
+            log.info("MyPojoUtils.realize1=====>type:" + type + ", pojo:" + pojo);
+            return iEnum;
         }
 
         if (type != null && type.isEnum() && pojo.getClass() == String.class) {

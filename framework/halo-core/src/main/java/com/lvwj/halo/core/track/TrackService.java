@@ -13,11 +13,23 @@ import java.util.List;
  */
 public interface TrackService<T extends IEntity<?>> {
 
-    T getById(Serializable id);
+    default T getOneById(Serializable id) {
+        return getOneById(id, true);
+    }
 
-    List<T> listByIds(List<Serializable> ids);
+    T getOneById(Serializable id, boolean join);
 
-    List<T> listAll();
+    default List<T> getListByIds(List<Serializable> ids) {
+        return getListByIds(ids, true);
+    }
+
+    List<T> getListByIds(List<Serializable> ids, boolean join);
+
+    default List<T> getAllList() {
+        return getAllList(true);
+    }
+
+    List<T> getAllList(boolean join);
 
     /**
      * 追踪保存

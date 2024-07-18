@@ -1,13 +1,12 @@
 package com.lvwj.halo.mybatisplus.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.lvwj.halo.common.models.entity.IEntity;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.track.TrackManager;
+import com.lvwj.halo.core.track.TrackService;
 import com.lvwj.halo.core.track.impl.ThreadLocalTrackManager;
 import com.lvwj.halo.mybatisplus.entity.EntityHolder;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
-import com.lvwj.halo.mybatisplus.service.TrackService;
 import lombok.extern.slf4j.Slf4j;
 import org.javers.core.Changes;
 import org.javers.core.diff.Change;
@@ -19,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
@@ -35,7 +31,7 @@ import static java.util.stream.Collectors.toSet;
  * @date 2023年11月03日 16:40
  */
 @Slf4j
-public class TrackServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends JoinServiceImpl<M,T> implements TrackService<T> {
+public class TrackServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends BaseServiceImpl<M,T> implements TrackService<T> {
 
     protected final TrackManager<T> trackManager;
 
@@ -44,36 +40,45 @@ public class TrackServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> e
     }
 
     @Override
-    public T getByTrack(Serializable id) {
-        T t = this.getByJoin(id);
-        //追踪数据实体
-        trackManager.attach(t);
+    public T getOneById(Serializable id, boolean join) {
+        if (null == id) return null;
+        T t = this.getById(id);
+        if (null == t) return null;
+        if (join) {
+            //循环加载关联数据
+            EntityHolder.joinEntity(getEntityClass(), Collections.singletonList(t));
+        }
         return t;
     }
 
-    @Override
-    public T getByTrack(Wrapper<T> wrapper) {
-        T t = this.getByJoin(wrapper);
-        //追踪数据实体
-        trackManager.attach(t);
-        return t;
-    }
 
     @Override
-    public List<T> listByTrack(List<Serializable> ids) {
-        List<T> list = listByJoin(ids);
-        //追踪数据实体
-        trackManager.attach(list);
+    public List<T> getListByIds(List<Serializable> ids, boolean join) {
+        if (CollectionUtils.isEmpty(ids)) return null;
+        List<T> list = listByIds(ids);
+        if (CollectionUtils.isEmpty(list)) return null;
+        if (join) {
+            //循环加载关联数据
+            List<IEntity<?>> entities = new ArrayList<>(list.size());
+            entities.addAll(list);
+            EntityHolder.joinEntity(getEntityClass(), entities);
+        }
         return list;
     }
 
     @Override
-    public List<T> listByTrack(Wrapper<T> wrapper) {
-        List<T> list = listByJoin(wrapper);
-        //追踪数据实体
-        trackManager.attach(list);
+    public List<T> getAllList(boolean join) {
+        List<T> list = list();
+        if (CollectionUtils.isEmpty(list)) return null;
+        if (join) {
+            //循环加载关联数据
+            List<IEntity<?>> entities = new ArrayList<>(list.size());
+            entities.addAll(list);
+            EntityHolder.joinEntity(getEntityClass(), entities);
+        }
         return list;
     }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override

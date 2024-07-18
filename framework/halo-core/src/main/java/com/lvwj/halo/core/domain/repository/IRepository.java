@@ -16,16 +16,28 @@ public interface IRepository<T extends IAggregate<ID>, ID extends Serializable> 
     return find(id, true, true);
   }
 
+  default Optional<T> find(ID id, boolean track) {
+    return find(id, track, true);
+  }
+
   List<T> findList(List<ID> ids, boolean track, boolean join);
 
   default List<T> findList(List<ID> ids) {
     return findList(ids, true, true);
   }
 
+  default List<T> findList(List<ID> ids, boolean track) {
+    return findList(ids, track, true);
+  }
+
   List<T> findAll(boolean track, boolean join);
 
   default List<T> findAll() {
     return findAll(true, true);
+  }
+
+  default List<T> findAll(boolean track) {
+    return findAll(track, true);
   }
 
   void save(T entity);

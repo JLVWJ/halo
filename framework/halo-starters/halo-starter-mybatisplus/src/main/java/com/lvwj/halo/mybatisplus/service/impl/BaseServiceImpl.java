@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.google.common.collect.Lists;
 import com.lvwj.halo.common.models.entity.IEntity;
+import com.lvwj.halo.mybatisplus.entity.EntityHolder;
 import com.lvwj.halo.mybatisplus.injector.CustomSqlMethod;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
 import com.lvwj.halo.mybatisplus.service.BaseService;
@@ -21,6 +22,13 @@ import java.util.List;
  * @date 2022-12-21 10:11
  */
 public class BaseServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends ServiceImpl<M, T> implements BaseService<T> {
+
+  /**
+   * 当前数据实体类有关联实体
+   */
+  protected Boolean entityClassIsJoin() {
+    return !EntityHolder.getEntityJoinFields(getEntityClass()).isEmpty();
+  }
 
   @Override
   public boolean saveIgnore(T entity) {

@@ -24,13 +24,6 @@ import java.util.List;
  */
 public class JoinServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends BaseServiceImpl<M,T> implements JoinService<T> {
 
-    /**
-     * 当前数据实体类有关联实体
-     */
-    protected Boolean entityClassIsJoin() {
-        return !EntityHolder.getEntityJoinFields(getEntityClass()).isEmpty();
-    }
-
     @Override
     public T getByJoin(Serializable id) {
         if (null == id) {

@@ -22,24 +22,48 @@ import java.util.List;
  * @author lvweijie
  * @date 2023年11月03日 16:40
  */
-public class JoinServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends BaseServiceImpl<M,T> implements JoinService<T> {
+public abstract class JoinServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends BaseServiceImpl<M,T> implements JoinService<T> {
 
-    @Override
-    public T getByJoin(Serializable id) {
-        if (null == id) {
-            return null;
-        }
-        T t = this.getById(id);
-        if (null == t) {
-            return null;
-        }
-        //循环加载关联数据
-        EntityHolder.joinEntity(getEntityClass(), Collections.singletonList(t));
-        return t;
+    /**
+     * 当前数据实体类有关联实体
+     */
+    protected Boolean entityClassIsJoin() {
+        return !EntityHolder.getEntityJoinFields(getEntityClass()).isEmpty();
     }
 
     @Override
-    public T getByJoin(Wrapper<T> wrapper) {
+    public T getOneById(Serializable id, boolean join) {
+        if (null == id) return null;
+        T t = this.getById(id);
+        if (join) {
+            joinEntity(Collections.singletonList(t));
+        }
+        return t;
+    }
+
+
+    @Override
+    public List<T> getListByIds(List<Serializable> ids, boolean join) {
+        if (CollectionUtils.isEmpty(ids)) return null;
+        List<T> list = listByIds(ids);
+        if (join) {
+            joinEntity(list);
+        }
+        return list;
+    }
+
+    @Override
+    public List<T> getAllList(boolean join) {
+        List<T> list = list();
+        if (join) {
+            joinEntity(list);
+        }
+        return list;
+    }
+
+    @Override
+    public T getOneByCondition(Wrapper<T> wrapper, boolean join) {
+        if (null == wrapper) return null;
         if (wrapper instanceof QueryWrapper) {
             ((QueryWrapper<T>) wrapper).last(" limit 1");
         }
@@ -47,57 +71,37 @@ public class JoinServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> ex
             ((LambdaQueryWrapper<T>) wrapper).last(" limit 1");
         }
         T t = this.getOne(wrapper);
-        if (null == t) {
-            return null;
+        if (join) {
+            joinEntity(Collections.singletonList(t));
         }
-        //循环加载关联数据
-        EntityHolder.joinEntity(getEntityClass(), Collections.singletonList(t));
         return t;
     }
 
     @Override
-    public List<T> listByJoin(List<Serializable> ids) {
-        if (CollectionUtils.isEmpty(ids)) {
-            return new ArrayList<>();
-        }
-        List<T> list = listByIds(ids);
-        if (CollectionUtils.isEmpty(list)) {
-            return new ArrayList<>();
-        }
-        if (entityClassIsJoin()) {
-            List<IEntity<?>> entities = new ArrayList<>(list.size());
-            entities.addAll(list);
-            //循环加载关联数据
-            EntityHolder.joinEntity(getEntityClass(), entities);
+    public List<T> getListByCondition(Wrapper<T> wrapper, boolean join) {
+        List<T> list = null != wrapper ? super.list(wrapper) : super.list();
+        if (join) {
+            joinEntity(list);
         }
         return list;
     }
 
     @Override
-    public List<T> listByJoin(Wrapper<T> wrapper) {
-        List<T> list = super.list(wrapper);
-        if (CollectionUtils.isEmpty(list)) {
-            return new ArrayList<>();
-        }
-        if (entityClassIsJoin()) {
-            List<IEntity<?>> entities = new ArrayList<>(list.size());
-            entities.addAll(list);
-            //循环加载关联数据
-            EntityHolder.joinEntity(getEntityClass(), entities);
-        }
-        return list;
-    }
-
-    @Override
-    public <E extends IPage<T>> E pageByJoin(E page, Wrapper<T> wrapper) {
-        E result = super.page(page, wrapper);
+    public <E extends IPage<T>> E pageByCondition(E page, Wrapper<T> wrapper, boolean join) {
+        E result = null != wrapper ? super.page(page, wrapper) : super.page(page);
         List<T> list = result.getRecords();
-        if (!CollectionUtils.isEmpty(list) && entityClassIsJoin()) {
-            List<IEntity<?>> entities = new ArrayList<>(list.size());
-            entities.addAll(list);
-            //循环加载关联数据
-            EntityHolder.joinEntity(getEntityClass(), entities);
+        if (join) {
+            joinEntity(list);
         }
         return result;
+    }
+
+    private void joinEntity(List<T> list) {
+        if (entityClassIsJoin() && !CollectionUtils.isEmpty(list) && null != list.get(0)) {
+            List<IEntity<?>> entities = new ArrayList<>(list.size());
+            entities.addAll(list);
+            //循环加载关联数据
+            EntityHolder.joinEntity(getEntityClass(), entities);
+        }
     }
 }

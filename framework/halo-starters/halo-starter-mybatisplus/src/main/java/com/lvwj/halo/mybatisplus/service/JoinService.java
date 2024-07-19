@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.lvwj.halo.common.models.entity.IEntity;
+import com.lvwj.halo.core.track.TrackService;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -14,23 +14,27 @@ import java.util.List;
  * @author lvweijie
  * @date 2023/11/9 17:26
  */
-public interface JoinService<T extends IEntity<?>> extends BaseService<T> {
+public interface JoinService<T extends IEntity<?>> extends TrackService<T> {
 
-    T getByJoin(Serializable id);
+    T getOneByCondition(Wrapper<T> wrapper, boolean join);
 
-    T getByJoin(Wrapper<T> wrapper);
-
-    List<T> listByJoin(List<Serializable> ids);
-
-    List<T> listByJoin(Wrapper<T> wrapper);
-
-    default List<T> listByJoin() {
-        return listByJoin(Wrappers.emptyWrapper());
+    default T getOneByCondition(Wrapper<T> wrapper) {
+        return getOneByCondition(wrapper, true);
     }
 
-    <E extends IPage<T>> E pageByJoin(E page, Wrapper<T> wrapper);
+    List<T> getListByCondition(Wrapper<T> wrapper, boolean join);
 
-    default <E extends IPage<T>> E pageByJoin(E page) {
-        return pageByJoin(page, Wrappers.emptyWrapper());
+    default List<T> getListByCondition(Wrapper<T> wrapper) {
+        return getListByCondition(wrapper, true);
+    }
+
+    <E extends IPage<T>> E pageByCondition(E page, Wrapper<T> wrapper, boolean join);
+
+    default <E extends IPage<T>> E pageByCondition(E page, boolean join) {
+        return pageByCondition(page, Wrappers.emptyWrapper(), join);
+    }
+
+    default <E extends IPage<T>> E pageByCondition(E page) {
+        return pageByCondition(page, true);
     }
 }

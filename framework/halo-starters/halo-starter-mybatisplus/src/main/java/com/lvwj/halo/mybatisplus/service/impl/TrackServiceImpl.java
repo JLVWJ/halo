@@ -17,7 +17,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.io.Serializable;
 import java.util.*;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -31,52 +30,12 @@ import static java.util.stream.Collectors.toSet;
  * @date 2023年11月03日 16:40
  */
 @Slf4j
-public class TrackServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends BaseServiceImpl<M,T> implements TrackService<T> {
+public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends JoinServiceImpl<M,T> implements TrackService<T> {
 
     protected final TrackManager<T> trackManager;
 
     public TrackServiceImpl() {
         this.trackManager = new ThreadLocalTrackManager<>();
-    }
-
-    @Override
-    public T getOneById(Serializable id, boolean join) {
-        if (null == id) return null;
-        T t = this.getById(id);
-        if (null == t) return null;
-        if (join) {
-            //循环加载关联数据
-            EntityHolder.joinEntity(getEntityClass(), Collections.singletonList(t));
-        }
-        return t;
-    }
-
-
-    @Override
-    public List<T> getListByIds(List<Serializable> ids, boolean join) {
-        if (CollectionUtils.isEmpty(ids)) return null;
-        List<T> list = listByIds(ids);
-        if (CollectionUtils.isEmpty(list)) return null;
-        if (join) {
-            //循环加载关联数据
-            List<IEntity<?>> entities = new ArrayList<>(list.size());
-            entities.addAll(list);
-            EntityHolder.joinEntity(getEntityClass(), entities);
-        }
-        return list;
-    }
-
-    @Override
-    public List<T> getAllList(boolean join) {
-        List<T> list = list();
-        if (CollectionUtils.isEmpty(list)) return null;
-        if (join) {
-            //循环加载关联数据
-            List<IEntity<?>> entities = new ArrayList<>(list.size());
-            entities.addAll(list);
-            EntityHolder.joinEntity(getEntityClass(), entities);
-        }
-        return list;
     }
 
 

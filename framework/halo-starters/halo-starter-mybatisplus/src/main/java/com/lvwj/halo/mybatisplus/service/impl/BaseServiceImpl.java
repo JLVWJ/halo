@@ -21,14 +21,7 @@ import java.util.List;
  * @author lvwj
  * @date 2022-12-21 10:11
  */
-public class BaseServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends ServiceImpl<M, T> implements BaseService<T> {
-
-  /**
-   * 当前数据实体类有关联实体
-   */
-  protected Boolean entityClassIsJoin() {
-    return !EntityHolder.getEntityJoinFields(getEntityClass()).isEmpty();
-  }
+public abstract class BaseServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends ServiceImpl<M, T> implements BaseService<T> {
 
   @Override
   public boolean saveIgnore(T entity) {

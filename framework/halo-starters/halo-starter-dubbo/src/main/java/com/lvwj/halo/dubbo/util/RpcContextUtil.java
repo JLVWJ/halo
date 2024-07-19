@@ -2,6 +2,7 @@ package com.lvwj.halo.dubbo.util;
 
 
 import com.lvwj.halo.common.constants.SystemConstant;
+import com.lvwj.halo.common.utils.Func;
 import org.apache.dubbo.rpc.RpcContext;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.StringUtils;
@@ -50,5 +51,13 @@ public class RpcContextUtil {
     public static ZoneId getZoneId() {
         String zoneId = RpcContext.getServerAttachment().getAttachment(SystemConstant.ZONE_ID);
         return StringUtils.hasLength(zoneId) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
+    }
+
+    public static String getDeviceId() {
+        return RpcContext.getServerAttachment().getAttachment(SystemConstant.DEVICE_ID);
+    }
+
+    public static Long getUserId() {
+        return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.USER_ID));
     }
 }

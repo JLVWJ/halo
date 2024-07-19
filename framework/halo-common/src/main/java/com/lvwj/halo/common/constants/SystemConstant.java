@@ -21,4 +21,7 @@ public class SystemConstant {
     public static final String ZONE_ID = "zoneId";
 
     public static final String APP_ID = "appId";
+
+    public static final String DEVICE_ID = "deviceId";
+    public static final String USER_ID = "userId";
 }

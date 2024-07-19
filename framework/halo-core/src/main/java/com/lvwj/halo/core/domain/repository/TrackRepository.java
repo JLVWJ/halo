@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author lvwj
  * @date 2022-12-26 15:33
  */
-public abstract class Repository<TS extends TrackService<PO>,
+public abstract class TrackRepository<TS extends TrackService<PO>,
         DC extends IEntityConverter<AGG, PO>,
         AGG extends IAggregate<ID>,
         PO extends IEntity<?>,

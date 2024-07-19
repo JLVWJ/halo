@@ -8,7 +8,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -20,8 +20,20 @@ public abstract class Entity<ID extends Serializable> implements IEntity<ID> {
   private ID id;
 
   //暂存PO的字段数据，无业务用途
-  private Date createTime;
-  private Date updateTime;
+  private LocalDateTime createTime;
+  private LocalDateTime updateTime;
+  /**
+   * 删除人
+   */
+  private String deleteBy;
+  /**
+   * 删除时间
+   */
+  private LocalDateTime deleteTime;
+  /**
+   * 是否删除
+   */
+  private Integer isDelete;
 
 
   @Override

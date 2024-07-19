@@ -20,8 +20,10 @@ public class SystemConstant {
 
     public static final String ZONE_ID = "zoneId";
 
-    public static final String APP_ID = "appId";
+    public static final String APP_ID = "app-id";
 
-    public static final String DEVICE_ID = "deviceId";
-    public static final String USER_ID = "userId";
+    public static final String TOY_ID = "toy-id";
+    public static final String USER_ID = "user-id";
+
+    public static final String ROLE_ID = "member-id";
 }

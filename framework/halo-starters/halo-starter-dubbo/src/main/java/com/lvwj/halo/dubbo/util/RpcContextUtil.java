@@ -53,11 +53,24 @@ public class RpcContextUtil {
         return StringUtils.hasLength(zoneId) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
     }
 
-    public static String getDeviceId() {
-        return RpcContext.getServerAttachment().getAttachment(SystemConstant.DEVICE_ID);
+    /**
+     * 获取玩具ID
+     */
+    public static Long getToyId() {
+        return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.TOY_ID));
     }
 
+    /**
+     * 获取用户ID
+     */
     public static Long getUserId() {
         return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.USER_ID));
+    }
+
+    /**
+     * 获取角色ID(家庭成员ID)
+     */
+    public static Long getRoleId() {
+        return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.ROLE_ID));
     }
 }

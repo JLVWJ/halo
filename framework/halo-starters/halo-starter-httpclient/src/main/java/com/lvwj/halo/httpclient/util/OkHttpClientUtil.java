@@ -11,6 +11,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author lvweijie
@@ -228,9 +229,11 @@ public class OkHttpClientUtil {
         try (Response response = okHttpClient().newCall(request).execute()) {
             if (response.isSuccessful() && null != response.body()) {
                 return response.body().string();
+            } else {
+                log.error("OkHttpClientUtil execute fail:" + Optional.ofNullable(response.body()).map(Object::toString).orElse(""));
             }
         } catch (Exception e) {
-            log.error(ExceptionUtils.getStackTrace(e));
+            log.error("OkHttpClientUtil execute error:" + e.getMessage(), e);
         }
         return "";
     }
@@ -239,9 +242,11 @@ public class OkHttpClientUtil {
         try (Response response = okHttpClient().newCall(request).execute()) {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().bytes();
+            } else {
+                log.error("OkHttpClientUtil execute fail:" + Optional.ofNullable(response.body()).map(Object::toString).orElse(""));
             }
         } catch (Exception e) {
-            log.error(ExceptionUtils.getStackTrace(e));
+            log.error("OkHttpClientUtil execute error:" + e.getMessage(), e);
         }
         return null;
     }

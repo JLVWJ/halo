@@ -3,6 +3,7 @@ package com.lvwj.halo.tika.core;
 import com.lvwj.halo.common.utils.Func;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.DocumentParser;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -24,6 +25,7 @@ import static com.lvwj.halo.common.utils.Func.getOrDefault;
  * For detailed information on supported formats,
  * please refer to the <a href="https://tika.apache.org/2.9.2/formats.html">Apache Tika documentation</a>.
  */
+@Slf4j
 public class TikaDocumentParser implements DocumentParser {
 
     private static final int NO_WRITE_LIMIT = -1;
@@ -98,7 +100,8 @@ public class TikaDocumentParser implements DocumentParser {
         try {
             parser.parse(inputStream, contentHandler, metadata, parseContext);
         } catch (IOException | SAXException | TikaException e) {
-            throw new RuntimeException(e);
+            log.error("TikaDocumentParser parse error:" + e.getMessage(), e);
+            return null;
         }
         if (Func.isBlank(contentHandler.toString())) {
             return null;

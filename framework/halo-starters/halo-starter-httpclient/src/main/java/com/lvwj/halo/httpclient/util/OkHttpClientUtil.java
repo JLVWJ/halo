@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class OkHttpClientUtil {
         return doGetByte(url, null, null);
     }
 
-    public static InputStream doGetStream(String url) {
+    public static InputStream doGetStream(String url) throws IOException {
         return doGetStream(url, null, null);
     }
 
@@ -106,7 +107,7 @@ public class OkHttpClientUtil {
         return executeByte(getGetRequest(url, params, headers));
     }
 
-    public static InputStream doGetStream(String url, Map<String, String> params, Map<String, String> headers) {
+    public static InputStream doGetStream(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
         return executeStream(getGetRequest(url, params, headers));
     }
 
@@ -245,13 +246,10 @@ public class OkHttpClientUtil {
         return null;
     }
 
-    private static InputStream executeStream(Request request) {
-        try (Response response = okHttpClient().newCall(request).execute()) {
-            if (response.isSuccessful() && response.body() != null) {
-                return response.body().byteStream();
-            }
-        } catch (Exception e) {
-            log.error(ExceptionUtils.getStackTrace(e));
+    private static InputStream executeStream(Request request) throws IOException {
+        Response response = okHttpClient().newCall(request).execute();
+        if (response.isSuccessful() && response.body() != null) {
+            return response.body().byteStream();
         }
         return null;
     }

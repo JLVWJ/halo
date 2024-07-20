@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.lvwj.halo.mybatisplus.entity.EntityHolder;
 import com.lvwj.halo.mybatisplus.handler.MyMetaObjectHandler;
 import com.lvwj.halo.mybatisplus.injector.CustomSqlInjector;
 import com.lvwj.halo.mybatisplus.plugins.MyBlockAttackInnerInterceptor;
@@ -65,5 +66,9 @@ public class MybatisPlusExtConfiguration {
     @Bean
     public ISqlInjector customSqlInjector() {
         return new CustomSqlInjector();
+    }
+
+    @Bean
+    public EntityHolder entityHolder() {return new EntityHolder();
     }
 }

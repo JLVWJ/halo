@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
@@ -40,7 +39,6 @@ import static java.util.stream.Collectors.groupingBy;
  * @date 2022-12-06 14:20
  */
 @Slf4j
-@Component
 public class EntityHolder {
 
   /**

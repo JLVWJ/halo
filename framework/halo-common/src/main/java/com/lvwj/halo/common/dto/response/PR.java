@@ -40,7 +40,7 @@ public class PR<T> extends R<PR.PD<T>> {
     /**
      * 当前页码
      */
-    private Integer pageNo;
+    private Integer pageNum;
 
     /**
      * 每页记录数
@@ -50,6 +50,6 @@ public class PR<T> extends R<PR.PD<T>> {
     /**
      * 分页数据
      */
-    private List<D> list;
+    private List<D> resultList;
   }
 }

@@ -22,7 +22,7 @@ public abstract class PageQry implements Serializable {
   @NotNull
   @Positive
   @ApiModelProperty(value = "当前页码", required = true)
-  private Long pageNo = 1L;
+  private Long pageNum = 1L;
 
   /**
    * 每页大小

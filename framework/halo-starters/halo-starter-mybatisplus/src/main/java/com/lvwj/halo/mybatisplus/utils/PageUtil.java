@@ -32,7 +32,7 @@ public class PageUtil {
     if (null == req) {
       return null;
     }
-    Page<T> page = new Page<>(req.getPageNo(), req.getPageSize(), searchCount);
+    Page<T> page = new Page<>(req.getPageNum(), req.getPageSize(), searchCount);
     if (req instanceof PageSortQry sortQry) {
       if (CollectionUtils.isEmpty(sortQry.getSorts())) {
         //默认按id倒序排序

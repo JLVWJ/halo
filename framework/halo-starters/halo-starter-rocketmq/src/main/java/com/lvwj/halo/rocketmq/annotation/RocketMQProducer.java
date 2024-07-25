@@ -57,5 +57,10 @@ public @interface RocketMQProducer {
      * 消息模式(NORMAL, ORDER)
      */
     MessageMode messageMode() default MessageMode.NORMAL;
+
+    /**
+     * 消息体包装消息头
+     */
+    boolean bodyWithHeader() default false;
 }
 

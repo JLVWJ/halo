@@ -1,5 +1,6 @@
 package com.lvwj.halo.core.domain.event;
 
+import java.beans.Transient;
 import java.time.LocalDateTime;
 
 /**
@@ -23,6 +24,7 @@ public interface IIntegrationEvent extends IEvent {
     /**
      * 集成事件tag
      */
+    @Transient
     default String tag() {
         return this.getClass().getSimpleName().replace("Event", "").replace("Integration", "");
     }
@@ -30,6 +32,7 @@ public interface IIntegrationEvent extends IEvent {
     /**
      * 集成事件是否落库
      */
+    @Transient
     default boolean isStore() {
         return true;
     }

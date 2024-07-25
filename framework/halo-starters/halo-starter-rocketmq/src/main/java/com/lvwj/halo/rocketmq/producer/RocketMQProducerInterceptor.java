@@ -73,9 +73,11 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
         String msgBody = JsonUtil.toJson(event);
         //顺序模式，同步发MQ; 普通模式，异步发MQ
         if (invokeItem.getMessageMode().equals(MessageMode.ORDER)) {
-            producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, invokeItem.getDelayLevel(), invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), event.isStore());
+            producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, invokeItem.getDelayLevel(),
+                    invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore());
         } else {
-            executor.execute(() -> producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, invokeItem.getDelayLevel(), invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), event.isStore()));
+            executor.execute(() -> producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, invokeItem.getDelayLevel(),
+                    invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore()));
         }
     }
 
@@ -93,7 +95,9 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
             expression = expressionParser.parseExpression(producer.key());
         }
 
-        return new InvokeCacheItem(enable, topic, tag, producer.key(), delayLevel, producer.msg(), producer.communicationMode(), producer.messageMode(), parameterNames, expression, producer.timeout());
+        return new InvokeCacheItem(enable, topic, tag, producer.key(), delayLevel, producer.msg(),
+                producer.communicationMode(), producer.messageMode(),
+                parameterNames, expression, producer.timeout(), producer.bodyWithHeader());
     }
 
     /**
@@ -119,6 +123,7 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
         private final String[] parameterNames;
         private final Expression expression;
         private final long timeout;
+        private final boolean bodyWithHeader;
 
         public String getKey(Object[] arguments) {
             if (!StringUtils.hasLength(this.key)) return null;

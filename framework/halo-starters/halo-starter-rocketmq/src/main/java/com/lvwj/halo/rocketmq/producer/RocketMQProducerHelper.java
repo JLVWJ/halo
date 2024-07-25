@@ -1,5 +1,6 @@
 package com.lvwj.halo.rocketmq.producer;
 
+import com.alibaba.fastjson.JSONObject;
 import com.lvwj.halo.rocketmq.annotation.MessageMode;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,9 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author lvweijie
  * @date 2023年12月05日 17:32
@@ -25,11 +29,12 @@ public class RocketMQProducerHelper {
     @Resource
     private RocketMQTemplate rocketMQTemplate;
 
-    public void apply(Long msgPK, String msgKey, String topic, String tag, String body, Integer delayLevel, MessageMode msgMode, CommunicationMode communicationMode, Long timeout, boolean isStoreMsg) {
+    public void apply(Long msgPK, String msgKey, String topic, String tag, String body, Integer delayLevel,
+                      MessageMode msgMode, CommunicationMode communicationMode, Long timeout, boolean bodyWithHeader, boolean isStoreMsg) {
         // 获取Destination
         String destination = getDestination(topic, tag);
         // 获取Message
-        Message<String> message = getMsg(msgPK, body, msgKey, tag, delayLevel);
+        Message<String> message = getMsg(msgPK, body, msgKey, tag, delayLevel, bodyWithHeader);
         switch (communicationMode) {
             case SYNC:
                 SendResult sendResult;
@@ -80,7 +85,8 @@ public class RocketMQProducerHelper {
         }
     }
 
-    private Message<String> getMsg(Long msgPK, String body, String key, String tag, int delayLevel) {
+    private Message<String> getMsg(Long msgPK, String body, String key, String tag, int delayLevel, boolean bodyWithHeader) {
+        body = getBody(msgPK, body, key, tag, bodyWithHeader);
         MessageBuilder<String> builder = MessageBuilder.withPayload(body);
         String traceId = getTraceId();
         if (StringUtils.hasText(traceId) && !"N/A".equals(traceId)) {
@@ -107,5 +113,20 @@ public class RocketMQProducerHelper {
             traceId = TraceContext.traceId();
         }
         return traceId;
+    }
+
+    private String getBody(Long msgPK, String body, String key, String tag, boolean bodyWithHeader) {
+        if (!bodyWithHeader) return body;
+        Map<String, Object> headers = new HashMap<>(2);
+        headers.put("keys", key);
+        headers.put("tag", tag);
+        if (null != msgPK) {
+            headers.put("id", msgPK);
+        }
+        headers.put("timestamp", System.currentTimeMillis());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("headers", headers);
+        jsonObject.put("payload", body);
+        return jsonObject.toString();
     }
 }

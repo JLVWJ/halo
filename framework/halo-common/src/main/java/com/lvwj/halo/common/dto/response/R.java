@@ -69,7 +69,6 @@ public class R<T> implements Serializable {
     return MessageFormat.format(message, args);
   }
 
-  @Transient
   public boolean isSuccess() {
     return BaseErrorEnum.SUCCESS.getCode() == code;
   }

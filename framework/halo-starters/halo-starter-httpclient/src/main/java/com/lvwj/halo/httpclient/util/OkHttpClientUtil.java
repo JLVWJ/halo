@@ -7,11 +7,13 @@ import com.lvwj.halo.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author lvweijie
@@ -93,6 +95,17 @@ public class OkHttpClientUtil {
     }
 
     /**
+     * 异步get 请求
+     *
+     * @param url    请求url地址
+     * @param params 请求参数 map
+     * @return string
+     */
+    public static CompletableFuture<String> doGetAsync(String url, Map<String, String> params) {
+        return doGetAsync(url, params, null);
+    }
+
+    /**
      * get 请求
      *
      * @param url     请求url地址
@@ -102,6 +115,18 @@ public class OkHttpClientUtil {
      */
     public static String doGet(String url, Map<String, String> params, Map<String, String> headers) {
         return execute(getGetRequest(url, params, headers));
+    }
+
+    /**
+     * 异步get 请求
+     *
+     * @param url     请求url地址
+     * @param params  请求参数 map
+     * @param headers 请求头字段 {k1, v1 k2, v2, ...}
+     * @return string
+     */
+    public static CompletableFuture<String> doGetAsync(String url, Map<String, String> params, Map<String, String> headers) {
+        return executeAsync(getGetRequest(url, params, headers));
     }
 
     public static byte[] doGetByte(String url, Map<String, String> params, Map<String, String> headers) {
@@ -195,6 +220,19 @@ public class OkHttpClientUtil {
     }
 
     /**
+     * 异步post请求，请求体为json格式
+     *
+     * @author lvweijie
+     * @date 2024/7/26 16:13
+     * @param url 请求url地址
+     * @param json 请求数据, json 字符串
+     * @return java.util.concurrent.CompletableFuture<java.lang.String>
+     */
+    public static CompletableFuture<String> doPostJsonAsync(String url, String json) {
+        return doPostJsonAsync(url, json, null);
+    }
+
+    /**
      * post 请求, 请求数据为 json 的字符串
      *
      * @param url     请求url地址
@@ -205,6 +243,21 @@ public class OkHttpClientUtil {
     public static String doPostJson(String url, String json, Map<String, String> headers) {
         Request request = getRequestBodyPostRequest(url, json, headers, JSON);
         return execute(request);
+    }
+
+    /**
+     * 异步post请求，请求体为json格式
+     *
+     * @author lvweijie
+     * @date 2024/7/26 16:13
+     * @param url 请求url地址
+     * @param json 请求数据, json 字符串
+     * @param headers  请求头字段
+     * @return java.util.concurrent.CompletableFuture<java.lang.String>
+     */
+    public static CompletableFuture<String> doPostJsonAsync(String url, String json, Map<String, String> headers) {
+        Request request = getRequestBodyPostRequest(url, json, headers, JSON);
+        return executeAsync(request);
     }
 
     /**
@@ -257,6 +310,27 @@ public class OkHttpClientUtil {
             return response.body().byteStream();
         }
         return null;
+    }
+
+    private static CompletableFuture<String> executeAsync(Request request) {
+        CompletableFuture<String> cf = new CompletableFuture<>();
+        okHttpClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                cf.completeExceptionally(e);
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String res = Optional.ofNullable(response.body()).map(Object::toString).orElse("");
+                if (response.isSuccessful()) {
+                    cf.complete(res);
+                } else {
+                    cf.completeExceptionally(new RuntimeException("OkHttpClientUtil execute fail:" + res));
+                }
+            }
+        });
+        return cf;
     }
 
 

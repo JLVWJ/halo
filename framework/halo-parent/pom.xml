@@ -88,7 +88,7 @@
         <shardingsphere-jdbc-core-starter.version>5.2.1</shardingsphere-jdbc-core-starter.version>
 
         <skywalking-toolkit.version>8.4.0</skywalking-toolkit.version>
-
+        <liteflow.starter.version>2.12.2</liteflow.starter.version>
         <langchain4j.version>0.32.0</langchain4j.version>
     </properties>
 
@@ -440,6 +440,13 @@
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-embeddings</artifactId>
                 <version>${langchain4j.version}</version>
+            </dependency>
+
+            <!-- liteflow -->
+            <dependency>
+                <groupId>com.yomahub</groupId>
+                <artifactId>liteflow-spring-boot-starter</artifactId>
+                <version>${liteflow.starter.version}</version>
             </dependency>
 
             <!-- dubbo3 -->

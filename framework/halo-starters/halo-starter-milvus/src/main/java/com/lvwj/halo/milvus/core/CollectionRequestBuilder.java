@@ -1,5 +1,6 @@
 package com.lvwj.halo.milvus.core;
 
+import com.lvwj.halo.common.utils.StringPool;
 import dev.langchain4j.store.embedding.filter.Filter;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.param.MetricType;
@@ -13,11 +14,12 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-import static com.lvwj.halo.milvus.core.MilvusEmbeddingStore.*;
+import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;
+import static com.lvwj.halo.milvus.core.MilvusMetadataFilterMapper.formatValues;
+import static com.lvwj.halo.milvus.core.MilvusMetadataFilterMapper.map;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.joining;
 
 class CollectionRequestBuilder {
 
@@ -68,7 +70,8 @@ class CollectionRequestBuilder {
                                           String params,
                                           String groupByFieldName,
                                           List<String> partitionNames,
-                                          PartitionKey partitionKey) {
+                                          PartitionKey partitionKey,
+                                          boolean softDelete) {
         SearchParam.Builder builder = SearchParam.newBuilder()
                 .withCollectionName(collectionName)
                 .withFloatVectors(singletonList(vector))
@@ -78,8 +81,16 @@ class CollectionRequestBuilder {
                 .withConsistencyLevel(consistencyLevel)
                 .withOutFields(asList(ID_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME));
 
+        String filterStr = StringPool.EMPTY;
         if (filter != null) {
-            builder.withExpr(MilvusMetadataFilterMapper.map(filter, partitionKey.getFieldName()));
+            filterStr = MilvusMetadataFilterMapper.map(filter, partitionKey.getFieldName());
+        }
+        if (softDelete) {
+            String deleteStr = DELETE_FIELD_NAME + "==false";
+            filterStr = StringPool.EMPTY.equals(filterStr) ? deleteStr : filterStr + " and " + deleteStr;
+        }
+        if (StringUtils.hasLength(filterStr)) {
+            builder.withExpr(filterStr);
         }
 
         if (StringUtils.hasLength(params)) {
@@ -99,26 +110,46 @@ class CollectionRequestBuilder {
 
     static QueryParam buildQueryRequest(String collectionName,
                                         List<String> rowIds,
+                                        List<String> outFields,
                                         ConsistencyLevelEnum consistencyLevel) {
-        return QueryParam.newBuilder()
-                .withCollectionName(collectionName)
-                .withExpr(buildQueryExpression(rowIds))
-                .withConsistencyLevel(consistencyLevel)
-                .withOutFields(singletonList(VECTOR_FIELD_NAME))
-                .build();
+        return buildQueryRequest(collectionName, format("%s in %s", ID_FIELD_NAME, formatValues(rowIds)), outFields, consistencyLevel);
     }
 
-    static DeleteParam buildDeleteRequest(String collectionName,
-                                          String expr) {
+    static QueryParam buildQueryRequest(String collectionName,
+                                        String expr,
+                                        List<String> outFields,
+                                        ConsistencyLevelEnum consistencyLevel) {
+        QueryParam.Builder builder = QueryParam.newBuilder()
+                .withCollectionName(collectionName)
+                .withExpr(expr)
+                .withOutFields(outFields)
+                .withConsistencyLevel(consistencyLevel);
+        if (!CollectionUtils.isEmpty(outFields)) {
+            builder.withOutFields(outFields);
+        }
+        return builder.build();
+    }
+
+    static QueryParam buildQueryRequest(String collectionName,
+                                        String partitionKey,
+                                        Filter filter,
+                                        List<String> outFields,
+                                        ConsistencyLevelEnum consistencyLevel) {
+        QueryParam.Builder builder = QueryParam.newBuilder()
+                .withCollectionName(collectionName)
+                .withExpr(map(filter, partitionKey))
+                .withOutFields(outFields)
+                .withConsistencyLevel(consistencyLevel);
+        if (!CollectionUtils.isEmpty(outFields)) {
+            builder.withOutFields(outFields);
+        }
+        return builder.build();
+    }
+
+    static DeleteParam buildDeleteRequest(String collectionName, String expr) {
         return DeleteParam.newBuilder()
                 .withCollectionName(collectionName)
                 .withExpr(expr)
                 .build();
-    }
-
-    private static String buildQueryExpression(List<String> rowIds) {
-        return rowIds.stream()
-                .map(id -> format("%s == '%s'", ID_FIELD_NAME, id))
-                .collect(joining(" || "));
     }
 }

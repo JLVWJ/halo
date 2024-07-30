@@ -18,7 +18,6 @@ import java.util.TimeZone;
  * @date 2024年07月06日 15:17
  */
 public class RpcContextUtil {
-    private static final String LOCALE = "x-locale";
 
     private RpcContextUtil() {
     }
@@ -39,7 +38,7 @@ public class RpcContextUtil {
     public static Locale getLocale() {
         String lang = RpcContext.getServerAttachment().getAttachment(SystemConstant.LANG);
         if (!StringUtils.hasLength(lang)) {
-            lang = RpcContext.getServerAttachment().getAttachment(LOCALE);
+            lang = RpcContext.getServerAttachment().getAttachment(SystemConstant.LOCALE);
         }
         if (!StringUtils.hasLength(lang)) {
             return Locale.CHINA;

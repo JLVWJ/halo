@@ -1,5 +1,6 @@
 package com.lvwj.halo.milvus.core;
 
+import dev.langchain4j.store.embedding.filter.Filter;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.*;
@@ -19,8 +20,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;
 import static com.lvwj.halo.milvus.core.CollectionRequestBuilder.*;
-import static com.lvwj.halo.milvus.core.MilvusEmbeddingStore.*;
 import static io.milvus.grpc.DataType.*;
 import static java.lang.String.format;
 
@@ -148,7 +149,7 @@ class CollectionOperationsExecutor {
         checkResponseNotFailed(response);
     }
 
-    static void upsert(MilvusServiceClient milvusClient, String collectionName, List<UpsertParam.Field> fields) {
+    static void upsert(MilvusServiceClient milvusClient, String collectionName, List<InsertParam.Field> fields) {
         UpsertParam request = buildUpsertRequest(collectionName, fields);
         R<MutationResult> response = milvusClient.upsert(request);
         checkResponseNotFailed(response);
@@ -167,20 +168,46 @@ class CollectionOperationsExecutor {
         return new SearchResultsWrapper(response.getData().getResults());
     }
 
-    static QueryResultsWrapper queryForVectors(MilvusServiceClient milvusClient,
-                                               String collectionName,
-                                               List<String> rowIds,
-                                               ConsistencyLevelEnum consistencyLevel) {
-        QueryParam request = buildQueryRequest(collectionName, rowIds, consistencyLevel);
+    static QueryResultsWrapper queryByIds(MilvusServiceClient milvusClient,
+                                          String collectionName,
+                                          List<String> rowIds,
+                                          List<String> outFields,
+                                          ConsistencyLevelEnum consistencyLevel) {
+        QueryParam request = buildQueryRequest(collectionName, rowIds, outFields, consistencyLevel);
         R<QueryResults> response = milvusClient.query(request);
         checkResponseNotFailed(response);
 
         return new QueryResultsWrapper(response.getData());
     }
 
-    static void removeForVector(MilvusServiceClient milvusClient,
-                                String collectionName,
-                                String expr) {
+    static QueryResultsWrapper queryByExpr(MilvusServiceClient milvusClient,
+                                          String collectionName,
+                                          String expr,
+                                          List<String> outFields,
+                                          ConsistencyLevelEnum consistencyLevel) {
+        QueryParam request = buildQueryRequest(collectionName, expr, outFields, consistencyLevel);
+        R<QueryResults> response = milvusClient.query(request);
+        checkResponseNotFailed(response);
+
+        return new QueryResultsWrapper(response.getData());
+    }
+
+    static QueryResultsWrapper queryByFilter(MilvusServiceClient milvusClient,
+                                          String collectionName,
+                                          String partitionKey,
+                                          Filter filter,
+                                          List<String> outFields,
+                                          ConsistencyLevelEnum consistencyLevel) {
+        QueryParam request = buildQueryRequest(collectionName, partitionKey, filter, outFields, consistencyLevel);
+        R<QueryResults> response = milvusClient.query(request);
+        checkResponseNotFailed(response);
+
+        return new QueryResultsWrapper(response.getData());
+    }
+
+    static void delete(MilvusServiceClient milvusClient,
+                       String collectionName,
+                       String expr) {
         R<MutationResult> response = milvusClient.delete(buildDeleteRequest(collectionName, expr));
         checkResponseNotFailed(response);
     }

@@ -83,6 +83,9 @@ public class MilvusEmbeddingStoreConfigration {
                 if (null != entry.getValue().getAutoFlushOnInsert()) {
                     builder.autoFlushOnInsert(entry.getValue().getAutoFlushOnInsert());
                 }
+                if (null != entry.getValue().getSoftDelete()) {
+                    builder.softDelete(entry.getValue().getSoftDelete());
+                }
                 SpringUtil.registerBean(entry.getKey(), builder.build());
             }
         };

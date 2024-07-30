@@ -1,10 +1,10 @@
 package com.lvwj.halo.milvus.core;
 
+import com.lvwj.halo.common.enums.BaseErrorEnum;
+import com.lvwj.halo.common.utils.Assert;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.internal.Utils;
-import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.filter.Filter;
@@ -16,29 +16,22 @@ import io.milvus.param.IndexType;
 import io.milvus.param.MetricType;
 import io.milvus.param.dml.InsertParam;
 import io.milvus.param.dml.SearchParam;
-import io.milvus.param.dml.UpsertParam;
 import io.milvus.response.SearchResultsWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+import static com.lvwj.halo.common.utils.Func.getOrDefault;
+import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;
 import static com.lvwj.halo.milvus.core.CollectionOperationsExecutor.*;
 import static com.lvwj.halo.milvus.core.CollectionRequestBuilder.*;
-import static com.lvwj.halo.milvus.core.Generator.*;
 import static com.lvwj.halo.milvus.core.Mapper.*;
 import static com.lvwj.halo.milvus.core.MilvusMetadataFilterMapper.*;
-import static dev.langchain4j.internal.Utils.getOrDefault;
-import static dev.langchain4j.internal.ValidationUtils.ensureNotEmpty;
-import static dev.langchain4j.internal.ValidationUtils.ensureNotNull;
 import static io.milvus.common.clientenum.ConsistencyLevelEnum.EVENTUALLY;
 import static io.milvus.param.IndexType.FLAT;
 import static io.milvus.param.MetricType.COSINE;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Represents an <a href="https://milvus.io/">Milvus</a> index as an embedding store.
@@ -50,12 +43,6 @@ import static java.util.stream.Collectors.toList;
  */
 public class MilvusEmbeddingStore implements EmbeddingStorePlus {
 
-    static final String ID_FIELD_NAME = "id";
-    static final String TEXT_FIELD_NAME = "text";
-    static final String METADATA_FIELD_NAME = "metadata";
-    static final String VECTOR_FIELD_NAME = "vector";
-    static final String DELETE_FIELD_NAME = "deleted";
-
     private final MilvusServiceClient milvusClient;
     private final String collectionName;
     private final PartitionKey partitionKey;
@@ -64,6 +51,10 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
     private final boolean retrieveEmbeddingsOnSearch;
     private final boolean autoFlushOnInsert;
     private final Boolean softDelete;
+
+    private String getPartitionKeyFieldName() {
+        return null != this.partitionKey ? this.partitionKey.getFieldName() : null;
+    }
 
     public MilvusEmbeddingStore(
             String host,
@@ -106,24 +97,16 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
         this.partitionKey = partitionKey;
 
         if (!hasCollection(this.milvusClient, this.collectionName)) {
-            createCollection(this.milvusClient, this.collectionName, this.partitionKey, ensureNotNull(dimension, "dimension"), this.softDelete);
+            createCollection(this.milvusClient, this.collectionName, this.partitionKey, Objects.requireNonNull(dimension), this.softDelete);
             createIndex(this.milvusClient, this.collectionName, this.partitionKey, getOrDefault(indexType, FLAT), indexParam, this.metricType);
         }
 
         loadCollectionInMemory(this.milvusClient, collectionName);
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
+    @Override
     public void dropCollection(String collectionName) {
         CollectionOperationsExecutor.dropCollection(this.milvusClient, collectionName);
-    }
-
-    @Override
-    public EmbeddingSearchResult<TextSegment> search(EmbeddingSearchRequest embeddingSearchRequest) {
-        return search(EmbeddingSearchExtRequest.from(embeddingSearchRequest));
     }
 
     @Override
@@ -138,135 +121,95 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
                 embeddingSearchExtRequest.getParams(),
                 embeddingSearchExtRequest.getGroupByFieldName(),
                 embeddingSearchExtRequest.getPartitionNames(),
-                partitionKey
-        );
-
+                partitionKey,
+                softDelete);
         SearchResultsWrapper resultsWrapper = CollectionOperationsExecutor.search(milvusClient, searchParam);
-
-        List<EmbeddingMatch<TextSegment>> matches = toEmbeddingMatches(
-                milvusClient,
-                resultsWrapper,
-                collectionName,
-                consistencyLevel,
-                retrieveEmbeddingsOnSearch
-        );
-
-        List<EmbeddingMatch<TextSegment>> result = matches.stream()
-                .filter(match -> match.score() >= embeddingSearchExtRequest.minScore())
-                .collect(toList());
-
+        var matches = toEmbeddingMatches(milvusClient, resultsWrapper, collectionName, consistencyLevel, retrieveEmbeddingsOnSearch);
+        var result = matches.stream().filter(match -> match.score() >= embeddingSearchExtRequest.minScore()).toList();
         return new EmbeddingSearchResult<>(result);
     }
 
     @Override
-    public void add(String id, Embedding embedding, TextSegment textSegment, String partitionKey) {
-        addInternal(id, embedding, textSegment, partitionKey);
-    }
-
-    @Override
-    public void add(TextEmbeddingEntity entity) {
-        addInternal(entity.getId(), entity.getEmbedding(), entity.getTextSegment(), entity.getPartitionKey());
-    }
-
     public void addList(List<TextEmbeddingEntity> entities) {
-        if (null == entities || entities.isEmpty()) return;
-        List<String> ids = new ArrayList<>(entities.size());
-        List<Embedding> embeddings = new ArrayList<>(entities.size());
-        List<TextSegment> textSegments = new ArrayList<>(entities.size());
-        List<String> partitionKeys = new ArrayList<>(entities.size());
-        for (TextEmbeddingEntity entity : entities) {
-            ids.add(entity.getId());
-            embeddings.add(entity.getEmbedding());
-            textSegments.add(entity.getTextSegment());
-            if (StringUtils.hasLength(entity.getPartitionKey())) {
-                partitionKeys.add(entity.getPartitionKey().trim());
-            }
-        }
-        addAllInternal(ids, embeddings, textSegments, partitionKeys);
-    }
-
-    @Override
-    public String add(Embedding embedding) {
-        String id = Utils.randomUUID();
-        add(id, embedding);
-        return id;
-    }
-
-    @Override
-    public void add(String id, Embedding embedding) {
-        addInternal(id, embedding, null, null);
-    }
-
-    @Override
-    public String add(Embedding embedding, TextSegment textSegment) {
-        String id = Utils.randomUUID();
-        addInternal(id, embedding, textSegment, null);
-        return id;
-    }
-
-    public List<String> addAll(List<Embedding> embeddings) {
-        List<String> ids = generateRandomIds(embeddings.size());
-        addAllInternal(ids, embeddings, null, null);
-        return ids;
-    }
-
-    public List<String> addAll(List<Embedding> embeddings, List<TextSegment> embedded) {
-        List<String> ids = generateRandomIds(embeddings.size());
-        addAllInternal(ids, embeddings, embedded, null);
-        return ids;
+        upsertAllInternal(entities, true);
     }
 
     /**
      * save = upsert = add or update
      */
-    public void save(String id, Embedding embedding, TextSegment textSegment, String partitionKey) {
-        upsertInternal(id, embedding, textSegment, partitionKey);
-    }
-
-    /**
-     * save = upsert = add or update
-     */
-    public void save(TextEmbeddingEntity entity) {
-        upsertInternal(entity.getId(), entity.getEmbedding(), entity.getTextSegment(), entity.getPartitionKey());
-    }
-
-    /**
-     * save = upsert = add or update
-     */
+    @Override
     public void saveList(List<TextEmbeddingEntity> entities) {
-        if (null == entities || entities.isEmpty()) return;
+        upsertAllInternal(entities, false);
+    }
+
+    /**
+     *
+     * @author lvweijie
+     * @date 2024/7/30 20:09
+     * @param entities entities
+     * @param insertOrUpsert  true: insert, false: upsert
+     */
+    private void upsertAllInternal(List<TextEmbeddingEntity> entities, boolean insertOrUpsert) {
+        if (CollectionUtils.isEmpty(entities)) return;
         List<String> ids = new ArrayList<>(entities.size());
-        List<Embedding> embeddings = new ArrayList<>(entities.size());
         List<TextSegment> textSegments = new ArrayList<>(entities.size());
+        List<Embedding> embeddings = new ArrayList<>(entities.size());
         List<String> partitionKeys = new ArrayList<>(entities.size());
-        for (TextEmbeddingEntity entity : entities) {
-            ids.add(entity.getId().trim());
-            embeddings.add(entity.getEmbedding());
-            textSegments.add(entity.getTextSegment());
-            if (StringUtils.hasLength(entity.getPartitionKey())) {
-                partitionKeys.add(entity.getPartitionKey().trim());
-            }
+        List<Boolean> deletes = new ArrayList<>(entities.size());
+        Map<String, TextEmbeddingEntity> entityMap = null;
+        if (!insertOrUpsert) { // 用主键去查已存在的数据
+            List<String> rowIds = entities.stream().map(TextEmbeddingEntity::getId).toList();
+            entityMap = queryEntities(this.milvusClient, this.collectionName, getPartitionKeyFieldName(), rowIds);
         }
-        upsertAllInternal(ids, embeddings, textSegments, partitionKeys);
+        for (TextEmbeddingEntity entry : entities) {
+            TextEmbeddingEntity entity = Optional.ofNullable(entityMap).map(s -> s.get(entry.getId())).orElse(null);
+            if (null != entity) {
+                if (!entity.update(entry)) continue;
+            } else {
+                entity = entry;
+            }
+            ids.add(entity.getId());
+            textSegments.add(entity.getTextSegment());
+            embeddings.add(entity.getEmbedding());
+            if (StringUtils.hasLength(entity.getPartitionKey())) {
+                partitionKeys.add(entity.getPartitionKey());
+            }
+            deletes.add(entity.getDeleted());
+        }
+        if (!ids.isEmpty())
+            upsertAllInternal(ids, textSegments, embeddings, partitionKeys, deletes, insertOrUpsert);
     }
 
-    private void addInternal(String id, Embedding embedding, TextSegment textSegment, String partitionKey) {
-        addAllInternal(
-                singletonList(id),
-                singletonList(embedding),
-                textSegment == null ? null : singletonList(textSegment),
-                !StringUtils.hasLength(partitionKey) ? null : singletonList(partitionKey)
-        );
+    private void upsertAllInternal(String expr, TextEmbeddingEntity updateEntity) {
+        if (!StringUtils.hasLength(expr) || null == updateEntity) return;
+        List<String> ids = new ArrayList<>();
+        List<TextSegment> textSegments = new ArrayList<>();
+        List<Embedding> embeddings = new ArrayList<>();
+        List<String> partitionKeys = new ArrayList<>();
+        List<Boolean> deletes = new ArrayList<>();
+        List<TextEmbeddingEntity> entities = queryEntities(this.milvusClient, this.collectionName, getPartitionKeyFieldName(), expr);
+        for (TextEmbeddingEntity entity : entities) {
+            if (!entity.update(updateEntity)) continue;
+            ids.add(entity.getId());
+            textSegments.add(entity.getTextSegment());
+            embeddings.add(entity.getEmbedding());
+            if (StringUtils.hasLength(entity.getPartitionKey())) {
+                partitionKeys.add(entity.getPartitionKey());
+            }
+            deletes.add(entity.getDeleted());
+        }
+        if (!ids.isEmpty())
+            upsertAllInternal(ids, textSegments, embeddings, partitionKeys, deletes, false);
     }
 
-    private void addAllInternal(List<String> ids, List<Embedding> embeddings, List<TextSegment> textSegments, List<String> partitionKeys) {
+    private void upsertAllInternal(List<String> ids, List<TextSegment> textSegments, List<Embedding> embeddings, List<String> partitionKeys, List<Boolean> deletes, boolean insertOrUpsert) {
         List<InsertParam.Field> fields = new ArrayList<>();
         fields.add(new InsertParam.Field(ID_FIELD_NAME, ids));
         fields.add(new InsertParam.Field(TEXT_FIELD_NAME, toScalars(textSegments, ids.size())));
         fields.add(new InsertParam.Field(METADATA_FIELD_NAME, toMetadataJsons(textSegments, ids.size())));
         fields.add(new InsertParam.Field(VECTOR_FIELD_NAME, toVectors(embeddings)));
         if (softDelete) {
-            fields.add(new InsertParam.Field(DELETE_FIELD_NAME, toUnDelete(ids.size())));
+            fields.add(new InsertParam.Field(DELETE_FIELD_NAME, deletes));
         }
         if (null != partitionKey) {
             if (CollectionUtils.isEmpty(partitionKeys) || partitionKeys.size() != ids.size()) {
@@ -280,111 +223,67 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
                 fields.add(new InsertParam.Field(partitionKey.getFieldName(), partitionKeys.stream().map(Integer::valueOf).toList()));
             }
         }
-        insert(this.milvusClient, this.collectionName, fields);
+        if (insertOrUpsert) {
+            insert(this.milvusClient, this.collectionName, fields);
+        } else {
+            upsert(this.milvusClient, this.collectionName, fields);
+        }
         if (autoFlushOnInsert) {
             flush(this.milvusClient, this.collectionName);
         }
     }
 
-    private void upsertInternal(String id, Embedding embedding, TextSegment textSegment, String partitionKey) {
-        upsertAllInternal(
-                singletonList(id),
-                singletonList(embedding),
-                textSegment == null ? null : singletonList(textSegment),
-                !StringUtils.hasLength(partitionKey) ? null : singletonList(partitionKey)
-        );
-    }
-
-    private void upsertAllInternal(List<String> ids, List<Embedding> embeddings, List<TextSegment> textSegments, List<String> partitionKeys) {
-        List<UpsertParam.Field> fields = new ArrayList<>();
-        fields.add(new UpsertParam.Field(ID_FIELD_NAME, ids));
-        fields.add(new UpsertParam.Field(TEXT_FIELD_NAME, toScalars(textSegments, ids.size())));
-        fields.add(new UpsertParam.Field(METADATA_FIELD_NAME, toMetadataJsons(textSegments, ids.size())));
-        fields.add(new UpsertParam.Field(VECTOR_FIELD_NAME, toVectors(embeddings)));
-        if (softDelete) {
-            fields.add(new InsertParam.Field(DELETE_FIELD_NAME, toUnDelete(ids.size())));
-        }
-        if (null != partitionKey) {
-            if (CollectionUtils.isEmpty(partitionKeys) || partitionKeys.size() != ids.size()) {
-                throw new IllegalArgumentException("partitionKey shouldn't be null or empty!");
-            }
-            if (partitionKey.getDataType().equals(DataType.VarChar)) {
-                fields.add(new InsertParam.Field(partitionKey.getFieldName(), partitionKeys));
-            } else if (partitionKey.getDataType().equals(DataType.Int64)) {
-                fields.add(new InsertParam.Field(partitionKey.getFieldName(), partitionKeys.stream().map(Long::valueOf).toList()));
-            } else if (partitionKey.getDataType().name().startsWith("Int")) {
-                fields.add(new InsertParam.Field(partitionKey.getFieldName(), partitionKeys.stream().map(Integer::valueOf).toList()));
-            }
-        }
-
-        upsert(this.milvusClient, this.collectionName, fields);
-        if (autoFlushOnInsert) {
-            flush(this.milvusClient, this.collectionName);
-        }
-    }
-
-    /**
-     * Removes a single embedding from the store by ID.
-     * <p>CAUTION</p>
-     * <ul>
-     *     <li>Deleted entities can still be retrieved immediately after the deletion if the consistency level is set lower than {@code Strong}</li>
-     *     <li>Entities deleted beyond the pre-specified span of time for Time Travel cannot be retrieved again.</li>
-     *     <li>Frequent deletion operations will impact the system performance.</li>
-     *     <li>Before deleting entities by comlpex boolean expressions, make sure the collection has been loaded.</li>
-     *     <li>Deleting entities by complex boolean expressions is not an atomic operation. Therefore, if it fails halfway through, some data may still be deleted.</li>
-     *     <li>Deleting entities by complex boolean expressions is supported only when the consistency is set to Bounded. For details, <a href="https://milvus.io/docs/v2.3.x/consistency.md#Consistency-levels">see Consistency</a></li>
-     * </ul>
-     *
-     * @param ids A collection of unique IDs of the embeddings to be removed.
-     * @since Milvus version 2.3.x
-     */
     @Override
     public void removeAll(Collection<String> ids) {
-        ensureNotEmpty(ids, "ids");
-        removeForVector(this.milvusClient, this.collectionName, format("%s in %s", ID_FIELD_NAME, formatValues(ids)));
+        Assert.notNullOrEmpty(ids, BaseErrorEnum.PARAM_EMPTY_ERROR, "ids");
+        doRemoveAll(format("%s in %s", ID_FIELD_NAME, formatValues(ids)));
     }
 
 
-    /**
-     * Removes all embeddings that match the specified {@link Filter} from the store.
-     * <p>CAUTION</p>
-     * <ul>
-     *     <li>Deleted entities can still be retrieved immediately after the deletion if the consistency level is set lower than {@code Strong}</li>
-     *     <li>Entities deleted beyond the pre-specified span of time for Time Travel cannot be retrieved again.</li>
-     *     <li>Frequent deletion operations will impact the system performance.</li>
-     *     <li>Before deleting entities by comlpex boolean expressions, make sure the collection has been loaded.</li>
-     *     <li>Deleting entities by complex boolean expressions is not an atomic operation. Therefore, if it fails halfway through, some data may still be deleted.</li>
-     *     <li>Deleting entities by complex boolean expressions is supported only when the consistency is set to Bounded. For details, <a href="https://milvus.io/docs/v2.3.x/consistency.md#Consistency-levels">see Consistency</a></li>
-     * </ul>
-     *
-     * @param filter The filter to be applied to the {@link Metadata} of the {@link TextSegment} during removal.
-     *               Only embeddings whose {@code TextSegment}'s {@code Metadata}
-     *               match the {@code Filter} will be removed.
-     * @since Milvus version 2.3.x
-     */
     @Override
     public void removeAll(Filter filter) {
-        ensureNotNull(filter, "filter");
-        removeForVector(this.milvusClient, this.collectionName, map(filter, partitionKey.getFieldName()));
+        Assert.notNullOrEmpty(filter, BaseErrorEnum.PARAM_EMPTY_ERROR, "filter");
+        doRemoveAll(map(filter, getPartitionKeyFieldName()));
     }
 
-    /**
-     * Removes all embeddings from the store.
-     * <p>CAUTION</p>
-     * <ul>
-     *     <li>Deleted entities can still be retrieved immediately after the deletion if the consistency level is set lower than {@code Strong}</li>
-     *     <li>Entities deleted beyond the pre-specified span of time for Time Travel cannot be retrieved again.</li>
-     *     <li>Frequent deletion operations will impact the system performance.</li>
-     *     <li>Before deleting entities by comlpex boolean expressions, make sure the collection has been loaded.</li>
-     *     <li>Deleting entities by complex boolean expressions is not an atomic operation. Therefore, if it fails halfway through, some data may still be deleted.</li>
-     *     <li>Deleting entities by complex boolean expressions is supported only when the consistency is set to Bounded. For details, <a href="https://milvus.io/docs/v2.3.x/consistency.md#Consistency-levels">see Consistency</a></li>
-     * </ul>
-     *
-     * @since Milvus version 2.3.x
-     */
     @Override
     public void removeAll() {
-        removeForVector(this.milvusClient, this.collectionName, format("%s != \"\"", ID_FIELD_NAME));
+        doRemoveAll(format("%s != \"\"", ID_FIELD_NAME));
+    }
+
+    @Override
+    public void recoverAll(Collection<String> ids) {
+        Assert.notNullOrEmpty(ids, BaseErrorEnum.PARAM_EMPTY_ERROR, "ids");
+        doRecoverAll(format("%s in %s", ID_FIELD_NAME, formatValues(ids)));
+    }
+
+    @Override
+    public void recoverAll(Filter filter) {
+        Assert.notNullOrEmpty(filter, BaseErrorEnum.PARAM_EMPTY_ERROR, "filter");
+        doRecoverAll(map(filter, getPartitionKeyFieldName()));
+    }
+
+    @Override
+    public void recoverAll() {
+        doRecoverAll(format("%s != \"\"", ID_FIELD_NAME));
+    }
+
+    private void doRecoverAll(String expr) {
+        if (softDelete) {
+            upsertAllInternal(expr, TextEmbeddingEntity.from().deleted(Boolean.FALSE));
+        }
+    }
+
+    private void doRemoveAll(String expr) {
+        if (softDelete) {
+            upsertAllInternal(expr, TextEmbeddingEntity.from().deleted(Boolean.TRUE));
+        } else {
+            delete(this.milvusClient, this.collectionName, expr);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {

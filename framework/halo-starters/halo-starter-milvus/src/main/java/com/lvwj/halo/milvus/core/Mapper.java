@@ -1,11 +1,16 @@
 package com.lvwj.halo.milvus.core;
 
 import com.alibaba.fastjson.JSONObject;
+import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.JsonUtil;
+import com.lvwj.halo.common.utils.StringPool;
+import com.lvwj.halo.common.utils.StringUtil;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.RelevanceScore;
+import dev.langchain4j.store.embedding.filter.Filter;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.exception.ParamException;
@@ -14,16 +19,14 @@ import io.milvus.response.QueryResultsWrapper.RowRecord;
 import io.milvus.response.SearchResultsWrapper;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.lvwj.halo.milvus.core.CollectionOperationsExecutor.queryForVectors;
+import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;
+import static com.lvwj.halo.milvus.core.CollectionOperationsExecutor.*;
 import static com.lvwj.halo.milvus.core.Generator.*;
-import static com.lvwj.halo.milvus.core.MilvusEmbeddingStore.*;
 import static dev.langchain4j.internal.Utils.isNullOrBlank;
 import static dev.langchain4j.internal.Utils.isNullOrEmpty;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 class Mapper {
@@ -123,10 +126,11 @@ class Mapper {
                                                           String collectionName,
                                                           List<String> rowIds,
                                                           ConsistencyLevelEnum consistencyLevel) {
-        QueryResultsWrapper queryResultsWrapper = queryForVectors(
+        QueryResultsWrapper queryResultsWrapper = queryByIds(
                 milvusClient,
                 collectionName,
                 rowIds,
+                singletonList(VECTOR_FIELD_NAME),
                 consistencyLevel
         );
 
@@ -138,5 +142,99 @@ class Mapper {
         }
 
         return idToEmbedding;
+    }
+
+    static Map<String, TextEmbeddingEntity> queryEntities(MilvusServiceClient milvusClient,
+                                                          String collectionName,
+                                                          String partitionKey,
+                                                          List<String> rowIds) {
+        QueryResultsWrapper queryResultsWrapper = queryByIds(
+                milvusClient,
+                collectionName,
+                rowIds,
+                Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME, partitionKey),
+                ConsistencyLevelEnum.BOUNDED
+        );
+
+        Map<String, TextEmbeddingEntity> map = new HashMap<>();
+        for (RowRecord row : queryResultsWrapper.getRowRecords()) {
+            String id = row.get(ID_FIELD_NAME).toString();
+            List<Float> vector = (List<Float>) row.get(VECTOR_FIELD_NAME);
+            String text = row.get(TEXT_FIELD_NAME).toString();
+            String pKey = StringPool.EMPTY;
+            if (StringUtil.isNotBlank(partitionKey)) {
+                pKey = row.get(partitionKey).toString();
+            }
+            Boolean deleted = Func.toBoolean(row.get(DELETE_FIELD_NAME));
+            Map<String, Object> metadata = JsonUtil.toMap(row.get(METADATA_FIELD_NAME).toString());
+            TextSegment textSegment = null != metadata ? TextSegment.from(text, Metadata.from(metadata)) : TextSegment.from(text);
+            TextEmbeddingEntity entity = TextEmbeddingEntity.from(id, Embedding.from(vector), textSegment, pKey, deleted);
+            map.put(id, entity);
+        }
+
+        return map;
+    }
+
+    static List<TextEmbeddingEntity> queryEntities(MilvusServiceClient milvusClient,
+                                                   String collectionName,
+                                                   String partitionKey,
+                                                   Filter filter) {
+        QueryResultsWrapper queryResultsWrapper = queryByFilter(
+                milvusClient,
+                collectionName,
+                partitionKey,
+                filter,
+                Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME, partitionKey),
+                ConsistencyLevelEnum.BOUNDED
+        );
+
+        List<TextEmbeddingEntity> list = new ArrayList<>();
+        for (RowRecord row : queryResultsWrapper.getRowRecords()) {
+            String id = row.get(ID_FIELD_NAME).toString();
+            List<Float> vector = (List<Float>) row.get(VECTOR_FIELD_NAME);
+            String text = row.get(TEXT_FIELD_NAME).toString();
+            String pKey = StringPool.EMPTY;
+            if (StringUtil.isNotBlank(partitionKey)) {
+                pKey = row.get(partitionKey).toString();
+            }
+            Boolean deleted = Func.toBoolean(row.get(DELETE_FIELD_NAME));
+            Map<String, Object> metadata = JsonUtil.toMap(row.get(METADATA_FIELD_NAME).toString());
+            TextSegment textSegment = null != metadata ? TextSegment.from(text, Metadata.from(metadata)) : TextSegment.from(text);
+            TextEmbeddingEntity entity = TextEmbeddingEntity.from(id, Embedding.from(vector), textSegment, pKey, deleted);
+            list.add(entity);
+        }
+
+        return list;
+    }
+
+    static List<TextEmbeddingEntity> queryEntities(MilvusServiceClient milvusClient,
+                                                   String collectionName,
+                                                   String partitionKey,
+                                                   String expr) {
+        QueryResultsWrapper queryResultsWrapper = queryByExpr(
+                milvusClient,
+                collectionName,
+                expr,
+                Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME, partitionKey),
+                ConsistencyLevelEnum.BOUNDED
+        );
+
+        List<TextEmbeddingEntity> list = new ArrayList<>();
+        for (RowRecord row : queryResultsWrapper.getRowRecords()) {
+            String id = row.get(ID_FIELD_NAME).toString();
+            List<Float> vector = (List<Float>) row.get(VECTOR_FIELD_NAME);
+            String text = row.get(TEXT_FIELD_NAME).toString();
+            String pKey = StringPool.EMPTY;
+            if (StringUtil.isNotBlank(partitionKey)) {
+                pKey = row.get(partitionKey).toString();
+            }
+            Boolean deleted = Func.toBoolean(row.get(DELETE_FIELD_NAME));
+            Map<String, Object> metadata = JsonUtil.toMap(row.get(METADATA_FIELD_NAME).toString());
+            TextSegment textSegment = null != metadata ? TextSegment.from(text, Metadata.from(metadata)) : TextSegment.from(text);
+            TextEmbeddingEntity entity = TextEmbeddingEntity.from(id, Embedding.from(vector), textSegment, pKey, deleted);
+            list.add(entity);
+        }
+
+        return list;
     }
 }

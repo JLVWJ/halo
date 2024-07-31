@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public enum BaseErrorEnum implements IErrorEnum{
 
-    SUCCESS(200, "操作成功"),
+    SUCCESS(0, "操作成功"),
     FAILURE(500, "操作失败"),
 
     UNAUTHORIZED(401, "请求未授权"),

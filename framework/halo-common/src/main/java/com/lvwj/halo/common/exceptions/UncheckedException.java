@@ -79,5 +79,6 @@ public class UncheckedException extends RuntimeException {
     this.errorEnum = errorEnum;
     this.code = errorEnum.getCode();
     this.message = MessageFormat.format(errorEnum.getDescription(), args);
+    this.args = args;
   }
 }

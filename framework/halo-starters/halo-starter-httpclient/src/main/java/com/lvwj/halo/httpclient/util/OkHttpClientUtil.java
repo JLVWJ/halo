@@ -283,10 +283,11 @@ public class OkHttpClientUtil {
             if (response.isSuccessful() && null != response.body()) {
                 return response.body().string();
             } else {
-                log.error("OkHttpClientUtil execute fail:" + Optional.ofNullable(response.body()).map(Object::toString).orElse(""));
+                String str = null != response.body() ? response.body().string() : response.toString();
+                log.error("OkHttpClientUtil execute fail: " + str);
             }
         } catch (Exception e) {
-            log.error("OkHttpClientUtil execute error:" + e.getMessage(), e);
+            log.error("OkHttpClientUtil execute error: " + e.getMessage(), e);
         }
         return "";
     }
@@ -296,10 +297,11 @@ public class OkHttpClientUtil {
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().bytes();
             } else {
-                log.error("OkHttpClientUtil execute fail:" + Optional.ofNullable(response.body()).map(Object::toString).orElse(""));
+                String str = null != response.body() ? response.body().string() : response.toString();
+                log.error("OkHttpClientUtil execute fail: " + str);
             }
         } catch (Exception e) {
-            log.error("OkHttpClientUtil execute error:" + e.getMessage(), e);
+            log.error("OkHttpClientUtil execute error: " + e.getMessage(), e);
         }
         return null;
     }

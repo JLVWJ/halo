@@ -37,8 +37,8 @@
         <hutool.version>5.8.26</hutool.version>
         <guava.version>33.2.1-jre</guava.version>
         <jackson.version>2.17.0</jackson.version>
-        <fastjson.version>1.2.83</fastjson.version>
-        <fastjson2.version>2.0.51</fastjson2.version>
+        <fastjson.version>2.0.52</fastjson.version>
+        <fastjson2.version>2.0.52</fastjson2.version>
         <javers.version>6.8.0</javers.version>
         <slf4j.version>2.0.7</slf4j.version>
         <commons.lang3.version>3.13.0</commons.lang3.version>

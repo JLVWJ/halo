@@ -90,6 +90,10 @@
         <skywalking-toolkit.version>8.4.0</skywalking-toolkit.version>
         <liteflow.starter.version>2.12.2</liteflow.starter.version>
         <langchain4j.version>0.32.0</langchain4j.version>
+
+        <es-rest-high-level-client.version>7.17.23</es-rest-high-level-client.version>
+        <es.version>8.13.4</es.version>
+        <easy-es.version>2.0.0</easy-es.version>
     </properties>
 
     <dependencyManagement>
@@ -204,6 +208,23 @@
                 <artifactId>grpc-netty-shaded</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.dromara.easy-es</groupId>
+                <artifactId>easy-es-boot-starter</artifactId>
+                <version>${easy-es.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${es-rest-high-level-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${es.version}</version>
+            </dependency>
+
 
             <!-- operation log -->
             <dependency>

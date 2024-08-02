@@ -13,5 +13,11 @@
     <packaging>jar</packaging>
     <version>${revision}</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.dromara.easy-es</groupId>
+            <artifactId>easy-es-boot-starter</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

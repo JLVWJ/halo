@@ -9,6 +9,7 @@ import org.dromara.easyes.core.kernel.BaseEsMapper;
 import org.dromara.easyes.starter.config.EasyEsConfigProperties;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Slf4j
 @AutoConfiguration
+@ConditionalOnProperty(prefix = "easy-es", name = {"enable"}, havingValue = "true")
 @EnableConfigurationProperties(HaloElasticProperties.class)
 public class HaloElasticConfigration {
 

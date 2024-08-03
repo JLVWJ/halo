@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.lvwj.halo</groupId>
+            <artifactId>halo-starter</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.dromara.easy-es</groupId>
             <artifactId>easy-es-boot-starter</artifactId>
         </dependency>

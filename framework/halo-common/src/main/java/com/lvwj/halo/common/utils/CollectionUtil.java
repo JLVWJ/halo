@@ -491,9 +491,15 @@ public class CollectionUtil extends CollectionUtils {
     return result;
   }
 
+  /***
+   * 合并
+   *
+   * @author lvweijie
+   * @date 2024/8/3 15:59
+   */
   public static <E> List<E> combine(Collection<Collection<E>> es) {
     if (isEmpty(es)) {
-      return Collections.emptyList();
+      return new ArrayList<>();
     }
     List<E> result = new ArrayList<>();
     for (Collection<E> e : es) {
@@ -503,6 +509,68 @@ public class CollectionUtil extends CollectionUtils {
       result.addAll(e);
     }
     return result;
+  }
+
+  /***
+   * 合并
+   *
+   * @author lvweijie
+   * @date 2024/8/3 15:59
+   */
+  public static <E> List<E> combine(Collection<E> c, Collection<E>... other) {
+    if (isEmpty(c) && null == other) {
+      return new ArrayList<>();
+    }
+    List<E> result = isEmpty(c) ? new ArrayList<>() : new ArrayList<>(c);
+    for (Collection<E> e : other) {
+      if (isEmpty(e)) {
+        continue;
+      }
+      result.addAll(e);
+    }
+    return result;
+  }
+
+  /***
+   * 并集
+   *
+   * @author lvweijie
+   * @date 2024/8/3 15:59
+   */
+  public static <E> List<E> union(Collection<Collection<E>> es) {
+    if (isEmpty(es)) {
+      return new ArrayList<>();
+    }
+    Set<E> set = new HashSet<>();
+    for (Collection<E> e : es) {
+      if (isEmpty(e)) {
+        continue;
+      }
+      set.addAll(e);
+    }
+    return isEmpty(set) ? new ArrayList<>() : new ArrayList<>(set);
+  }
+
+  /***
+   * 并集
+   *
+   * @author lvweijie
+   * @date 2024/8/3 15:59
+   */
+  public static <E> List<E> union(Collection<E> c, Collection<E>... other) {
+    if (isEmpty(c) && null == other) {
+      return new ArrayList<>();
+    }
+    Set<E> set = isEmpty(c) ? new HashSet<>() : new HashSet<>(c);
+    if (null != other) {
+      for (Collection<E> e : other) {
+        if (isEmpty(e)) {
+          continue;
+        }
+        set.addAll(e);
+      }
+    }
+    return isEmpty(set) ? new ArrayList<>() : new ArrayList<>(set);
   }
 
   public static <T extends Object & Comparable<? super T>> T max(List<T> elements) {

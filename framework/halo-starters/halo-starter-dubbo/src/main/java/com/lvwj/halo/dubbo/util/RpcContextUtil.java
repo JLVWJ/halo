@@ -11,6 +11,8 @@ import java.time.ZoneId;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static org.apache.dubbo.common.constants.CommonConstants.REMOTE_APPLICATION_KEY;
+
 /**
  *
  *
@@ -53,10 +55,10 @@ public class RpcContextUtil {
     }
 
     /**
-     * 获取玩具ID
+     * 获取设备编号
      */
-    public static Long getToyId() {
-        return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.TOY_ID));
+    public static String getDeviceNo() {
+        return Func.toStr(RpcContext.getServerAttachment().getAttachment(SystemConstant.DEVICE_NO));
     }
 
     /**
@@ -69,7 +71,63 @@ public class RpcContextUtil {
     /**
      * 获取角色ID(家庭成员ID)
      */
-    public static Long getRoleId() {
-        return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.ROLE_ID));
+    public static Long geMemberId() {
+        return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.MEMBER_ID));
+    }
+
+    /**
+     * 获取会话ID
+     */
+    public static String getConversationId() {
+        RpcContext context = RpcContext.getServerAttachment();
+        return context.getAttachment(SystemConstant.CONVERSATION_ID);
+    }
+
+    /**
+     * 获取编码Enocding
+     */
+    public static String getEnocding() {
+        RpcContext context = RpcContext.getServerAttachment();
+        return context.getAttachment(SystemConstant.ENCODING);
+    }
+
+    /**
+     * 获取采样率SampleRate
+     */
+    public static String getSampleRate() {
+        RpcContext context = RpcContext.getServerAttachment();
+        return context.getAttachment(SystemConstant.SAMPLE_RATE);
+    }
+
+    /**
+     * 设置用户ID
+     */
+    public static void setUserId(Long userId) {
+        RpcContext context = RpcContext.getServerAttachment();
+        context.setAttachment(SystemConstant.USER_ID, userId);
+    }
+
+    /**
+     * 设置成员ID
+     */
+    public static void setMemberId(Long memberId) {
+        RpcContext context = RpcContext.getServerAttachment();
+        context.setAttachment(SystemConstant.MEMBER_ID, memberId);
+    }
+
+    /**
+     * 设置设备编号
+     */
+    public static void setDeviceNo(String deviceNo) {
+        RpcContext context = RpcContext.getServerAttachment();
+        context.setAttachment(SystemConstant.DEVICE_NO, deviceNo);
+    }
+
+    /**
+     * 设置编码
+     */
+    public static void setEnocding(String enocding) {
+        RpcContext context = RpcContext.getServerAttachment();
+        context.setAttachment(SystemConstant.ENCODING, enocding);
     }
 }

@@ -41,7 +41,13 @@
         <fastjson2.version>2.0.52</fastjson2.version>
         <javers.version>6.8.0</javers.version>
         <slf4j.version>2.0.7</slf4j.version>
-        <commons.lang3.version>3.13.0</commons.lang3.version>
+        <commons.lang3.version>3.15.0</commons.lang3.version>
+        <commons.pool2.version>2.12.0</commons.pool2.version>
+        <commons.compress.version>1.26.2</commons.compress.version>
+        <commons.text.version>1.12.0</commons.text.version>
+        <commons.math3.version>3.6.1</commons.math3.version>
+        <commons.exec.version>1.4.0</commons.exec.version>
+        <commons.collections4.version>4.5.0-M2</commons.collections4.version>
         <commons.collections.version>3.2.2</commons.collections.version>
         <alibaba.ttl.version>2.14.2</alibaba.ttl.version>
 
@@ -87,7 +93,7 @@
         <druid-spring-boot-starter.version>1.2.23</druid-spring-boot-starter.version>
         <shardingsphere-jdbc-core-starter.version>5.2.1</shardingsphere-jdbc-core-starter.version>
 
-        <skywalking-toolkit.version>8.4.0</skywalking-toolkit.version>
+        <skywalking-toolkit.version>9.3.0</skywalking-toolkit.version>
         <liteflow.starter.version>2.12.2</liteflow.starter.version>
         <langchain4j.version>0.32.0</langchain4j.version>
 
@@ -140,6 +146,36 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons.lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${commons.pool2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons.compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons.text.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>${commons.math3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons.collections4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-exec</artifactId>
+                <version>${commons.exec.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
@@ -575,21 +611,6 @@
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-compress</artifactId>
-                <version>1.26.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-text</artifactId>
-                <version>1.10.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-math3</artifactId>
-                <version>3.6.1</version>
             </dependency>
             <dependency>
                 <groupId>org.xerial.snappy</groupId>

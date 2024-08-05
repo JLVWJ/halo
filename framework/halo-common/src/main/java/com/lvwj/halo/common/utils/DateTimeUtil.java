@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * DateTime 工具类
@@ -190,6 +191,19 @@ public class DateTimeUtil {
    */
   public static Instant toInstant(LocalDateTime dateTime) {
     return dateTime.atZone(ZoneId.systemDefault()).toInstant();
+  }
+
+  /**
+   * 时间转时区
+   *
+   * @author lvweijie
+   * @date 2024/8/5 21:33
+   * @param dateTime 时间
+   * @param zoneId  时区
+   * @return java.time.LocalDateTime
+   */
+  public static LocalDateTime convertDateTime(LocalDateTime dateTime, ZoneId zoneId) {
+    return dateTime.atZone(Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault())).toLocalDateTime();
   }
 
   /**

@@ -189,8 +189,12 @@ public class DateTimeUtil {
    * @param dateTime 时间
    * @return Instant
    */
+  public static Instant toInstant(LocalDateTime dateTime, ZoneId zoneId) {
+    return dateTime.atZone(Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault())).toInstant();
+  }
+
   public static Instant toInstant(LocalDateTime dateTime) {
-    return dateTime.atZone(ZoneId.systemDefault()).toInstant();
+    return toInstant(dateTime, null);
   }
 
   /**
@@ -202,7 +206,7 @@ public class DateTimeUtil {
    * @param zoneId  时区
    * @return java.time.LocalDateTime
    */
-  public static LocalDateTime convertDateTime(LocalDateTime dateTime, ZoneId zoneId) {
+  public static LocalDateTime toDateTime(LocalDateTime dateTime, ZoneId zoneId) {
     return dateTime.atZone(Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault())).toLocalDateTime();
   }
 
@@ -212,18 +216,26 @@ public class DateTimeUtil {
    * @param instant Instant
    * @return Instant
    */
+  public static LocalDateTime toDateTime(Instant instant, ZoneId zoneId) {
+    return LocalDateTime.ofInstant(instant, Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault()));
+  }
+
   public static LocalDateTime toDateTime(Instant instant) {
-    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    return toDateTime(instant, null);
   }
 
 
   /**
    * Date 转 LocalDateTime
    */
-  public static LocalDateTime toDateTime(Date date) {
+  public static LocalDateTime toDateTime(Date date, ZoneId zoneId) {
     if (null == date) return null;
     Instant instant = date.toInstant();
-    return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+    return instant.atZone(Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault())).toLocalDateTime();
+  }
+
+  public static LocalDateTime toDateTime(Date date) {
+    return toDateTime(date, null);
   }
 
   /**
@@ -234,6 +246,10 @@ public class DateTimeUtil {
    */
   public static Date toDate(LocalDateTime dateTime) {
     return Date.from(toInstant(dateTime));
+  }
+
+  public static Date toDate(LocalDateTime dateTime, ZoneId zoneId) {
+    return Date.from(toInstant(dateTime, zoneId));
   }
 
   /**

@@ -50,7 +50,10 @@ public class RpcContextUtil {
     }
 
     public static ZoneId getZoneId() {
-        String zoneId = RpcContext.getServerAttachment().getAttachment(SystemConstant.ZONE_ID);
+        String zoneId = RpcContext.getServerAttachment().getAttachment(SystemConstant.X_ZONE_ID);
+        if (Func.isBlank(zoneId)) {
+            zoneId = RpcContext.getServerAttachment().getAttachment(SystemConstant.ZONE_ID);
+        }
         return StringUtils.hasLength(zoneId) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
     }
 

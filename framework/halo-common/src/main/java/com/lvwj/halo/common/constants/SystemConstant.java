@@ -20,6 +20,7 @@ public class SystemConstant {
     public static final String LANG = "lang";
     public static final String ENCODING = "encoding";
 
+    public static final String X_ZONE_ID = "x-zoneid";
     public static final String ZONE_ID = "zoneId";
 
     public static final String APP_ID = "app-id";

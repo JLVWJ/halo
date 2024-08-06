@@ -19,7 +19,7 @@ import org.slf4j.MDC;
 public class MyContextFilter implements Filter, Filter.Listener {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        MDC.put("tid", TraceContext.traceId());
+        MDC.put("traceId", TraceContext.traceId());
         RpcContextUtil.setLocaleContextHolder();
         return invoker.invoke(invocation);
     }

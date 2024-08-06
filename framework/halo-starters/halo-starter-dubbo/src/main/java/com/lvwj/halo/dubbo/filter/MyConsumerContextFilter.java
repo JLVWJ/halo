@@ -2,6 +2,7 @@ package com.lvwj.halo.dubbo.filter;
 
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
 
 import static org.apache.dubbo.common.constants.CommonConstants.CONSUMER;
 
@@ -12,6 +13,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.CONSUMER;
 @Activate(group = CONSUMER, order = -9999)
 public class MyConsumerContextFilter implements Filter {
 
+    @Trace
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 

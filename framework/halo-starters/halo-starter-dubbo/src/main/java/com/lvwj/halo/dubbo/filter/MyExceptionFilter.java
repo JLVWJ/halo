@@ -14,6 +14,7 @@ import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.springframework.util.ObjectUtils;
 
 import jakarta.validation.ConstraintViolation;
@@ -38,6 +39,7 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
         return invoker.invoke(invocation);
     }
 
+    @Trace
     @Override
     public void onResponse(Result appResponse, Invoker<?> invoker, Invocation invocation) {
         //打印日志

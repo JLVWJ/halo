@@ -13,6 +13,8 @@ public class EagerThreadPoolExecutor extends ThreadPoolExecutor {
      */
     private final AtomicInteger submittedTaskCount = new AtomicInteger(0);
 
+    private final SkywalkingTaskDecorator taskDecorator = SkywalkingTaskDecorator.INSTANCE;
+
     public EagerThreadPoolExecutor(int corePoolSize,
                                    int maximumPoolSize,
                                    long keepAliveTime,
@@ -39,7 +41,8 @@ public class EagerThreadPoolExecutor extends ThreadPoolExecutor {
         // do not increment in method beforeExecute!
         submittedTaskCount.incrementAndGet();
         try {
-            super.execute(command);
+            Runnable decorate = taskDecorator.decorate(command);
+            super.execute(decorate);
         } catch (RejectedExecutionException rx) {
             // retry to offer the task into queue.
             final TaskQueue queue = (TaskQueue) super.getQueue();

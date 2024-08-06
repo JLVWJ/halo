@@ -1,6 +1,5 @@
 package com.lvwj.halo.core.threadpool;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.lvwj.halo.core.threadpool.support.SkywalkingTaskDecorator;
 import lombok.extern.slf4j.Slf4j;
@@ -27,19 +26,6 @@ public class ThreadPoolCache {
     }
 
     private static final Map<String, ExecutorConfigurationSupport> cache = new HashMap<>();
-
-    private static volatile SkywalkingTaskDecorator skywalkingTaskDecorator;
-
-    private static SkywalkingTaskDecorator getSkywalkingTaskDecorator() {
-        if (null == skywalkingTaskDecorator) {
-            synchronized (ThreadPoolCache.class) {
-                if (null == skywalkingTaskDecorator) {
-                    skywalkingTaskDecorator = SpringUtil.getBean(SkywalkingTaskDecorator.class);
-                }
-            }
-        }
-        return skywalkingTaskDecorator;
-    }
 
     /**
      * 获取自定义线程池
@@ -72,9 +58,7 @@ public class ThreadPoolCache {
             executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
             executor.setWaitForTasksToCompleteOnShutdown(waitForJobsToCompleteOnShutdown);
             executor.setAwaitTerminationSeconds(awaitTerminationSeconds);
-            if (null != getSkywalkingTaskDecorator()) {
-                executor.setTaskDecorator(getSkywalkingTaskDecorator());
-            }
+            executor.setTaskDecorator(SkywalkingTaskDecorator.INSTANCE);
             executor.initialize();
             return executor;
         });

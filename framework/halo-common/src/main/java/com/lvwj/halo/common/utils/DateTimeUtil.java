@@ -1,5 +1,7 @@
 package com.lvwj.halo.common.utils;
 
+import com.lvwj.halo.common.enums.BaseErrorEnum;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
@@ -115,6 +117,19 @@ public class DateTimeUtil {
    */
   public static LocalDateTime parseDateTime(String dateStr) {
     return DateTimeUtil.parseDateTime(dateStr, DateTimeUtil.DATETIME_FORMAT);
+  }
+
+  /**
+   * 时间戳转成LocalDateTime(UTC)
+   *
+   * @author lvweijie
+   * @date 2024/8/7 20:22
+   * @param timestamp 时间戳: System.currentTimeMillis()
+   * @return java.time.LocalDateTime
+   */
+  public static LocalDateTime parseDateTime(Long timestamp) {
+    Assert.isTrue(null != timestamp && timestamp > 0, BaseErrorEnum.PARAM_VALID_ERROR);
+    return LocalDateTime.ofEpochSecond(timestamp / 1000, 0, ZoneOffset.UTC);
   }
 
   /**

@@ -1,7 +1,5 @@
 package com.lvwj.halo.dubbo.filter;
 
-
-import com.alibaba.fastjson2.JSON;
 import com.lvwj.halo.common.dto.response.R;
 import com.lvwj.halo.common.enums.IErrorEnum;
 import com.lvwj.halo.common.exceptions.BusinessException;
@@ -32,6 +30,7 @@ import java.util.stream.Collectors;
 @Activate(group = {CommonConstants.PROVIDER})
 public class MyExceptionFilter implements Filter, Filter.Listener {
 
+    @Trace
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         //打印日志
@@ -73,6 +72,7 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
         }
     }
 
+    @Trace
     @Override
     public void onError(Throwable t, Invoker<?> invoker, Invocation invocation) {
         //打印日志
@@ -92,7 +92,7 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
 
     private void printResponseLog(String methodName, Object result, Throwable t) {
         if (!ObjectUtils.isEmpty(result)) {
-            String res = getResult(result);
+            String res = JsonUtil.toJson(result);
             log.info(methodName + "请求结果:{}", res);
             ActiveSpan.tag("result", res);
         } else if (null != t) {
@@ -112,16 +112,6 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
     private void printErrorLog(String methodName, Throwable throwable) {
         log.error(methodName + "请求异常:", throwable);
         ActiveSpan.error(throwable);
-    }
-
-    private String getResult(Object result) {
-        String res = result.toString();
-        try {
-            R<?> dto = JSON.parseObject(res, R.class);
-            res = dto.getData().toString();
-        } catch (Exception e) {
-        }
-        return res;
     }
 }
 

@@ -573,6 +573,28 @@ public class CollectionUtil extends CollectionUtils {
     return isEmpty(set) ? new ArrayList<>() : new ArrayList<>(set);
   }
 
+  /**
+   * 并集
+   *
+   * @author lvweijie
+   * @date 2024/8/7 21:48
+   */
+  public static <E> Map<String, E> union(Map<String, E> c, Map<String, E>... other) {
+    if (isEmpty(c) && null == other) {
+      return new HashMap<>();
+    }
+    Map<String, E> result = isNotEmpty(c) ? new HashMap<>(c) : new HashMap<>();
+    if (null != other) {
+      for (Map<String, E> e : other) {
+        if (isEmpty(e)) {
+          continue;
+        }
+        result.putAll(e);
+      }
+    }
+    return result;
+  }
+
   public static <T extends Object & Comparable<? super T>> T max(List<T> elements) {
     if (isEmpty(elements)) {
       return null;

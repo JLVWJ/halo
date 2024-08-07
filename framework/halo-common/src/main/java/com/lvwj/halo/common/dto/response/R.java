@@ -1,5 +1,6 @@
 package com.lvwj.halo.common.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.lvwj.halo.common.constants.SystemConstant;
 import com.lvwj.halo.common.enums.BaseErrorEnum;
 import com.lvwj.halo.common.enums.IErrorEnum;
@@ -34,8 +35,10 @@ public class R<T> implements Serializable {
 
   private T data;
 
+  @JsonIgnore
   private transient IErrorEnum errorCode;
 
+  @JsonIgnore
   private transient Object[] args;
 
   protected R(IErrorEnum errorCode, Object[] args) {
@@ -79,11 +82,13 @@ public class R<T> implements Serializable {
    * @return data
    */
   @Transient
+  @JsonIgnore
   public T getOrThrow() {
     return getOrThrow(() -> null);
   }
 
   @Transient
+  @JsonIgnore
   public T getOrThrow(Supplier<T> supplierIfNull) {
     return getOrThrow(true, () -> null);
   }
@@ -94,11 +99,13 @@ public class R<T> implements Serializable {
    * @return data
    */
   @Transient
+  @JsonIgnore
   public T getOrNull() {
     return getOrNull(() -> null);
   }
 
   @Transient
+  @JsonIgnore
   public T getOrNull(Supplier<T> supplierIfNull) {
     return getOrThrow(false, supplierIfNull);
   }
@@ -111,6 +118,7 @@ public class R<T> implements Serializable {
    * @return data
    */
   @Transient
+  @JsonIgnore
   private T getOrThrow(boolean throwIfFailed, Supplier<T> supplierIfNull) {
     if (!isSuccess() && throwIfFailed) {
       throw new BusinessException(BaseErrorEnum.RPC_FAILED, getMessage());

@@ -133,6 +133,20 @@ public class DateTimeUtil {
   }
 
   /**
+   * 时间戳转成LocalDateTime(带时区)
+   *
+   * @author lvweijie
+   * @date 2024/8/7 20:22
+   * @param timestamp 时间戳: System.currentTimeMillis()
+   * @param zoneId 时区
+   * @return java.time.LocalDateTime
+   */
+  public static LocalDateTime parseDateTime(Long timestamp, ZoneId zoneId) {
+    LocalDateTime localDateTime = parseDateTime(timestamp);
+    return toDateTime(localDateTime, zoneId);
+  }
+
+  /**
    * 将字符串转换为时间
    *
    * @param dateStr 时间字符串

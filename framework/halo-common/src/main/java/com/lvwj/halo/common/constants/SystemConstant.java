@@ -16,6 +16,7 @@ public class SystemConstant {
     public static String ERROR = "system error";
 
 
+    public static final String TRACE_ID = "traceId";
     public static final String LOCALE = "x-locale";
     public static final String LANG = "lang";
     public static final String ENCODING = "encoding";

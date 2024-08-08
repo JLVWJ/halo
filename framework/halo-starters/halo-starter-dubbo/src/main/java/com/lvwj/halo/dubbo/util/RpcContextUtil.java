@@ -4,14 +4,14 @@ package com.lvwj.halo.dubbo.util;
 import com.lvwj.halo.common.constants.SystemConstant;
 import com.lvwj.halo.common.utils.Func;
 import org.apache.dubbo.rpc.RpcContext;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
+import org.slf4j.MDC;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.StringUtils;
 
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import static org.apache.dubbo.common.constants.CommonConstants.REMOTE_APPLICATION_KEY;
 
 /**
  *
@@ -132,5 +132,21 @@ public class RpcContextUtil {
     public static void setEnocding(String enocding) {
         RpcContext context = RpcContext.getServerAttachment();
         context.setAttachment(SystemConstant.ENCODING, enocding);
+    }
+
+    public static String getTraceId() {
+        String traceId = RpcContext.getServerAttachment().getAttachment(SystemConstant.TRACE_ID);
+        if (Func.isBlank(traceId)) {
+            traceId = MDC.get(SystemConstant.TRACE_ID);
+        }
+        if (Func.isBlank(traceId)) {
+            traceId = TraceContext.traceId();
+        }
+        return traceId;
+    }
+
+    public static void setTraceId(String traceId) {
+        RpcContext context = RpcContext.getServerAttachment();
+        context.setAttachment(SystemConstant.TRACE_ID, traceId);
     }
 }

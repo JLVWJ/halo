@@ -1,5 +1,6 @@
 package com.lvwj.halo.dubbo.filter;
 
+import com.lvwj.halo.dubbo.util.RpcContextUtil;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
@@ -17,6 +18,7 @@ public class MyConsumerContextFilter implements Filter {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
 
+        RpcContextUtil.setTraceId(RpcContextUtil.getTraceId());
         return invoker.invoke(invocation);
     }
 }

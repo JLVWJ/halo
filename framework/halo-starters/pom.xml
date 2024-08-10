@@ -40,6 +40,7 @@
         <module>halo-starter-httpclient</module>
         <module>halo-starter-swagger3</module>
         <module>halo-starter-tika</module>
+        <module>halo-starter-cache</module>
     </modules>
 
     <dependencies>

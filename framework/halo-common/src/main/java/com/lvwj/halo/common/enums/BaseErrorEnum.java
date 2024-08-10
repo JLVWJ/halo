@@ -48,6 +48,7 @@ public enum BaseErrorEnum implements IErrorEnum{
     INSTANCE_TYPE_ERROR(622, "[{0}] isn't instance of type[{1}]",false),
     REG_EXP_ERROR(623, "[{0}] doesn't match pattern[{1}]",false),
 
+    CACHE_NULL_ERROR(700, "缓存NULL值错误"),
 
     ;
 

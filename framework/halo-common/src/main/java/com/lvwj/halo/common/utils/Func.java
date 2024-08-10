@@ -6,6 +6,7 @@ import cn.hutool.core.lang.UUID;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -24,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -39,6 +41,7 @@ import java.util.function.Supplier;
 /**
  * 工具包集合，工具类快捷方式
  */
+@Slf4j
 public class Func {
 
   public static <T> T getOrDefault(T value, T defaultValue) {
@@ -1899,5 +1902,23 @@ public class Func {
    */
   public static String cleanHtmlTag(String content) {
     return content.replaceAll("(<[^<]*?>)|(<[\\s]*?/[^<]*?>)|(<[^<]*?/[\\s]*?>)", "");
+  }
+
+  /**
+   * 获取本机IP
+   *
+   * @author lvweijie
+   * @date 2024/8/9 22:01
+   * @return java.lang.String
+   */
+  public static String getLocalIP(){
+    try{
+      String host = InetAddress.getLocalHost().getHostAddress();
+      String port = System.getProperty("server.port");
+      return host + ":" + port;
+    }catch (Exception e){
+      log.warn("Func.getLocalIP error:"+e.getMessage(), e);
+      return StringPool.EMPTY;
+    }
   }
 }

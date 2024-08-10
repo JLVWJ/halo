@@ -142,6 +142,90 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
         upsertAllInternal(entities, false);
     }
 
+    @Override
+    public void save(Filter filter, TextEmbeddingEntity updateEntity){
+        Assert.notNullOrEmpty(filter, BaseErrorEnum.PARAM_EMPTY_ERROR, "MilvusEmbeddingStore.save[filter]");
+        upsertByExpr(map(filter,getPartitionKeyFieldName()),updateEntity);
+    }
+
+    /**
+     * 根据条件查询并更新实体，如查不到则插入实体
+     *
+     * @author lvweijie
+     * @date 2024/8/10 14:38
+     * @param expr 查询条件
+     * @param updateEntity 实体
+     */
+    private void upsertByExpr(String expr, TextEmbeddingEntity updateEntity) {
+        Assert.notNullOrEmpty(expr, BaseErrorEnum.PARAM_EMPTY_ERROR, "MilvusEmbeddingStore.upsertByExpr[expr]");
+        Assert.notNullOrEmpty(updateEntity, BaseErrorEnum.PARAM_EMPTY_ERROR, "MilvusEmbeddingStore.upsertByExpr[updateEntity]");
+
+        List<String> ids = new ArrayList<>();
+        List<TextSegment> textSegments = new ArrayList<>();
+        List<Embedding> embeddings = new ArrayList<>();
+        List<String> partitionKeys = new ArrayList<>();
+        List<Boolean> deletes = new ArrayList<>();
+
+        List<TextEmbeddingEntity> entities = queryEntities(this.milvusClient, this.collectionName, getPartitionKeyFieldName(), expr);
+        if (CollectionUtils.isEmpty(entities)) { //查不到，则用updateEntity插入
+            Assert.notNullOrEmpty(updateEntity.getId(), BaseErrorEnum.PARAM_EMPTY_ERROR, "MilvusEmbeddingStore.upsertByExpr[updateEntity.id]");
+            Assert.notNullOrEmpty(updateEntity.getTextSegment(), BaseErrorEnum.PARAM_EMPTY_ERROR, "MilvusEmbeddingStore.upsertByExpr[updateEntity.textSegment]");
+            Assert.notNullOrEmpty(updateEntity.getEmbedding(), BaseErrorEnum.PARAM_EMPTY_ERROR, "MilvusEmbeddingStore.upsertByExpr[updateEntity.embedding]");
+            ids.add(updateEntity.getId());
+            textSegments.add(updateEntity.getTextSegment());
+            embeddings.add(updateEntity.getEmbedding());
+            if (StringUtils.hasLength(updateEntity.getPartitionKey())) {
+                partitionKeys.add(updateEntity.getPartitionKey());
+            }
+            deletes.add(Optional.ofNullable(updateEntity.getDeleted()).orElse(Boolean.FALSE));
+        } else { //查的到，则用updateEntity更新查到的数据
+            for (TextEmbeddingEntity entity : entities) {
+                if (!entity.update(updateEntity)) continue;
+                ids.add(entity.getId());
+                textSegments.add(entity.getTextSegment());
+                embeddings.add(entity.getEmbedding());
+                if (StringUtils.hasLength(entity.getPartitionKey())) {
+                    partitionKeys.add(entity.getPartitionKey());
+                }
+                deletes.add(entity.getDeleted());
+            }
+        }
+        if (!ids.isEmpty())
+            upsertAllInternal(ids, textSegments, embeddings, partitionKeys, deletes, false);
+    }
+
+    /**
+     * 根据条件查询并更新实体
+     *
+     * @author lvweijie
+     * @date 2024/8/10 14:38
+     * @param expr 查询条件
+     * @param updateEntity 实体
+     */
+    private void updateByExpr(String expr, TextEmbeddingEntity updateEntity) {
+        Assert.notNullOrEmpty(expr, BaseErrorEnum.PARAM_EMPTY_ERROR,"MilvusEmbeddingStore.updateByExpr[expr]");
+        Assert.notNullOrEmpty(updateEntity, BaseErrorEnum.PARAM_EMPTY_ERROR,"MilvusEmbeddingStore.updateByExpr[updateEntity]");
+
+        List<String> ids = new ArrayList<>();
+        List<TextSegment> textSegments = new ArrayList<>();
+        List<Embedding> embeddings = new ArrayList<>();
+        List<String> partitionKeys = new ArrayList<>();
+        List<Boolean> deletes = new ArrayList<>();
+        List<TextEmbeddingEntity> entities = queryEntities(this.milvusClient, this.collectionName, getPartitionKeyFieldName(), expr);
+        for (TextEmbeddingEntity entity : entities) {
+            if (!entity.update(updateEntity)) continue;
+            ids.add(entity.getId());
+            textSegments.add(entity.getTextSegment());
+            embeddings.add(entity.getEmbedding());
+            if (StringUtils.hasLength(entity.getPartitionKey())) {
+                partitionKeys.add(entity.getPartitionKey());
+            }
+            deletes.add(entity.getDeleted());
+        }
+        if (!ids.isEmpty())
+            upsertAllInternal(ids, textSegments, embeddings, partitionKeys, deletes, false);
+    }
+
     /**
      *
      * @author lvweijie
@@ -178,28 +262,6 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
         }
         if (!ids.isEmpty())
             upsertAllInternal(ids, textSegments, embeddings, partitionKeys, deletes, insertOrUpsert);
-    }
-
-    private void upsertAllInternal(String expr, TextEmbeddingEntity updateEntity) {
-        if (!StringUtils.hasLength(expr) || null == updateEntity) return;
-        List<String> ids = new ArrayList<>();
-        List<TextSegment> textSegments = new ArrayList<>();
-        List<Embedding> embeddings = new ArrayList<>();
-        List<String> partitionKeys = new ArrayList<>();
-        List<Boolean> deletes = new ArrayList<>();
-        List<TextEmbeddingEntity> entities = queryEntities(this.milvusClient, this.collectionName, getPartitionKeyFieldName(), expr);
-        for (TextEmbeddingEntity entity : entities) {
-            if (!entity.update(updateEntity)) continue;
-            ids.add(entity.getId());
-            textSegments.add(entity.getTextSegment());
-            embeddings.add(entity.getEmbedding());
-            if (StringUtils.hasLength(entity.getPartitionKey())) {
-                partitionKeys.add(entity.getPartitionKey());
-            }
-            deletes.add(entity.getDeleted());
-        }
-        if (!ids.isEmpty())
-            upsertAllInternal(ids, textSegments, embeddings, partitionKeys, deletes, false);
     }
 
     private void upsertAllInternal(List<String> ids, List<TextSegment> textSegments, List<Embedding> embeddings, List<String> partitionKeys, List<Boolean> deletes, boolean insertOrUpsert) {
@@ -270,13 +332,13 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
 
     private void doRecoverAll(String expr) {
         if (softDelete) {
-            upsertAllInternal(expr, TextEmbeddingEntity.from().deleted(Boolean.FALSE));
+            updateByExpr(expr, TextEmbeddingEntity.from().deleted(Boolean.FALSE));
         }
     }
 
     private void doRemoveAll(String expr) {
         if (softDelete) {
-            upsertAllInternal(expr, TextEmbeddingEntity.from().deleted(Boolean.TRUE));
+            updateByExpr(expr, TextEmbeddingEntity.from().deleted(Boolean.TRUE));
         } else {
             delete(this.milvusClient, this.collectionName, expr);
         }

@@ -813,6 +813,11 @@
             </dependency>
             <dependency>
                 <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-starter-cache</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
                 <artifactId>halo-starter-distributedlock</artifactId>
                 <version>${revision}</version>
             </dependency>

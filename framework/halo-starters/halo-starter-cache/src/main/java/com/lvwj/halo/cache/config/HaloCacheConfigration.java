@@ -7,6 +7,7 @@ import com.lvwj.halo.cache.core.constant.HaloCacheType;
 import com.lvwj.halo.cache.core.manager.local.HaloCaffeineCacheManager;
 import com.lvwj.halo.cache.core.manager.multi.HaloMultiLevelCacheManager;
 import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.redis.RedisKeyGenerator;
 import com.lvwj.halo.redis.RedisTemplatePlus;
 import com.lvwj.halo.redis.config.RedisTemplateConfiguration;
 import jakarta.annotation.Resource;
@@ -145,6 +146,7 @@ public class HaloCacheConfigration {
         if (Func.isNotEmpty(redis)) {
             redis.forEach((key, value) -> {
                 RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                        .computePrefixWith(new RedisKeyGenerator())
                         .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                         .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
                 if (null != value.getTimeToLive()) {
@@ -181,6 +183,7 @@ public class HaloCacheConfigration {
         CacheProperties.Redis redisProperties = this.cacheProperties.getRedis();
         RedisCacheConfiguration config = RedisCacheConfiguration
                 .defaultCacheConfig()
+                .computePrefixWith(new RedisKeyGenerator())
                 .serializeKeysWith(RedisSerializationContext.SerializationPair
                         .fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair

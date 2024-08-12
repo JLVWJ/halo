@@ -1,7 +1,9 @@
 package com.lvwj.halo.redis;
 
 
+import com.lvwj.halo.common.utils.StringPool;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.cache.CacheKeyPrefix;
 
 /**
  * redisKey生成器
@@ -9,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author lvwj
  * @date 2022-08-16 10:45
  */
-public class RedisKeyGenerator {
+public class RedisKeyGenerator implements CacheKeyPrefix {
 
   /**
    * 拼接key前缀
@@ -23,8 +25,13 @@ public class RedisKeyGenerator {
       keyPrefix = System.getProperty("spring.application.name");
     }
     if (StringUtils.isNotBlank(keyPrefix)) {
-      return String.join(":", keyPrefix, bizKey);
+      return String.join(StringPool.COLON, keyPrefix, bizKey);
     }
     return bizKey;
+  }
+
+  @Override
+  public String compute(String cacheName) {
+    return gen(cacheName) + StringPool.COLON;
   }
 }

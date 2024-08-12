@@ -3,7 +3,7 @@ package com.lvwj.halo.milvus.config;
 import cn.hutool.extra.spring.SpringUtil;
 import com.lvwj.halo.milvus.core.MilvusEmbeddingStore;
 import jakarta.annotation.Resource;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,9 +24,9 @@ public class MilvusEmbeddingStoreConfigration {
     @Resource
     private MilvusEmbeddingStoreProperties properties;
 
-    @Bean
-    public ApplicationRunner applicationRunner() {
-        return args -> {
+    @Bean("buildMilvusEmbeddingStore")
+    public SmartInitializingSingleton buildMilvusEmbeddingStore() {
+        return () -> {
             if (null == properties || !properties.isEnabled() || null == properties.getCollections() || properties.getCollections().isEmpty())
                 return;
 

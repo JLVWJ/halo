@@ -17,7 +17,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import java.util.Objects;
 
 @AutoConfiguration(after = {RedisTemplateConfiguration.class, HaloCacheConfigration.class})
-@ConditionalOnProperty(value = "halo.cache.type", havingValue = "multilevel")
+@ConditionalOnProperty(prefix = HaloCacheProperties.PREFIX, value = "enabled", havingValue = "true")
 public class HaloCacheMessageListenerConfigration {
 
     @Resource
@@ -25,6 +25,7 @@ public class HaloCacheMessageListenerConfigration {
 
     @Bean
     @ConditionalOnClass(HaloMultiLevelCacheManager.class)
+    @ConditionalOnProperty(prefix = HaloCacheProperties.PREFIX, value = "type", havingValue = "multilevel")
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory,
                                                                        HaloMultiLevelCacheManager multilevelCacheManager) {
 

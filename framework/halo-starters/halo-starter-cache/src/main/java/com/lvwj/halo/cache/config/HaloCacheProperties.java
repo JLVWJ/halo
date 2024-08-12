@@ -10,9 +10,20 @@ import java.util.Map;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "halo.cache")
+@ConfigurationProperties(prefix = HaloCacheProperties.PREFIX)
 public class HaloCacheProperties {
 
+    public static final String PREFIX = "halo.cache";
+
+    /**
+     * 是否启用
+     */
+    private Boolean enabled = true;
+
+    /**
+     * 缓存类型
+     * @see com.lvwj.halo.cache.core.constant.HaloCacheType
+     */
     private String type;
 
     /**

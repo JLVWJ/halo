@@ -3,6 +3,7 @@ package com.lvwj.halo.common.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.extra.spring.SpringUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1914,7 +1915,7 @@ public class Func {
   public static String getLocalIP(){
     try{
       String host = InetAddress.getLocalHost().getHostAddress();
-      String port = System.getProperty("server.port");
+      String port = SpringUtil.getProperty("server.port");
       return host + ":" + port;
     }catch (Exception e){
       log.warn("Func.getLocalIP error:"+e.getMessage(), e);

@@ -3,7 +3,6 @@ package com.lvwj.halo.cache.config;
 import com.lvwj.halo.cache.core.constant.CacheConstant;
 import com.lvwj.halo.cache.core.manager.multi.HaloMultiLevelCacheManager;
 import com.lvwj.halo.cache.core.message.CacheMessageListener;
-import com.lvwj.halo.redis.config.RedisTemplateConfiguration;
 import jakarta.annotation.Resource;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -16,7 +15,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.Objects;
 
-@AutoConfiguration(after = {RedisTemplateConfiguration.class, HaloCacheConfigration.class})
+@AutoConfiguration(after = {HaloCacheConfigration.class})
 @ConditionalOnProperty(prefix = HaloCacheProperties.PREFIX, value = "enabled", havingValue = "true")
 public class HaloCacheMessageListenerConfigration {
 

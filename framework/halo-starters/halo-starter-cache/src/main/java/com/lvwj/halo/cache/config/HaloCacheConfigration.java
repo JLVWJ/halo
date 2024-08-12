@@ -13,17 +13,18 @@ import com.lvwj.halo.redis.config.RedisTemplateConfiguration;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizers;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.BatchStrategies;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -38,7 +39,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 缓存自动配置
@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * @date 2024年08月09日 14:44
  */
 @EnableCaching
-@AutoConfiguration(after = RedisTemplateConfiguration.class)
+@AutoConfiguration(after = {RedisTemplateConfiguration.class})
 @ConditionalOnProperty(prefix = HaloCacheProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({CacheProperties.class, HaloCacheProperties.class})
 public class HaloCacheConfigration {
@@ -62,11 +62,13 @@ public class HaloCacheConfigration {
 
     private final CacheLoader<Object, Object> cacheLoader;
 
+    @Lazy
+    @Autowired
+    private CacheManagerCustomizers cacheManagerCustomizers;
+
     @Resource
     private RedisTemplatePlus redisTemplatePlus;
 
-    @Resource
-    private CacheManagerCustomizers cacheManagerCustomizers;
 
 
     public HaloCacheConfigration(CacheProperties cacheProperties,
@@ -79,19 +81,16 @@ public class HaloCacheConfigration {
         this.caffeine = caffeine.getIfAvailable();
         this.caffeineSpec = caffeineSpec.getIfAvailable();
         this.cacheLoader = cacheLoader.getIfAvailable();
-
     }
 
     @Bean
     @ConditionalOnMissingBean
     public CacheManagerCustomizers cacheManagerCustomizers(ObjectProvider<CacheManagerCustomizer<?>> customizers) {
-        return new CacheManagerCustomizers(customizers.orderedStream().collect(Collectors.toList()));
+        return new CacheManagerCustomizers(customizers.orderedStream().toList());
     }
-
 
     @Bean
     @Primary
-    @ConditionalOnBean(RedisConnectionFactory.class)
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         CacheManager cacheManager;
         if (Objects.equals(haloCacheProperties.getType(), HaloCacheType.MULTILEVEL.getCode())) {

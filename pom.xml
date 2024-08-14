@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.lvwj.halo</groupId>
         <artifactId>halo-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.1-RELEASE</version>
         <relativePath>framework/halo-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>halo</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-RELEASE</version>
     <packaging>pom</packaging>
 
     <name>halo</name>

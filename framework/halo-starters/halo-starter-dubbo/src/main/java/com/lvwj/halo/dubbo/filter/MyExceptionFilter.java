@@ -36,11 +36,11 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         StopWatch sw = new StopWatch();
-        sw.start();
         String methodName = getMethodName(invoker, invocation);
         try {
             //打印日志
             printRequestLog(methodName, invocation.getArguments());
+            sw.start();
             return invoker.invoke(invocation);
         } finally {
             sw.stop();
@@ -82,6 +82,7 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
         }
     }
 
+    @Trace
     @Override
     public void onError(Throwable t, Invoker<?> invoker, Invocation invocation) {
         //打印日志

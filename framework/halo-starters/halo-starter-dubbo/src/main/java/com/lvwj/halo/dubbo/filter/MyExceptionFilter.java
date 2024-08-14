@@ -44,10 +44,11 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
             return invoker.invoke(invocation);
         } finally {
             sw.stop();
-            log.info(methodName + "请求耗时(毫秒):" + sw.getTotalTimeMillis());
+            log.info(methodName + "请求耗时(毫秒): " + sw.getTotalTimeMillis());
         }
     }
 
+    @Trace
     @Override
     public void onResponse(Result appResponse, Invoker<?> invoker, Invocation invocation) {
         //打印日志

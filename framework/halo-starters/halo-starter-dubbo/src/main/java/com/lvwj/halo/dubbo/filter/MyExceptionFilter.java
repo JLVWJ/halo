@@ -17,6 +17,8 @@ import org.springframework.util.ObjectUtils;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.util.StopWatch;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,12 +35,19 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
     @Trace
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        //打印日志
-        printRequestLog(getMethodName(invoker, invocation), invocation.getArguments());
-        return invoker.invoke(invocation);
+        StopWatch sw = new StopWatch();
+        sw.start();
+        String methodName = getMethodName(invoker, invocation);
+        try {
+            //打印日志
+            printRequestLog(methodName, invocation.getArguments());
+            return invoker.invoke(invocation);
+        } finally {
+            sw.stop();
+            log.info(methodName + "请求耗时(毫秒):" + sw.getTotalTimeMillis());
+        }
     }
 
-    @Trace
     @Override
     public void onResponse(Result appResponse, Invoker<?> invoker, Invocation invocation) {
         //打印日志
@@ -72,7 +81,6 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
         }
     }
 
-    @Trace
     @Override
     public void onError(Throwable t, Invoker<?> invoker, Invocation invocation) {
         //打印日志

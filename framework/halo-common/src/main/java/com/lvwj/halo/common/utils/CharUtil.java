@@ -1,5 +1,7 @@
 package com.lvwj.halo.common.utils;
 
+import java.util.regex.Pattern;
+
 /**
  *
  * @author lvwj
@@ -9,6 +11,8 @@ public class CharUtil {
 
   private CharUtil() {
   }
+
+  private static final Pattern pattern = Pattern.compile("[\u4e00-\u9fa5]");
 
   public static boolean isAscii(char ch) {
     return ch < 128;
@@ -20,6 +24,14 @@ public class CharUtil {
 
   public static boolean isAsciiControl(char ch) {
     return ch < ' ' || ch == 127;
+  }
+
+  /**
+   * 字符是否是中文字
+   */
+  public static boolean isChineseCharacter(char ch) {
+    if (ch == ' ') return false;
+    return pattern.matcher(String.valueOf(ch)).matches();
   }
 
   /**

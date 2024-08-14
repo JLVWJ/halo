@@ -1922,4 +1922,9 @@ public class Func {
       return StringPool.EMPTY;
     }
   }
+
+  public static long getTextTokens(String text){
+    if(isBlank(text)) return 0;
+    return text.chars().mapToObj(s->(char)s).filter(c->CharUtil.isChineseCharacter(c) || CharUtil.isLetterOrNumber(c)).count();
+  }
 }

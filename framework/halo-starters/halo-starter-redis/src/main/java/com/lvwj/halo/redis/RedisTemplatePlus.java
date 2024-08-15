@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.lvwj.halo.common.enums.BaseErrorEnum;
 import com.lvwj.halo.common.function.checked.CheckedRunnable;
 import com.lvwj.halo.common.function.checked.CheckedSupplier;
+import com.lvwj.halo.common.tuples.Tuple2;
 import com.lvwj.halo.common.utils.Assert;
 import com.lvwj.halo.common.utils.Exceptions;
 import lombok.Getter;
@@ -932,11 +933,54 @@ public class RedisTemplatePlus {
     return (Set<T>)zSetOps.reverseRange(RedisKeyGenerator.gen(key), start, end);
   }
 
+  public <T> List<Tuple2<T,Double>> zRangeWithScores(String key, long start, long end) {
+    Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOps.rangeWithScores(RedisKeyGenerator.gen(key), start, end);
+    if (null == typedTuples) return null;
+    return typedTuples.stream().map(s -> new Tuple2<>((T) s.getValue(), s.getScore())).toList();
+  }
+
+  public <T> List<Tuple2<T,Double>> zRangeWithScores(String key, double min, double max) {
+    Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOps.rangeByScoreWithScores(RedisKeyGenerator.gen(key), min, max);
+    if (null == typedTuples) return null;
+    return typedTuples.stream().map(s -> new Tuple2<>((T) s.getValue(), s.getScore())).toList();
+  }
+
+  public <T> List<Tuple2<T,Double>> zRevRangeWithScores(String key, long start, long end) {
+    Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOps.reverseRangeWithScores(RedisKeyGenerator.gen(key), start, end);
+    if (null == typedTuples) return null;
+    return typedTuples.stream().map(s -> new Tuple2<>((T) s.getValue(), s.getScore())).toList();
+  }
+
+  public <T> List<Tuple2<T,Double>> zRevRangeWithScores(String key, double min, double max) {
+    Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOps.reverseRangeByScoreWithScores(RedisKeyGenerator.gen(key), min, max);
+    if (null == typedTuples) return null;
+    return typedTuples.stream().map(s -> new Tuple2<>((T) s.getValue(), s.getScore())).toList();
+  }
+
+  public <T> List<Tuple2<T,Double>> zRevRangeWithScores(String key, double min, double max, long offset, long count) {
+    Set<ZSetOperations.TypedTuple<Object>> typedTuples = zSetOps.reverseRangeByScoreWithScores(RedisKeyGenerator.gen(key), min, max, offset, count);
+    if (null == typedTuples) return null;
+    return typedTuples.stream().map(s -> new Tuple2<>((T) s.getValue(), s.getScore())).toList();
+  }
+
   /**
    * 返回有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。 有序集成员按 score 值递增(从小到大)次序排列。
    */
   public <T> Set<T> zRangeByScore(String key, double min, double max) {
     return (Set<T>)zSetOps.rangeByScore(RedisKeyGenerator.gen(key), min, max);
+  }
+
+  public <T> Set<T> zRangeByScore(String key, double min, double max, long offset, long count) {
+    return (Set<T>)zSetOps.rangeByScore(RedisKeyGenerator.gen(key), min, max, offset, count);
+  }
+
+  public <T> Set<T> zRevRangeByScore(String key, double min, double max) {
+    return (Set<T>)zSetOps.reverseRangeByScore(RedisKeyGenerator.gen(key), min, max);
+  }
+
+
+  public <T> Set<T> zRevRangeByScore(String key, double min, double max, long offset, long count) {
+    return (Set<T>)zSetOps.reverseRangeByScore(RedisKeyGenerator.gen(key), min, max, offset, count);
   }
 
   /**

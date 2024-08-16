@@ -6,13 +6,13 @@
     <parent>
         <groupId>com.lvwj.halo</groupId>
         <artifactId>halo-parent</artifactId>
-        <version>1.0.1-RELEASE</version>
+        <version>1.0.2-RELEASE</version>
         <relativePath>../halo-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>halo-starters</artifactId>
     <name>halo-starters</name>
-    <version>1.0.1-RELEASE</version>
+    <version>1.0.2-RELEASE</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -34,7 +34,7 @@
         <module>halo-starter-cloud</module>
         <module>halo-starter-elasticsearch</module>
         <module>halo-starter-milvus</module>
-        <module>halo-starter-embeddingmodel</module>
+        <!--<module>halo-starter-embeddingmodel</module>-->
         <module>halo-starter-join</module>
         <module>halo-starter-xxljob</module>
         <module>halo-starter-httpclient</module>

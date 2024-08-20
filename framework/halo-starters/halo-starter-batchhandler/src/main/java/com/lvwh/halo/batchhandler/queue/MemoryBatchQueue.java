@@ -30,6 +30,14 @@ public class MemoryBatchQueue<T> extends AbstractBatchQueue<T> {
     }
 
     @Override
+    public void putFirst(List<T> ts) {
+        if (null == ts || ts.isEmpty()) {
+            return;
+        }
+        ts.forEach(queue::addFirst);
+    }
+
+    @Override
     public T take() {
         return queue.poll();
     }

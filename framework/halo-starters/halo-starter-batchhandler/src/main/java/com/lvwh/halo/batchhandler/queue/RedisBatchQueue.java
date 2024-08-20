@@ -39,6 +39,14 @@ public class RedisBatchQueue<T> extends AbstractBatchQueue<T> {
     }
 
     @Override
+    public void putFirst(List<T> ts) {
+        if (CollectionUtils.isEmpty(ts)) {
+            return;
+        }
+        redisPlus().lPushAll(cacheKey(), ts);
+    }
+
+    @Override
     public T take() {
         List<T> ts = take(1);
         return CollectionUtils.isEmpty(ts) ? null : ts.get(0);

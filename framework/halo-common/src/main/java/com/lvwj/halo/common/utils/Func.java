@@ -1923,8 +1923,161 @@ public class Func {
     }
   }
 
-  public static long getTextTokens(String text){
+  /**
+   * 统计中文和英文数量，中文一个汉字算一个，英文一个单词算一个, 其他数字和特殊字符不算在内
+   *
+   * @author lvweijie
+   * @date 2024/8/20 10:08
+   * @param text text
+   * @return long
+   */
+  public static long countTextToken(String text){
     if(isBlank(text)) return 0;
-    return text.chars().mapToObj(s->(char)s).filter(c->CharUtil.isChineseCharacter(c) || CharUtil.isLetterOrNumber(c)).count();
+    if (Func.isBlank(text)) return 0;
+    int[] count = {0};
+    String[] str = {StringPool.EMPTY};
+    text.chars().forEach(s -> {
+      char ch = (char) s;
+      if (CharUtil.isChineseCharacter(ch)) {
+        count[0]++;
+        if (Func.isNotBlank(str[0])) {
+          count[0]++;
+          str[0] = StringPool.EMPTY;
+        }
+      }else if (Character.isLetter(ch)) {
+        str[0] += ch;
+      } else {
+        if (Func.isNotBlank(str[0])) {
+          count[0]++;
+          str[0] = StringPool.EMPTY;
+        }
+      }
+    });
+    if (Func.isNotBlank(str[0])) {
+      count[0]++;
+      str[0] = StringPool.EMPTY;
+    }
+    return count[0];
+  }
+
+  /**
+   * 按token下标截取text文本
+   *
+   * @author lvweijie
+   * @date 2024/8/20 15:01
+   * @param text  文本
+   * @param tokenStart  0开始，包含
+   * @param tokenEnd   0开始，不包含
+   * @return java.lang.String 截取后的文本
+   */
+  public static String subTextByToken(String text, int tokenStart, int tokenEnd) {
+    if (tokenStart < 0) {
+      tokenStart = 0;
+    }
+    if (tokenEnd < 0) {
+      tokenEnd = 0;
+    }
+    if (tokenStart == tokenEnd) return StringPool.EMPTY;
+
+    StringBuilder sb = new StringBuilder();
+
+    int[] count = {0};
+    String[] str = {StringPool.EMPTY};
+
+    String firstWord = StringPool.EMPTY;
+
+    for (int s : text.chars().toArray()) {
+      char ch = (char) s;
+      if (CharUtil.isChineseCharacter(ch)) {
+        if (Func.isNotBlank(str[0])) {
+          count[0]++;
+          if (count[0] - 1 >= tokenStart) {
+            if (count[0] - 1 == tokenStart) {
+              firstWord = str[0];
+            }
+            sb.append(str[0]);
+          }
+          str[0] = StringPool.EMPTY;
+          if (count[0] >= tokenEnd) {
+            break;
+          }
+        }
+        count[0]++;
+        if (count[0] - 1 >= tokenStart) {
+          if (count[0] - 1 == tokenStart) {
+            firstWord = String.valueOf(ch);
+          }
+          sb.append(ch);
+        }
+        if (count[0] >= tokenEnd) {
+          break;
+        }
+      } else if (Character.isLetter(ch)) {
+        str[0] += ch;
+      } else {
+        if (Func.isNotBlank(str[0])) {
+          count[0]++;
+          if (count[0] - 1 >= tokenStart) {
+            if (count[0] - 1 == tokenStart) {
+              firstWord = str[0];
+            }
+            sb.append(str[0]);
+          }
+          str[0] = StringPool.EMPTY;
+          if (count[0] >= tokenEnd) {
+            break;
+          }
+        }
+        sb.append(ch);
+      }
+    }
+    if (Func.isNotBlank(str[0])) {
+      count[0]++;
+      if (count[0] - 1 >= tokenStart) {
+        if (count[0] - 1 == tokenStart) {
+          firstWord = str[0];
+        }
+        sb.append(str[0]);
+      }
+    }
+
+    String result = sb.toString();
+    if (Func.isNotBlank(firstWord)) {
+      result = result.substring(result.indexOf(firstWord));
+    }
+    return result;
+  }
+
+  /**
+   * 移除多余空格：
+   * 1. \t ' ' => ''
+   * 2. \r\n \n\n... => \n
+   *
+   * @author lvweijie
+   * @date 2024/8/20 10:40
+   * @param text  text
+   * @return java.lang.String
+   */
+  public static String removeExtraSpaces(String text) {
+    StringBuilder sb = new StringBuilder();
+    String[] str = {StringPool.EMPTY};
+    text.chars().forEach(s -> {
+      char ch = (char) s;
+      if (CharPool.TAB == ch || CharPool.SPACE == ch) {
+        if (!StringPool.EMPTY.equals(str[0])) {
+          sb.append(CharPool.NEWLINE);
+          str[0] = StringPool.EMPTY;
+        }
+      } else if (CharPool.RETURN == ch || CharPool.NEWLINE == ch) {
+        str[0] += ch;
+      } else {
+        if (!StringPool.EMPTY.equals(str[0])) {
+          sb.append(CharPool.NEWLINE);
+          str[0] = StringPool.EMPTY;
+        }
+        sb.append(ch);
+      }
+    });
+    return sb.toString();
   }
 }

@@ -34,7 +34,7 @@
         <module>halo-starter-cloud</module>
         <module>halo-starter-elasticsearch</module>
         <module>halo-starter-milvus</module>
-        <module>halo-starter-embeddingmodel</module>
+        <!--<module>halo-starter-embeddingmodel</module>-->
         <module>halo-starter-join</module>
         <module>halo-starter-xxljob</module>
         <module>halo-starter-httpclient</module>

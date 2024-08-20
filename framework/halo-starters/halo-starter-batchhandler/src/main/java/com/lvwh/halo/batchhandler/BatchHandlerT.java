@@ -65,4 +65,11 @@ public class BatchHandlerT<T extends Serializable> {
             scheduledThreadPool.execute(this::batchHandle);
         }
     }
+
+    public void suspend(List<T> ts) {
+        queue.putFirst(ts);
+        if (queue.size() >= threshHold) {
+            scheduledThreadPool.execute(this::batchHandle);
+        }
+    }
 }

@@ -21,11 +21,13 @@ public class EventBus implements IEventBus {
   public <E extends IEvent> void publish(E event, String tag) {
     if (null == event) return;
     IEvent integrationEvent = event;
-    if (event instanceof IDomainEvent<?>) {
+    if (!(event instanceof IIntegrationEvent)) {
       publishDomainEvent(event); //发布领域事件
-      integrationEvent = ((IDomainEvent<?>) event).toIntegrationEvent();
-      if (null == integrationEvent) {
-        return;
+      if (event instanceof IDomainEvent<?>) {
+        integrationEvent = ((IDomainEvent<?>) event).toIntegrationEvent();
+        if (null == integrationEvent) {
+          return;
+        }
       }
     }
     //发布集成事件

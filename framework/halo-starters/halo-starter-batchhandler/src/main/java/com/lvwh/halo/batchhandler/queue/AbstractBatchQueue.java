@@ -12,6 +12,8 @@ public abstract class AbstractBatchQueue<T> {
 
     public abstract void put(List<T> ts);
 
+    public abstract void putFirst(List<T> ts);
+
     public abstract T take();
 
     public abstract List<T> take(long len);

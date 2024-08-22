@@ -19,6 +19,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.lvwj.halo</groupId>
+            <artifactId>halo-starter</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.knuddels</groupId>
             <artifactId>jtokkit</artifactId>
             <version>${jtokkit.version}</version>

@@ -1924,14 +1924,14 @@ public class Func {
   }
 
   /**
-   * 统计中文和英文数量，中文一个汉字算一个，英文一个单词算一个, 其他数字和特殊字符不算在内
+   * 统计中文和英文word数量，中文一个汉字和英文一个单词算一个word, 其他数字和特殊字符不算在内
    *
    * @author lvweijie
    * @date 2024/8/20 10:08
    * @param text text
    * @return long
    */
-  public static long countTextToken(String text){
+  public static long countWord(String text){
     if(isBlank(text)) return 0;
     if (Func.isBlank(text)) return 0;
     int[] count = {0};
@@ -1961,23 +1961,23 @@ public class Func {
   }
 
   /**
-   * 按token下标截取text文本
+   * 按word下标截取text文本, 中文一个汉字和英文一个单词算一个word
    *
    * @author lvweijie
    * @date 2024/8/20 15:01
    * @param text  文本
-   * @param tokenStart  0开始，包含
-   * @param tokenEnd   0开始，不包含
+   * @param wordStart  0开始，包含
+   * @param wordEnd   0开始，不包含
    * @return java.lang.String 截取后的文本
    */
-  public static String subTextByToken(String text, int tokenStart, int tokenEnd) {
-    if (tokenStart < 0) {
-      tokenStart = 0;
+  public static String subStringByWord(String text, int wordStart, int wordEnd) {
+    if (wordStart < 0) {
+      wordStart = 0;
     }
-    if (tokenEnd < 0) {
-      tokenEnd = 0;
+    if (wordEnd < 0) {
+      wordEnd = 0;
     }
-    if (tokenStart == tokenEnd) return StringPool.EMPTY;
+    if (wordStart == wordEnd) return StringPool.EMPTY;
 
     StringBuilder sb = new StringBuilder();
 
@@ -1991,25 +1991,25 @@ public class Func {
       if (CharUtil.isChineseCharacter(ch)) {
         if (Func.isNotBlank(str[0])) {
           count[0]++;
-          if (count[0] - 1 >= tokenStart) {
-            if (count[0] - 1 == tokenStart) {
+          if (count[0] - 1 >= wordStart) {
+            if (count[0] - 1 == wordStart) {
               firstWord = str[0];
             }
             sb.append(str[0]);
           }
           str[0] = StringPool.EMPTY;
-          if (count[0] >= tokenEnd) {
+          if (count[0] >= wordEnd) {
             break;
           }
         }
         count[0]++;
-        if (count[0] - 1 >= tokenStart) {
-          if (count[0] - 1 == tokenStart) {
+        if (count[0] - 1 >= wordStart) {
+          if (count[0] - 1 == wordStart) {
             firstWord = String.valueOf(ch);
           }
           sb.append(ch);
         }
-        if (count[0] >= tokenEnd) {
+        if (count[0] >= wordEnd) {
           break;
         }
       } else if (Character.isLetter(ch)) {
@@ -2017,14 +2017,14 @@ public class Func {
       } else {
         if (Func.isNotBlank(str[0])) {
           count[0]++;
-          if (count[0] - 1 >= tokenStart) {
-            if (count[0] - 1 == tokenStart) {
+          if (count[0] - 1 >= wordStart) {
+            if (count[0] - 1 == wordStart) {
               firstWord = str[0];
             }
             sb.append(str[0]);
           }
           str[0] = StringPool.EMPTY;
-          if (count[0] >= tokenEnd) {
+          if (count[0] >= wordEnd) {
             break;
           }
         }
@@ -2033,8 +2033,8 @@ public class Func {
     }
     if (Func.isNotBlank(str[0])) {
       count[0]++;
-      if (count[0] - 1 >= tokenStart) {
-        if (count[0] - 1 == tokenStart) {
+      if (count[0] - 1 >= wordStart) {
+        if (count[0] - 1 == wordStart) {
           firstWord = str[0];
         }
         sb.append(str[0]);

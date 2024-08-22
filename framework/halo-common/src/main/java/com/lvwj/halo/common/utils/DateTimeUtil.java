@@ -8,6 +8,7 @@ import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * DateTime 工具类
@@ -179,6 +180,14 @@ public class DateTimeUtil {
     return DateTimeUtil.parseDate(dateStr, DateTimeUtil.DATE_FORMAT);
   }
 
+  public static LocalDateTime plusDays(LocalDateTime localDateTime, Integer plusDays) {
+    return localDateTime.plusDays(plusDays);
+  }
+
+  public static LocalDate plusDays(LocalDate localDate, Integer plusDays) {
+    return localDate.plusDays(plusDays);
+  }
+
   /**
    * 将字符串转换为时间
    *
@@ -301,5 +310,21 @@ public class DateTimeUtil {
    */
   public static Period between(LocalDate startDate, LocalDate endDate) {
     return Period.between(startDate, endDate);
+  }
+
+  public static Boolean inRange(LocalTime localTime, String hHmmStartTime, String hHmmEndTime) {
+    LocalTime localStartTime = LocalTime.parse(hHmmStartTime);
+    LocalTime localEndTime = LocalTime.parse(hHmmEndTime);
+    return localTime.isAfter(localStartTime) && localTime.isBefore(localEndTime);
+  }
+
+  public static Long diffSeconds(LocalDateTime startTime, LocalDateTime endTime) {
+    long betweenMs = Duration.between(startTime, endTime).toMillis();
+    return TimeUnit.MILLISECONDS.toSeconds(betweenMs);
+  }
+
+  public static Long diffMinutes(LocalDateTime startTime, LocalDateTime endTime) {
+    long betweenMs = Duration.between(startTime, endTime).toMillis();
+    return TimeUnit.MILLISECONDS.toMinutes(betweenMs);
   }
 }

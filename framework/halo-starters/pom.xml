@@ -41,6 +41,7 @@
         <module>halo-starter-swagger3</module>
         <module>halo-starter-tika</module>
         <module>halo-starter-cache</module>
+        <module>halo-starter-tokenizer</module>
     </modules>
 
     <dependencies>

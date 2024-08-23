@@ -3,6 +3,7 @@ package com.lvwj.halo.core.snowflake;
 import com.google.common.base.Preconditions;
 import com.lvwj.halo.common.utils.DateTimeUtil;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.Calendar;
  * @author lvweijie
  * @date 2022/08/21
  **/
+@Slf4j
 public class SnowflakeGenerator {
 
   private static final long EPOCH;
@@ -79,7 +81,7 @@ public class SnowflakeGenerator {
    */
   public synchronized long nextId() {
     if (shardingBits > 0) {
-      throw new UnsupportedOperationException("分表场景需要有shardValue，建议使用 nextId(long shardValue) 方法获取");
+      log.warn("[shardingBits:" + shardingBits + "] ==> 分表场景需要有shardValue，建议使用方法:nextId(long shardValue) ");
     }
     return nextId(0L);
   }

@@ -932,6 +932,11 @@
             </dependency>
             <dependency>
                 <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-starter-swagger2</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
                 <artifactId>halo-starter-web</artifactId>
                 <version>${revision}</version>
             </dependency>

@@ -36,7 +36,7 @@
         <mysql.version>9.0.0</mysql.version>
         <hutool.version>5.8.26</hutool.version>
         <guava.version>33.2.1-jre</guava.version>
-        <jackson.version>2.17.0</jackson.version>
+        <jackson.version>2.17.2</jackson.version>
         <fastjson.version>2.0.52</fastjson.version>
         <fastjson2.version>2.0.52</fastjson2.version>
         <javers.version>6.8.0</javers.version>
@@ -62,6 +62,7 @@
         <curator.version>5.4.0</curator.version>
         <redisson.version>3.18.0</redisson.version>
         <jsqlparser.version>4.7</jsqlparser.version>
+        <reflections.version>0.10.2</reflections.version>
 
         <okhttp3.version>4.12.0</okhttp3.version>
         <caffeine.version>3.1.8</caffeine.version>
@@ -79,8 +80,7 @@
         <mybatis.spring.version>3.0.3</mybatis.spring.version>
 
         <swagger.version>3.0.0</swagger.version>
-        <swagger-models.version>1.6.14</swagger-models.version>
-        <swagger-annotations.version>1.6.14</swagger-annotations.version>
+        <swagger2.version>1.6.14</swagger2.version>
 
         <mockito.version>5.12.0</mockito.version>
         <javafaker.version>1.0.2</javafaker.version>
@@ -182,6 +182,14 @@
                 <artifactId>commons-collections</artifactId>
                 <version>${commons.collections.version}</version>
             </dependency>
+
+            <!-- reflections -->
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
@@ -377,6 +385,42 @@
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-guava</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-parameter-names</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-kotlin</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
 
             <!-- skywalking -->
             <dependency>
@@ -572,13 +616,18 @@
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>${swagger2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
                 <artifactId>swagger-models</artifactId>
-                <version>${swagger-models.version}</version>
+                <version>${swagger2.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>${swagger-annotations.version}</version>
+                <version>${swagger2.version}</version>
             </dependency>
 
             <dependency>

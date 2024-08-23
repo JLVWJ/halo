@@ -38,10 +38,10 @@
         <module>halo-starter-join</module>
         <module>halo-starter-xxljob</module>
         <module>halo-starter-httpclient</module>
-        <module>halo-starter-swagger3</module>
         <module>halo-starter-tika</module>
         <module>halo-starter-cache</module>
         <module>halo-starter-tokenizer</module>
+        <module>halo-starter-swagger2</module>
     </modules>
 
     <dependencies>

@@ -72,6 +72,10 @@ public class R<T> implements Serializable {
     return MessageFormat.format(message, args);
   }
 
+  public String getMsg(){
+    return getMessage();
+  }
+
   public boolean isSuccess() {
     return BaseErrorEnum.SUCCESS.getCode() == code;
   }

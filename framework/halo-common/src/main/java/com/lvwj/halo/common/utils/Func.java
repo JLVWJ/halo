@@ -1931,7 +1931,7 @@ public class Func {
    * @param text text
    * @return long
    */
-  public static long countWord(String text){
+  public static int countWord(String text){
     if(isBlank(text)) return 0;
     if (Func.isBlank(text)) return 0;
     int[] count = {0};

@@ -2,7 +2,6 @@ package com.lvwj.halo.core.snowflake;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * 雪花ID 配置项目
@@ -30,7 +29,6 @@ import org.springframework.validation.annotation.Validated;
  * @date 2022/11/16 1:35 PM
  */
 @Data
-@Validated
 @ConfigurationProperties(prefix = SnowflakeProperties.PREFIX)
 public class SnowflakeProperties {
 

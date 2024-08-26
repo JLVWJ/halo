@@ -3,7 +3,6 @@ package com.lvwj.halo.swagger2.core.reader;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
 import com.lvwj.halo.swagger2.core.toolkit.NameDiscover;
@@ -223,17 +222,11 @@ public class DubboReaderExtension implements ReaderExtension {
 
     @Override
     public void applyTags(ReaderContext context, Operation operation, Method method) {
-        final List<String> tags = new ArrayList<String>();
+        final List<String> tags = new ArrayList<>();
 
         final Api apiAnnotation = context.getCls().getAnnotation(Api.class);
         if (apiAnnotation != null) {
-            Collection<String> filter = Collections2.filter(Arrays.asList(apiAnnotation.tags()),
-                    new Predicate<String>() {
-                        @Override
-                        public boolean apply(String input) {
-                            return StringUtils.isNotBlank(input);
-                        }
-                    });
+            Collection<String> filter = Collections2.filter(Arrays.asList(apiAnnotation.tags()), StringUtils::isNotBlank);
             if (filter.isEmpty()) {
                 tags.add(context.getInterfaceCls().getSimpleName());
             } else {
@@ -246,13 +239,7 @@ public class DubboReaderExtension implements ReaderExtension {
 
         final ApiOperation apiOperation = ReflectionUtils.getAnnotation(method, ApiOperation.class);
         if (apiOperation != null) {
-            tags.addAll(Collections2.filter(Arrays.asList(apiOperation.tags()),
-                    new Predicate<String>() {
-                        @Override
-                        public boolean apply(String input) {
-                            return StringUtils.isNotBlank(input);
-                        }
-                    }));
+            tags.addAll(Collections2.filter(Arrays.asList(apiOperation.tags()), StringUtils::isNotBlank));
         }
 
         for (String tag : tags) {
@@ -268,14 +255,13 @@ public class DubboReaderExtension implements ReaderExtension {
         return !ReflectionUtils.isVoid(javaType);
     }
 
-    private static Map<String, Property> parseResponseHeaders(ReaderContext context,
-                                                              ResponseHeader[] headers) {
+    private static Map<String, Property> parseResponseHeaders(ReaderContext context, ResponseHeader[] headers) {
         Map<String, Property> responseHeaders = null;
         for (ResponseHeader header : headers) {
             final String name = header.name();
             if (StringUtils.isNotEmpty(name)) {
                 if (responseHeaders == null) {
-                    responseHeaders = new HashMap<String, Property>();
+                    responseHeaders = new HashMap<>();
                 }
                 final Class<?> cls = header.response();
                 if (!ReflectionUtils.isVoid(cls)) {
@@ -317,7 +303,7 @@ public class DubboReaderExtension implements ReaderExtension {
 
     @Override
     public void applyResponses(ReaderContext context, Operation operation, Method method) {
-        final Map<Integer, Response> result = new HashMap<Integer, Response>();
+        final Map<Integer, Response> result = new HashMap<>();
 
         final ApiOperation apiOperation = ReflectionUtils.getAnnotation(method, ApiOperation.class);
         if (apiOperation != null && StringUtils.isNotBlank(apiOperation.responseReference())) {
@@ -334,7 +320,7 @@ public class DubboReaderExtension implements ReaderExtension {
                         .wrapContainer(getResponseContainer(apiOperation), property);
                 final int responseCode = apiOperation == null ? 200 : apiOperation.code();
                 final Map<String, Property> defaultResponseHeaders = apiOperation == null
-                        ? Collections.<String, Property>emptyMap()
+                        ? Collections.emptyMap()
                         : parseResponseHeaders(context, apiOperation.responseHeaders());
                 final Response response = new Response().description(SUCCESSFUL_OPERATION)
                         .schema(responseProperty).headers(defaultResponseHeaders);
@@ -343,8 +329,7 @@ public class DubboReaderExtension implements ReaderExtension {
             }
         }
 
-        final ApiResponses responseAnnotation = ReflectionUtils.getAnnotation(method,
-                ApiResponses.class);
+        final ApiResponses responseAnnotation = ReflectionUtils.getAnnotation(method, ApiResponses.class);
         if (responseAnnotation != null) {
             for (ApiResponse apiResponse : responseAnnotation.value()) {
                 final Map<String, Property> responseHeaders = parseResponseHeaders(context,
@@ -417,18 +402,18 @@ public class DubboReaderExtension implements ReaderExtension {
         if (type == null) {
             if (null == param) {
                 parameter = ParameterProcessor.applyAnnotations(swagger, para,
-                        String.class, new ArrayList<Annotation>());
+                        String.class, new ArrayList<>());
             } else {
                 parameter = ParameterProcessor.applyAnnotations(swagger, para,
-                        String.class, Collections.<Annotation>singletonList(param));
+                        String.class, Collections.singletonList(param));
             }
         } else {
             if (null == param) {
                 parameter = ParameterProcessor.applyAnnotations(swagger, para,
-                        type, new ArrayList<Annotation>());
+                        type, new ArrayList<>());
             } else {
                 parameter = ParameterProcessor.applyAnnotations(swagger, para,
-                        type, Collections.<Annotation>singletonList(param));
+                        type, Collections.singletonList(param));
             }
         }
         if (parameter instanceof AbstractSerializableParameter) {

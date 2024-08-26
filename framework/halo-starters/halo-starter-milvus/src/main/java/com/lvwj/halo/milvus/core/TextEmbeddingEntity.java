@@ -78,7 +78,8 @@ public class TextEmbeddingEntity implements Serializable {
             if (null != newMetadata) {
                 oldMap.putAll(newMetadata.toMap());
             }
-            this.textSegment = TextSegment.from(entity.getTextSegment().text(), Metadata.from(oldMap));
+            String text = entity.getTextSegment().text().equals(MilvusConstant.TEXT_DEFAULT_VALUE) ? this.textSegment.text() : entity.getTextSegment().text();
+            this.textSegment = TextSegment.from(text, Metadata.from(oldMap));
             change = true;
         }
         if (null != entity.getEmbedding()) {

@@ -39,8 +39,7 @@ public class Reader {
         final Reader reader = new Reader(swagger);
         for (Class<?> cls : classes) {
             final ReaderContext context = new ReaderContext(swagger, cls, cls, "", null, false,
-                    new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-                    new ArrayList<>());
+                    new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             reader.read(context);
         }
     }
@@ -292,7 +291,6 @@ public class Reader {
                 license.setUrl(infoConfig.license().url());
             }
         }
-
         info.getVendorExtensions().putAll(BaseReaderUtils.parseExtensions(infoConfig.extensions()));
     }
 

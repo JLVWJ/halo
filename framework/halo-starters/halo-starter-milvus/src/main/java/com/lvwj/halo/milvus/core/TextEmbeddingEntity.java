@@ -1,6 +1,5 @@
 package com.lvwj.halo.milvus.core;
 
-import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.StringUtil;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -79,7 +78,7 @@ public class TextEmbeddingEntity implements Serializable {
             if (null != newMetadata) {
                 oldMap.putAll(newMetadata.toMap());
             }
-            String text = Func.isBlank(entity.getTextSegment().text()) ? this.textSegment.text() : entity.getTextSegment().text();
+            String text = entity.getTextSegment().text().equals(MilvusConstant.TEXT_DEFAULT_VALUE) ? this.textSegment.text() : entity.getTextSegment().text();
             this.textSegment = TextSegment.from(text, Metadata.from(oldMap));
             change = true;
         }

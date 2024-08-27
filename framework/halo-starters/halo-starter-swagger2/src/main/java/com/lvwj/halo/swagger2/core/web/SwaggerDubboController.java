@@ -3,7 +3,6 @@ package com.lvwj.halo.swagger2.core.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Strings;
 import com.lvwj.halo.swagger2.config.properties.Swagger2Properties;
-import com.lvwj.halo.swagger2.core.provider.DubboSwaggerResourcesProvider;
 import com.lvwj.halo.swagger2.core.reader.Reader;
 import com.lvwj.halo.swagger2.core.toolkit.DubboPropertyConfig;
 import com.lvwj.halo.swagger2.core.toolkit.DubboServiceScanner;
@@ -24,6 +23,7 @@ import springfox.documentation.spring.web.DocumentationCache;
 import springfox.documentation.spring.web.json.Json;
 import springfox.documentation.swagger.common.HostNameProvider;
 import springfox.documentation.swagger.web.SwaggerResource;
+import springfox.documentation.swagger.web.SwaggerResourcesProvider;
 import springfox.documentation.swagger2.mappers.ServiceModelToSwagger2MapperImpl;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +55,7 @@ public class SwaggerDubboController {
     @Autowired
     private Swagger2Properties swagger2Properties;
     @Autowired
-    private DubboSwaggerResourcesProvider dubboSwaggerResourcesProvider;
+    private SwaggerResourcesProvider swaggerResourcesProvider;
 
     @Autowired
     public SwaggerDubboController(Environment environment, DocumentationCache documentationCache) {
@@ -108,7 +108,7 @@ public class SwaggerDubboController {
 
     @GetMapping({"/swagger-resources"})
     public ResponseEntity<List<SwaggerResource>> swaggerResources() {
-        return new ResponseEntity<>(this.dubboSwaggerResourcesProvider.get(), HttpStatus.OK);
+        return new ResponseEntity<>(swaggerResourcesProvider.get(), HttpStatus.OK);
     }
 
 

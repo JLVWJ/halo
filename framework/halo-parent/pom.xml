@@ -13,11 +13,11 @@
     <groupId>com.lvwj.halo</groupId>
     <artifactId>halo-parent</artifactId>
     <name>halo-parent</name>
-    <version>1.0.4-RELEASE</version>
+    <version>1.0.5-RELEASE</version>
     <packaging>pom</packaging>
 
     <properties>
-        <revision>1.0.4-RELEASE</revision>
+        <revision>1.0.5-RELEASE</revision>
 
         <!-- spring boot cloud/cloud alibaba -->
         <spring.boot.version>3.3.1</spring.boot.version>

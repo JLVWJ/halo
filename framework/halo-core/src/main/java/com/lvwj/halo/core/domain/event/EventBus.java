@@ -1,5 +1,6 @@
 package com.lvwj.halo.core.domain.event;
 
+import com.lvwj.halo.common.utils.Func;
 import lombok.Data;
 import org.springframework.util.Assert;
 
@@ -20,26 +21,24 @@ public class EventBus implements IEventBus {
   @Override
   public <E extends IEvent> void publish(E event, String tag) {
     if (null == event) return;
+    publishLocalEvent(event); //1.发布本地事件：领域事件(实现IDomainEvent<?>) or SpringEvent(实现IEvent)
     IEvent integrationEvent = event;
-    if (!(event instanceof IIntegrationEvent)) {
-      publishDomainEvent(event); //发布领域事件
-      if (event instanceof IDomainEvent<?>) {
-        integrationEvent = ((IDomainEvent<?>) event).toIntegrationEvent();
-        if (null == integrationEvent) {
-          return;
-        }
+    if (event instanceof IDomainEvent<?>) {
+      integrationEvent = ((IDomainEvent<?>) event).toIntegrationEvent();
+      if (null == integrationEvent) {
+        return;
       }
     }
-    //发布集成事件
+    //2.发布集成事件(实现IIntegrationEvent)
     publishIntegrationEvent(integrationEvent, tag);
   }
 
   /**
    * 发布领域事件
    */
-  private <E extends IEvent> void publishDomainEvent(E event) {
+  private <E extends IEvent> void publishLocalEvent(E event) {
     List<RegisterItem> items = registerItemMap.get(GLOBAL_SUBSCRIBER);
-    if (null != items && !items.isEmpty()) {
+    if (Func.isNotEmpty(items)) {
       for (RegisterItem item : items) {
         item.handEvent(event);
       }
@@ -50,13 +49,12 @@ public class EventBus implements IEventBus {
    * 发布集成事件
    */
   private <E extends IEvent> void publishIntegrationEvent(E event, String tag) {
-    if (!(event instanceof IIntegrationEvent)) {
+    if (!(event instanceof IIntegrationEvent integrationEvent)) {
       return;
     }
-    IIntegrationEvent integrationEvent = (IIntegrationEvent) event;
-    tag = null != tag && !tag.isEmpty() ? tag : integrationEvent.tag();
+    tag = Func.isNotBlank(tag) ? tag : integrationEvent.tag();
     List<RegisterItem> items = registerItemMap.get(integrationEvent.getClass().getName() + " | " + tag);
-    if (null != items && !items.isEmpty()) {
+    if (Func.isNotEmpty(items)) {
       for (RegisterItem item : items) {
         item.handEvent(event);
       }

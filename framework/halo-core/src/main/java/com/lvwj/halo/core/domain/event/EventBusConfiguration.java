@@ -1,5 +1,6 @@
 package com.lvwj.halo.core.domain.event;
 
+import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
@@ -12,6 +13,8 @@ public class EventBusConfiguration {
 
     @Bean
     public IEventBus eventBus() {
-        return new EventBus();
+        EventBus eventBus = new EventBus();
+        eventBus.register(EventBus.GLOBAL_SUBSCRIBER, SpringUtil::publishEvent);
+        return eventBus;
     }
 }

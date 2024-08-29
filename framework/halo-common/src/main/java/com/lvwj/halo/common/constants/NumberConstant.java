@@ -46,6 +46,9 @@ public class NumberConstant {
   public static final int INT_TEN_THOUSAND = 10000;
   public static final int INT_MILLION = 1000000;
 
+  public static final int INT_1024 = 1024;
+  public static final int INT_2048 = 2048;
+
   public static final long LONG_NEG_ONE = -1L;
   public static final long LONG_NEG_TWO = -2L;
   public static final long LONG_NEG_THREE = -3L;

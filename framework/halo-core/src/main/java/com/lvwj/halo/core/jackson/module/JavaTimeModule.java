@@ -8,8 +8,11 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
-import com.lvwj.halo.common.utils.DateTimeUtil;
-import com.lvwj.halo.core.jackson.serializer.*;
+import com.lvwj.halo.common.constants.DateTimeConstant;
+import com.lvwj.halo.core.jackson.serializer.LocalDateFromUnixTimeDeserializer;
+import com.lvwj.halo.core.jackson.serializer.LocalDateTimeFromUnixTimeDeserializer;
+import com.lvwj.halo.core.jackson.serializer.LocalDateTimeToUnixTimeSerializer;
+import com.lvwj.halo.core.jackson.serializer.LocalDateToUnixTimeSerializer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,12 +43,12 @@ public class JavaTimeModule extends SimpleModule {
       this.addDeserializer(LocalDateTime.class, new LocalDateTimeFromUnixTimeDeserializer());
       this.addDeserializer(LocalDate.class, new LocalDateFromUnixTimeDeserializer());
     } else {
-      this.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeUtil.DATETIME_FORMAT));
-      this.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeUtil.DATE_FORMAT));
-      this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeUtil.TIME_FORMAT));
-      this.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeUtil.DATETIME_FORMAT));
-      this.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeUtil.DATE_FORMAT));
-      this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeUtil.TIME_FORMAT));
+      this.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeConstant.FORMAT_DATETIME));
+      this.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeConstant.FORMAT_DATE));
+      this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeConstant.FORMAT_TIME));
+      this.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeConstant.FORMAT_DATETIME));
+      this.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeConstant.FORMAT_DATE));
+      this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeConstant.FORMAT_TIME));
     }
   }
 }

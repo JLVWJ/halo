@@ -1,5 +1,6 @@
 package com.lvwj.halo.number.util;
 
+import com.lvwj.halo.common.constants.DateTimeConstant;
 import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.number.constant.NumberConstant;
 import com.lvwj.halo.number.constant.RuleModeEnum;
@@ -176,33 +177,33 @@ public class RuleParseUtil {
         // 处理自定义表达式
         str = DateTimeUtil.format(now, val);
       } else {
-        str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y_M_D_H_M_S);
+        str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y_M_D_H_M_S);
       }
     } else if ("D".equals(key)) {
       if (null != val) {
         if ("y2".equalsIgnoreCase(val)) {
-          str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y2_M_D);
+          str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y2_M_D);
         } else if ("y-".equalsIgnoreCase(val)) {
-          str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_M_D);
+          str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_M_D);
         } else if ("d-".equalsIgnoreCase(val)) {
-          str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y_M);
+          str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y_M);
         } else if ("y+".equalsIgnoreCase(val)) {
-          str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y4);
+          str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y4);
         } else if ("y2+".equalsIgnoreCase(val)) {
-          str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y2);
+          str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y2);
         }
       } else {
-        str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y_M_D);
+        str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y_M_D);
       }
     } else if ("T".equals(key)) {
       if (null != val) {
         if ("h-".equalsIgnoreCase(val)) {
-          str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_M_S);
+          str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_M_S);
         } else if ("s-".equalsIgnoreCase(val)) {
-          str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_H_M);
+          str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_H_M);
         }
       } else {
-        str = DateTimeUtil.format(now, DateTimeUtil.PATTERN_H_M_S);
+        str = DateTimeUtil.format(now, DateTimeConstant.PATTERN_H_M_S);
       }
     }
     return str;

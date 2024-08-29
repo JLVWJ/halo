@@ -7,6 +7,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.lvwj.halo.common.constants.DateTimeConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -1581,7 +1582,7 @@ public class Func {
    * @return 时间
    */
   public static LocalDate parseDate(String dateStr) {
-    return DateTimeUtil.parseDate(dateStr, DateTimeUtil.DATE_FORMAT);
+    return DateTimeUtil.parseDate(dateStr, DateTimeConstant.FORMAT_DATE);
   }
 
   /**

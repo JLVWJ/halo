@@ -356,7 +356,7 @@ public class MyPojoUtils {
             return null;
         }
 
-        log.info("[MyPojoUtils.realize1]==>type:" + type + ", genericType:" + genericType + ", pojo:" + pojo);
+        //log.info("[MyPojoUtils.realize1]==>type:" + type + ", genericType:" + genericType + ", pojo:" + pojo);
 
         //入参是枚举时，判断枚举如果实现IEnum，则用IEnum.byCode来获取枚举，否则用Enum.valueOf
         if (type != null && type.isEnum()) {

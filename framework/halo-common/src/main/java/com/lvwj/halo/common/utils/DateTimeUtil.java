@@ -1,5 +1,6 @@
 package com.lvwj.halo.common.utils;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
 import com.lvwj.halo.common.enums.BaseErrorEnum;
 
 import java.time.*;
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * DateTime 工具类
  */
-public class DateTimeUtil {
+public class DateTimeUtil extends LocalDateTimeUtil {
 
   public static final String PATTERN_DATETIME_S = "yyyy-MM-dd HH:mm:ss.SSS";
   public static final String PATTERN_DATETIME_M = "yyyy-MM-dd HH:mm";
@@ -21,6 +22,7 @@ public class DateTimeUtil {
   public static final String PATTERN_DATE = "yyyy-MM-dd";
   public static final String PATTERN_TIME = "HH:mm:ss";
 
+  public static String PATTERN_Y_M_D_H_M_S_S = "yyyyMMddHHmmssSSS";
   public static String PATTERN_Y_M_D_H_M_S = "yyyyMMddHHmmss";
   public static String PATTERN_Y_M_D = "yyyyMMdd";
   public static String PATTERN_Y2_M_D = "yyMMdd";
@@ -32,6 +34,12 @@ public class DateTimeUtil {
   public static String PATTERN_H_M = "HHmm";
   public static String PATTERN_M_S = "mmss";
 
+  public static final DateTimeFormatter FORMAT_Y_M_D_H_M_S_S = DateTimeFormatter.ofPattern(PATTERN_Y_M_D_H_M_S_S);
+  public static final DateTimeFormatter FORMAT_Y_M_D_H_M_S = DateTimeFormatter.ofPattern(PATTERN_Y_M_D_H_M_S);
+  public static final DateTimeFormatter FORMAT_Y_M_D = DateTimeFormatter.ofPattern(PATTERN_Y_M_D);
+  public static final DateTimeFormatter FORMAT_H_M_S = DateTimeFormatter.ofPattern(PATTERN_H_M_S);
+  public static final DateTimeFormatter FORMAT_Y2_M_D = DateTimeFormatter.ofPattern(PATTERN_Y2_M_D);
+
   public static final DateTimeFormatter DATETIME_S_FORMAT = DateTimeFormatter.ofPattern(PATTERN_DATETIME_S);
   public static final DateTimeFormatter DATETIME_M_FORMAT = DateTimeFormatter.ofPattern(PATTERN_DATETIME_M);
   public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern(PATTERN_DATETIME);
@@ -39,45 +47,73 @@ public class DateTimeUtil {
   public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern(PATTERN_TIME);
 
   /**
-   * 日期时间格式化
-   *
-   * @param temporal 时间
-   * @return 格式化后的时间
+   * 格式：yyyy-MM-dd HH:mm:ss
    */
   public static String formatDateTime(TemporalAccessor temporal) {
     return DATETIME_FORMAT.format(temporal);
   }
 
+  /**
+   * 格式：yyyy-MM-dd HH:mm:ss.SSS
+   */
   public static String formatDateTimeS(TemporalAccessor temporal) {
     return DATETIME_S_FORMAT.format(temporal);
   }
 
+  /**
+   * 格式：yyyy-MM-dd HH:mm
+   */
   public static String formatDateTimeM(TemporalAccessor temporal) {
     return DATETIME_M_FORMAT.format(temporal);
   }
 
   /**
-   * 日期时间格式化
-   *
-   * @param temporal 时间
-   * @return 格式化后的时间
+   * 格式：yyyyMMddHHmmssSSS
+   */
+  public static String formatYMDHMSS(TemporalAccessor temporal) {
+    return FORMAT_Y_M_D_H_M_S_S.format(temporal);
+  }
+  /**
+   * 格式：yyyyMMddHHmmss
+   */
+  public static String formatYMDHMS(TemporalAccessor temporal) {
+    return FORMAT_Y_M_D_H_M_S.format(temporal);
+  }
+  /**
+   * 格式：yyyyMMdd
+   */
+  public static String formatYMD(TemporalAccessor temporal) {
+    return FORMAT_Y_M_D.format(temporal);
+  }
+  /**
+   * 格式：HHmmss
+   */
+  public static String formatHMS(TemporalAccessor temporal) {
+    return FORMAT_H_M_S.format(temporal);
+  }
+  /**
+   * 格式：yyMMdd
+   */
+  public static String formatY2MD(TemporalAccessor temporal) {
+    return FORMAT_Y2_M_D.format(temporal);
+  }
+
+  /**
+   * 格式：yyyy-MM-dd
    */
   public static String formatDate(TemporalAccessor temporal) {
     return DATE_FORMAT.format(temporal);
   }
 
   /**
-   * 时间格式化
-   *
-   * @param temporal 时间
-   * @return 格式化后的时间
+   * 格式：HH:mm:ss
    */
   public static String formatTime(TemporalAccessor temporal) {
     return TIME_FORMAT.format(temporal);
   }
 
   /**
-   * 日期格式化
+   * 日期格式化自定义
    *
    * @param temporal 时间
    * @param pattern  表达式

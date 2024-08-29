@@ -9,6 +9,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -38,7 +39,7 @@ public class BatchHandlerTR<T extends Serializable, R> {
         this.threshHold = threshHold;
         this.function = function;
         this.scheduledThreadPool = ThreadPoolCache.getScheduledThreadPool(key);
-        this.scheduledThreadPool.scheduleAtFixedRate(this::batchHandle, interval);
+        this.scheduledThreadPool.scheduleAtFixedRate(this::batchHandle, Duration.ofMillis(interval));
     }
 
     private void batchHandle() {

@@ -1,6 +1,7 @@
 package com.lvwj.halo.dubbo.util;
 
 import com.lvwj.halo.common.enums.IEnum;
+import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.dubbo.serializer.ISerializer;
 import com.lvwj.halo.dubbo.serializer.SerializerHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.lang.reflect.WildcardType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -354,6 +356,8 @@ public class MyPojoUtils {
             return null;
         }
 
+        //log.info("[MyPojoUtils.realize1]==>type:" + type + ", genericType:" + genericType + ", pojo:" + pojo);
+
         //入参是枚举时，判断枚举如果实现IEnum，则用IEnum.byCode来获取枚举，否则用Enum.valueOf
         if (type != null && type.isEnum()) {
             Object iEnum = null;
@@ -363,12 +367,17 @@ public class MyPojoUtils {
             if (null == iEnum && pojo.getClass() == String.class) {
                 iEnum = Enum.valueOf((Class<Enum>) type, (String) pojo);
             }
-            log.info("MyPojoUtils.realize1=====>type:" + type + ", pojo:" + pojo);
             return iEnum;
         }
 
-        if (type != null && type.isEnum() && pojo.getClass() == String.class) {
-            return Enum.valueOf((Class<Enum>) type, (String) pojo);
+        if(type!=null && TemporalAccessor.class.isAssignableFrom(type)) {
+            if(type.equals(LocalDateTime.class)){
+                return DateTimeUtil.parseDateTime((String) pojo);
+            } else if (type.equals(LocalDate.class)) {
+                return DateTimeUtil.parseDate((String) pojo);
+            } else if (type.equals(LocalTime.class)) {
+                return DateTimeUtil.parseTime((String) pojo);
+            }
         }
 
         if (ReflectUtils.isPrimitives(pojo.getClass())

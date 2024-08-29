@@ -1,6 +1,7 @@
 package com.lvwj.halo.core.snowflake;
 
 import com.google.common.base.Preconditions;
+import com.lvwj.halo.common.constants.DateTimeConstant;
 import com.lvwj.halo.common.utils.DateTimeUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,7 @@ public class SnowflakeGenerator {
     if (epochDateStr == null) {
       this.customEpoch = EPOCH;
     } else {
-      LocalDateTime dateTime = DateTimeUtil.parseDateTime(epochDateStr, DateTimeUtil.PATTERN_DATETIME);
+      LocalDateTime dateTime = DateTimeUtil.parseDateTime(epochDateStr, DateTimeConstant.PATTERN_DATETIME);
       this.customEpoch = DateTimeUtil.toInstant(dateTime).toEpochMilli();
     }
     long sequenceBits = properties.getSequenceBits();

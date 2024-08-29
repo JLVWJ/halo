@@ -1,5 +1,6 @@
 package com.lvwj.halo.number.manager;
 
+import com.lvwj.halo.common.constants.DateTimeConstant;
 import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.number.constant.NumberConstant;
 import com.lvwj.halo.number.constant.RuleModeEnum;
@@ -22,11 +23,11 @@ public interface NumberManager {
     String cacheKey = ruleId;
     LocalDateTime now = LocalDateTime.now();
     if (mode == RuleModeEnum.D) {
-      cacheKey = ruleId + ":" + DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y_M_D);
+      cacheKey = ruleId + ":" + DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y_M_D);
     } else if (mode == RuleModeEnum.M) {
-      cacheKey = ruleId + ":" + DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y_M);
+      cacheKey = ruleId + ":" + DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y_M);
     } else if (mode == RuleModeEnum.Y) {
-      cacheKey = ruleId + ":" + DateTimeUtil.format(now, DateTimeUtil.PATTERN_Y4);
+      cacheKey = ruleId + ":" + DateTimeUtil.format(now, DateTimeConstant.PATTERN_Y4);
     }
     cacheKey = NumberConstant.CACHE_KEY_PREFIX + cacheKey;
     return cacheKey;

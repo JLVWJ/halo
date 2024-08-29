@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.lvwj.halo.common.constants.DateTimeConstant;
 import org.springframework.lang.Nullable;
 
 import java.io.IOException;
@@ -626,7 +627,7 @@ public class JsonUtil {
       //设置为中国上海时区
       super.setTimeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
       //序列化时，日期的统一格式
-      super.setDateFormat(new SimpleDateFormat(DateTimeUtil.PATTERN_DATETIME, Locale.CHINA));
+      super.setDateFormat(new SimpleDateFormat(DateTimeConstant.PATTERN_DATETIME, Locale.CHINA));
       //单引号处理
       super.configure(JsonReadFeature.ALLOW_SINGLE_QUOTES.mappedFeature(), true);
       // 允许JSON字符串包含非引号控制字符（值小于32的ASCII字符，包含制表符和换行符）

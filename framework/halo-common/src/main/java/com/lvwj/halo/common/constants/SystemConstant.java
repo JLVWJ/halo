@@ -15,6 +15,21 @@ public class SystemConstant {
 
     public static String ERROR = "system error";
 
+    /**
+     * 编码
+     */
+    public static String UTF_8 = "UTF-8";
+
+    /**
+     * contentType
+     */
+    public static String CONTENT_TYPE_NAME = "Content-type";
+
+    /**
+     * JSON 资源
+     */
+    public static String CONTENT_TYPE = "application/json;charset=utf-8";
+
 
     public static final String TRACE_ID = "traceId";
     public static final String LOCALE = "x-locale";

@@ -1,12 +1,14 @@
 package com.lvwj.halo.common.utils;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
-import com.lvwj.halo.common.enums.BaseErrorEnum;
+import com.lvwj.halo.common.constants.DateTimeConstant;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -16,100 +18,112 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateTimeUtil extends LocalDateTimeUtil {
 
-  public static final String PATTERN_DATETIME_S = "yyyy-MM-dd HH:mm:ss.SSS";
-  public static final String PATTERN_DATETIME_M = "yyyy-MM-dd HH:mm";
-  public static final String PATTERN_DATETIME = "yyyy-MM-dd HH:mm:ss";
-  public static final String PATTERN_DATE = "yyyy-MM-dd";
-  public static final String PATTERN_TIME = "HH:mm:ss";
-
-  public static String PATTERN_Y_M_D_H_M_S_S = "yyyyMMddHHmmssSSS";
-  public static String PATTERN_Y_M_D_H_M_S = "yyyyMMddHHmmss";
-  public static String PATTERN_Y_M_D = "yyyyMMdd";
-  public static String PATTERN_Y2_M_D = "yyMMdd";
-  public static String PATTERN_Y_M = "yyyyMM";
-  public static String PATTERN_M_D = "MMdd";
-  public static String PATTERN_Y4 = "yyyy";
-  public static String PATTERN_Y2 = "yy";
-  public static String PATTERN_H_M_S = "HHmmss";
-  public static String PATTERN_H_M = "HHmm";
-  public static String PATTERN_M_S = "mmss";
-
-  public static final DateTimeFormatter FORMAT_Y_M_D_H_M_S_S = DateTimeFormatter.ofPattern(PATTERN_Y_M_D_H_M_S_S);
-  public static final DateTimeFormatter FORMAT_Y_M_D_H_M_S = DateTimeFormatter.ofPattern(PATTERN_Y_M_D_H_M_S);
-  public static final DateTimeFormatter FORMAT_Y_M_D = DateTimeFormatter.ofPattern(PATTERN_Y_M_D);
-  public static final DateTimeFormatter FORMAT_H_M_S = DateTimeFormatter.ofPattern(PATTERN_H_M_S);
-  public static final DateTimeFormatter FORMAT_Y2_M_D = DateTimeFormatter.ofPattern(PATTERN_Y2_M_D);
-
-  public static final DateTimeFormatter DATETIME_S_FORMAT = DateTimeFormatter.ofPattern(PATTERN_DATETIME_S);
-  public static final DateTimeFormatter DATETIME_M_FORMAT = DateTimeFormatter.ofPattern(PATTERN_DATETIME_M);
-  public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern(PATTERN_DATETIME);
-  public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(PATTERN_DATE);
-  public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern(PATTERN_TIME);
+  public static LocalDateTime now() {
+    return LocalDateTime.now();
+  }
 
   /**
    * 格式：yyyy-MM-dd HH:mm:ss
    */
   public static String formatDateTime(TemporalAccessor temporal) {
-    return DATETIME_FORMAT.format(temporal);
+    return DateTimeConstant.FORMAT_DATETIME.format(temporal);
   }
 
   /**
    * 格式：yyyy-MM-dd HH:mm:ss.SSS
    */
   public static String formatDateTimeS(TemporalAccessor temporal) {
-    return DATETIME_S_FORMAT.format(temporal);
+    return DateTimeConstant.FORMAT_DATETIME_S.format(temporal);
   }
 
   /**
    * 格式：yyyy-MM-dd HH:mm
    */
   public static String formatDateTimeM(TemporalAccessor temporal) {
-    return DATETIME_M_FORMAT.format(temporal);
-  }
-
-  /**
-   * 格式：yyyyMMddHHmmssSSS
-   */
-  public static String formatYMDHMSS(TemporalAccessor temporal) {
-    return FORMAT_Y_M_D_H_M_S_S.format(temporal);
-  }
-  /**
-   * 格式：yyyyMMddHHmmss
-   */
-  public static String formatYMDHMS(TemporalAccessor temporal) {
-    return FORMAT_Y_M_D_H_M_S.format(temporal);
-  }
-  /**
-   * 格式：yyyyMMdd
-   */
-  public static String formatYMD(TemporalAccessor temporal) {
-    return FORMAT_Y_M_D.format(temporal);
-  }
-  /**
-   * 格式：HHmmss
-   */
-  public static String formatHMS(TemporalAccessor temporal) {
-    return FORMAT_H_M_S.format(temporal);
-  }
-  /**
-   * 格式：yyMMdd
-   */
-  public static String formatY2MD(TemporalAccessor temporal) {
-    return FORMAT_Y2_M_D.format(temporal);
+    return DateTimeConstant.FORMAT_DATETIME_M.format(temporal);
   }
 
   /**
    * 格式：yyyy-MM-dd
    */
   public static String formatDate(TemporalAccessor temporal) {
-    return DATE_FORMAT.format(temporal);
+    return DateTimeConstant.FORMAT_DATE.format(temporal);
   }
 
   /**
    * 格式：HH:mm:ss
    */
   public static String formatTime(TemporalAccessor temporal) {
-    return TIME_FORMAT.format(temporal);
+    return DateTimeConstant.FORMAT_TIME.format(temporal);
+  }
+
+  /**
+   * 格式：yyyy-MM
+   */
+  public static String formatDateM(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_DATE_M.format(temporal);
+  }
+
+  /**
+   * 格式：HH:mm
+   */
+  public static String formatTimeM(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_TIME_M.format(temporal);
+  }
+
+  /**
+   * 格式：yyyyMMddHHmmssSSS
+   */
+  public static String formatYMDHMSS(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_Y_M_D_H_M_S_S.format(temporal);
+  }
+  /**
+   * 格式：yyyyMMddHHmmss
+   */
+  public static String formatYMDHMS(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_Y_M_D_H_M_S.format(temporal);
+  }
+  /**
+   * 格式：yyyyMMddHHmm
+   */
+  public static String formatYMDHM(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_Y_M_D_H_M.format(temporal);
+  }
+  /**
+   * 格式：yyyyMMdd
+   */
+  public static String formatYMD(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_Y_M_D.format(temporal);
+  }
+  /**
+   * 格式：yyyyMM
+   */
+  public static String formatYM(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_Y_M.format(temporal);
+  }
+  /**
+   * 格式：HHmmss
+   */
+  public static String formatHMS(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_H_M_S.format(temporal);
+  }
+  /**
+   * 格式：HHmm
+   */
+  public static String formatHM(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_H_M.format(temporal);
+  }
+  /**
+   * 格式：mmss
+   */
+  public static String formatMS(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_M_S.format(temporal);
+  }
+  /**
+   * 格式：yyMMdd
+   */
+  public static String formatY2MD(TemporalAccessor temporal) {
+    return DateTimeConstant.FORMAT_Y2_M_D.format(temporal);
   }
 
   /**
@@ -153,7 +167,7 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    * @return 时间
    */
   public static LocalDateTime parseDateTime(String dateStr) {
-    return DateTimeUtil.parseDateTime(dateStr, DateTimeUtil.DATETIME_FORMAT);
+    return parseDateTime(dateStr, DateTimeConstant.FORMAT_DATETIME);
   }
 
   /**
@@ -164,9 +178,8 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    * @param timestamp 时间戳: System.currentTimeMillis()
    * @return java.time.LocalDateTime
    */
-  public static LocalDateTime parseDateTime(Long timestamp) {
-    Assert.isTrue(null != timestamp && timestamp > 0, BaseErrorEnum.PARAM_VALID_ERROR);
-    return LocalDateTime.ofEpochSecond(timestamp / 1000, 0, ZoneOffset.UTC);
+  public static LocalDateTime parseDateTime(long timestamp) {
+    return fromMilliseconds(timestamp);
   }
 
   /**
@@ -178,9 +191,8 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    * @param zoneId 时区
    * @return java.time.LocalDateTime
    */
-  public static LocalDateTime parseDateTime(Long timestamp, ZoneId zoneId) {
-    LocalDateTime localDateTime = parseDateTime(timestamp);
-    return toDateTime(localDateTime, zoneId);
+  public static LocalDateTime parseDateTime(long timestamp, ZoneId zoneId) {
+    return fromMilliseconds(timestamp, zoneId);
   }
 
   /**
@@ -213,7 +225,7 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    * @return 时间
    */
   public static LocalDate parseDate(String dateStr) {
-    return DateTimeUtil.parseDate(dateStr, DateTimeUtil.DATE_FORMAT);
+    return parseDate(dateStr, DateTimeConstant.FORMAT_DATE);
   }
 
   public static LocalDateTime plusDays(LocalDateTime localDateTime, Integer plusDays) {
@@ -254,7 +266,7 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    * @return 时间
    */
   public static LocalTime parseTime(String dateStr) {
-    return DateTimeUtil.parseTime(dateStr, DateTimeUtil.TIME_FORMAT);
+    return parseTime(dateStr, DateTimeConstant.FORMAT_TIME);
   }
 
   /**
@@ -327,6 +339,21 @@ public class DateTimeUtil extends LocalDateTimeUtil {
   }
 
   /**
+   * 转换成java8 时间
+   *
+   * @param date Date
+   * @return LocalDateTime
+   */
+  public static LocalDateTime fromDate(final Date date) {
+    return fromDate(date, ZoneId.systemDefault());
+  }
+
+  public static LocalDateTime fromDate(final Date date, ZoneId zoneId) {
+    zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
+    return LocalDateTime.ofInstant(date.toInstant(), zoneId);
+  }
+
+  /**
    * 比较2个时间差，跨度比较小
    *
    * @param startInclusive 开始时间
@@ -348,19 +375,159 @@ public class DateTimeUtil extends LocalDateTimeUtil {
     return Period.between(startDate, endDate);
   }
 
+  /**
+   * 比较两个日期，获取间隔天数
+   *
+   * @param startDate 开始日期
+   * @param endDate   结束日期
+   * @return 间隔天数
+   */
+  public static long betweenDays(LocalDate startDate, LocalDate endDate) {
+    return ChronoUnit.DAYS.between(startDate, endDate);
+  }
+
   public static Boolean inRange(LocalTime localTime, String hHmmStartTime, String hHmmEndTime) {
     LocalTime localStartTime = LocalTime.parse(hHmmStartTime);
     LocalTime localEndTime = LocalTime.parse(hHmmEndTime);
     return localTime.isAfter(localStartTime) && localTime.isBefore(localEndTime);
   }
 
-  public static Long diffSeconds(LocalDateTime startTime, LocalDateTime endTime) {
+  public static long diffSeconds(LocalDateTime startTime, LocalDateTime endTime) {
     long betweenMs = Duration.between(startTime, endTime).toMillis();
     return TimeUnit.MILLISECONDS.toSeconds(betweenMs);
   }
 
-  public static Long diffMinutes(LocalDateTime startTime, LocalDateTime endTime) {
+  public static long diffMinutes(LocalDateTime startTime, LocalDateTime endTime) {
     long betweenMs = Duration.between(startTime, endTime).toMillis();
     return TimeUnit.MILLISECONDS.toMinutes(betweenMs);
+  }
+
+  /**
+   * localDateTime 转换成毫秒数
+   *
+   * @param localDateTime LocalDateTime
+   * @return long
+   */
+  public static long toMilliseconds(final LocalDateTime localDateTime) {
+    return toMilliseconds(localDateTime, ZoneId.systemDefault());
+  }
+
+  public static long toMilliseconds(final LocalDateTime localDateTime, ZoneId zoneId) {
+    zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
+    return localDateTime.atZone(zoneId).toInstant().toEpochMilli();
+  }
+
+  /**
+   * localDate 转换成毫秒数
+   *
+   * @param localDate LocalDate
+   * @return long
+   */
+  public static long toMilliseconds(LocalDate localDate) {
+    return toMilliseconds(localDate.atStartOfDay());
+  }
+
+  /**
+   * 转换成java8 时间
+   *
+   * @param milliseconds 毫秒数
+   * @return LocalDateTime
+   */
+  public static LocalDateTime fromMilliseconds(final long milliseconds) {
+    return fromMilliseconds(milliseconds, ZoneId.systemDefault());
+  }
+
+  /**
+   * 转换成java8 时间
+   *
+   * @param milliseconds 毫秒数
+   * @return LocalDateTime
+   */
+  public static LocalDateTime fromMilliseconds(final long milliseconds, ZoneId zoneId) {
+    zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
+    return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), zoneId);
+  }
+
+  /**
+   * 获取今年起始时间
+   */
+  public static LocalDateTime getYearStart() {
+    return LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.firstDayOfYear()), LocalTime.MIN);
+  }
+
+  /**
+   * 获取今年结束时间
+   */
+  public static LocalDateTime getYearEnd() {
+    return LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.lastDayOfYear()), LocalTime.MAX);
+  }
+
+  /**
+   * 获取当季度起始时间
+   */
+  public static LocalDateTime getQuarterStart() {
+    LocalDate now = LocalDate.now();
+    Month month = Month.of(now.getMonth().firstMonthOfQuarter().getValue());
+    return LocalDateTime.of(LocalDate.of(now.getYear(), month, 1), LocalTime.MIN);
+  }
+
+  /**
+   * 获取当季度结束时间
+   */
+  public static LocalDateTime getQuarterEnd() {
+    LocalDate now = LocalDate.now();
+    Month month = Month.of(now.getMonth().firstMonthOfQuarter().getValue()).plus(2L);
+    return LocalDateTime.of(LocalDate.of(now.getYear(), month, month.maxLength()), LocalTime.MAX);
+  }
+
+  /**
+   * 获取当月起始时间
+   *
+   * @return Date
+   */
+  public static Date getMonthStart() {
+    return toDate(LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()), LocalTime.MIN));
+  }
+
+  /**
+   * 获取当月结束时间
+   */
+  public static LocalDateTime getMonthEnd() {
+    return LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()), LocalTime.MAX);
+  }
+
+  /**
+   * 获取当周起始时间
+   */
+  public static LocalDateTime getWeekStart() {
+    return LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), LocalTime.MIN);
+  }
+
+  /**
+   * 获取当周结束时间
+   */
+  public static LocalDateTime getWeekEnd() {
+    return LocalDateTime.of(LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)), LocalTime.MAX);
+  }
+
+  /**
+   * 获取当天起始时间00:00:00.000
+   */
+  public static LocalDateTime getDayStart() {
+    return LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+  }
+
+  /**
+   * 获取当天结束时间23:59:59.999
+   */
+  public static LocalDateTime getDayEnd() {
+    return LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+  }
+
+  /**
+   * 获取当天中午时间12:00:00
+   */
+  public static LocalDateTime getDayNoon() {
+    return LocalDateTime.of(LocalDate.now(), LocalTime.NOON);
   }
 }

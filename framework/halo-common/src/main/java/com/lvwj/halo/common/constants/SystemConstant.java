@@ -18,17 +18,17 @@ public class SystemConstant {
     /**
      * 编码
      */
-    String UTF_8 = "UTF-8";
+    public static String UTF_8 = "UTF-8";
 
     /**
      * contentType
      */
-    String CONTENT_TYPE_NAME = "Content-type";
+    public static String CONTENT_TYPE_NAME = "Content-type";
 
     /**
      * JSON 资源
      */
-    String CONTENT_TYPE = "application/json;charset=utf-8";
+    public static String CONTENT_TYPE = "application/json;charset=utf-8";
 
 
     public static final String TRACE_ID = "traceId";

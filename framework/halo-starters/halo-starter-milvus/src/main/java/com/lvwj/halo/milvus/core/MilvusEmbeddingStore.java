@@ -148,6 +148,12 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
         upsertByExpr(map(filter,getPartitionKeyFieldName()),updateEntity);
     }
 
+    @Override
+    public void update(Filter filter, TextEmbeddingEntity updateEntity) {
+        Assert.notNullOrEmpty(filter, BaseErrorEnum.PARAM_EMPTY_ERROR, "MilvusEmbeddingStore.update[filter]");
+        updateByExpr(map(filter,getPartitionKeyFieldName()),updateEntity);
+    }
+
     /**
      * 根据条件查询并更新实体，如查不到则插入实体
      *

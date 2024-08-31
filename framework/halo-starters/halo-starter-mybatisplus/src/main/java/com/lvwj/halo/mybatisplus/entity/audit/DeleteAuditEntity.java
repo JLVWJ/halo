@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.*;
-import org.javers.core.metamodel.annotation.DiffIgnore;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -25,7 +24,7 @@ public class DeleteAuditEntity<ID extends Serializable> extends UpdateAuditEntit
   /**
    * 逻辑删除
    */
-  @DiffIgnore
+  //@DiffIgnore
   @TableLogic(value = "0", delval = "1")
   @TableField(value = "is_delete", fill = FieldFill.INSERT_UPDATE)
   private Integer isDelete;
@@ -33,7 +32,7 @@ public class DeleteAuditEntity<ID extends Serializable> extends UpdateAuditEntit
   /**
    * 删除时间
    */
-  @DiffIgnore
+  //@DiffIgnore
   @TableField(fill = FieldFill.UPDATE)
   protected LocalDateTime deleteTime;
 

@@ -20,9 +20,9 @@ public class UpdateBatch extends AbstractMethod {
 
   @Override
   public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
-    String additional = (tableInfo.isWithVersion() ? "<if test=\"item != null and item['version'] != null\"> AND version=#{item.version}-1</if>"//tableInfo.getVersionFieldInfo().getVersionOli("item", "item.")
+    String additional = (tableInfo.isWithVersion() ? "<if test=\"item != null and item['version'] != null\"> AND version=#{item.version}-1</if>"
             : "") + tableInfo.getLogicDeleteSql(true, true);
-    String setSql = sqlSet(tableInfo.isWithLogicDelete(), false, tableInfo, false, "item", "item.");
+    String setSql = sqlSet(false, false, tableInfo, false, "item", "item.");
     String sqlResult = String.format(CustomSqlMethod.UPDATE_BATCH.getSql(), tableInfo.getTableName(), setSql,
             tableInfo.getKeyColumn(), "item." + tableInfo.getKeyProperty(), additional);
     SqlSource sqlSource = languageDriver.createSqlSource(configuration, sqlResult, modelClass);

@@ -24,21 +24,17 @@ public class DeleteAuditEntity<ID extends Serializable> extends UpdateAuditEntit
   /**
    * 逻辑删除
    */
-  //@DiffIgnore
   @TableLogic(value = "0", delval = "1")
-  @TableField(value = "is_delete", fill = FieldFill.INSERT_UPDATE)
+  @TableField(value = "is_delete", fill = FieldFill.INSERT)
   private Integer isDelete;
 
   /**
    * 删除时间
    */
-  //@DiffIgnore
-  @TableField(fill = FieldFill.UPDATE)
   protected LocalDateTime deleteTime;
 
   /**
    * 删除人
    */
-  @TableField(fill = FieldFill.UPDATE)
   private String deleteBy;
 }

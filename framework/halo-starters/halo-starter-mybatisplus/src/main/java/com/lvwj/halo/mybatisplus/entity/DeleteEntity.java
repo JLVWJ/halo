@@ -21,6 +21,6 @@ public class DeleteEntity extends BaseEntity{
 
     @DiffIgnore
     @TableLogic(value = "0", delval = "1")
-    @TableField(value = "is_delete", fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "is_delete", fill = FieldFill.INSERT)
     private Integer isDelete;
 }

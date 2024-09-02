@@ -51,6 +51,16 @@ public interface EmbeddingStorePlus {
      */
     void save(Filter filter, TextEmbeddingEntity updateEntity);
 
+    /**
+     * 根据条件查询并更新实体
+     *
+     * @author lvweijie
+     * @date 2024/8/10 14:38
+     * @param filter 查询条件
+     * @param updateEntity 实体
+     */
+    void update(Filter filter, TextEmbeddingEntity updateEntity);
+
     default void remove(String id) {
         if (StringUtil.isNotBlank(id)) {
             this.removeAll(singletonList(id));

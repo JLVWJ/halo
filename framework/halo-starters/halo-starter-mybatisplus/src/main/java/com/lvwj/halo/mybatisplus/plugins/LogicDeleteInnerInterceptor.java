@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.parser.JsqlParserSupport;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
@@ -40,9 +41,9 @@ public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements In
         SqlCommandType sct = ms.getSqlCommandType();
         if (sct == SqlCommandType.UPDATE) {
             BoundSql boundSql = handler.boundSql();
-            String oldSql = boundSql.getSql().replaceAll("\\n+","\n");
+            String oldSql = boundSql.getSql().replaceAll("\\n+", StringPool.EMPTY);//去除多余换行，避免Jsql解析失败
             String newSql = parserMulti(oldSql, null);
-            if (Func.isNotBlank(newSql) && !newSql.equals(oldSql)) {
+            if (Func.isNotBlank(newSql)) {
                 PluginUtils.mpBoundSql(boundSql).sql(newSql);
             }
         }

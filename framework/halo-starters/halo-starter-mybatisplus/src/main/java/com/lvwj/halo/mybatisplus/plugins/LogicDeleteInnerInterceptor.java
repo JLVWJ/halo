@@ -40,9 +40,10 @@ public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements In
         SqlCommandType sct = ms.getSqlCommandType();
         if (sct == SqlCommandType.UPDATE) {
             BoundSql boundSql = handler.boundSql();
-            String sql = parserMulti(boundSql.getSql(), null);
-            if (Func.isNotBlank(sql) && !sql.equals(boundSql.getSql())) {
-                PluginUtils.mpBoundSql(boundSql).sql(sql);
+            String oldSql = boundSql.getSql().replaceAll("\\n+","\n");
+            String newSql = parserMulti(oldSql, null);
+            if (Func.isNotBlank(newSql) && !newSql.equals(oldSql)) {
+                PluginUtils.mpBoundSql(boundSql).sql(newSql);
             }
         }
     }

@@ -3,6 +3,8 @@ package com.lvwj.halo.mybatisplus.handler;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 
@@ -20,6 +22,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     private static final String CREATE_TIME = "createTime";
     private static final String UPDATE_TIME = "updateTime";
+
+    private static final String CREATE_BY = "createBy";
+    private static final String UPDATE_BY = "updateBy";
     private static final String IS_DELETE = "isDelete";
 
     @Override
@@ -29,11 +34,22 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         fillStrategy(metaObject, UPDATE_TIME, now);
         fillStrategy(metaObject, IS_DELETE, 0);
         setVersion(metaObject);
+
+        String currentUser = ThreadLocalUtil.getCurrentUser();
+        if (Func.isNotBlank(currentUser)) {
+            fillStrategy(metaObject, CREATE_BY, currentUser);
+            fillStrategy(metaObject, UPDATE_BY, currentUser);
+        }
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        this.setFieldValByName(UPDATE_TIME, LocalDateTime.now(), metaObject);
+        LocalDateTime now = LocalDateTime.now();
+        String currentUser = ThreadLocalUtil.getCurrentUser();
+        this.setFieldValByName(UPDATE_TIME, now, metaObject);
+        if (Func.isNotBlank(currentUser)) {
+            fillStrategy(metaObject, UPDATE_BY, currentUser);
+        }
     }
 
     private void setVersion(MetaObject metaObject) {

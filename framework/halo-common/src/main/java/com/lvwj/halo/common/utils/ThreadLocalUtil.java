@@ -113,4 +113,28 @@ public class ThreadLocalUtil {
       remove(key);
     }
   }
+
+  /**
+   * 设置当前用户
+   *
+   * @author lvweijie
+   * @date 2024/8/31 17:58
+   * @param currentUser 当前用户
+   */
+  public static void putCurrentUser(String currentUser) {
+    putIfNotEmpty(CURRENT_USER, currentUser);
+  }
+
+  /**
+   * 获取当前用户
+   *
+   * @author lvweijie
+   * @date 2024/8/31 17:58
+   * @return java.lang.String
+   */
+  public static String getCurrentUser() {
+    return get(CURRENT_USER);
+  }
+
+  private static final String CURRENT_USER = "currentUser";
 }

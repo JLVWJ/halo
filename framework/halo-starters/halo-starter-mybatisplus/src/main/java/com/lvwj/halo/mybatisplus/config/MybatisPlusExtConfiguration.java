@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import com.lvwj.halo.mybatisplus.entity.EntityHolder;
 import com.lvwj.halo.mybatisplus.handler.MyMetaObjectHandler;
 import com.lvwj.halo.mybatisplus.injector.CustomSqlInjector;
+import com.lvwj.halo.mybatisplus.plugins.LogicDeleteInnerInterceptor;
 import com.lvwj.halo.mybatisplus.plugins.MyBlockAttackInnerInterceptor;
 import com.lvwj.halo.mybatisplus.config.prop.MybatisPlusExtProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ public class MybatisPlusExtConfiguration {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         interceptor.addInnerInterceptor(paginationInnerInterceptor());
         interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
+        interceptor.addInnerInterceptor(new LogicDeleteInnerInterceptor());
         if (null != myBlockAttackInnerInterceptor) {
             interceptor.addInnerInterceptor(myBlockAttackInnerInterceptor);
         }

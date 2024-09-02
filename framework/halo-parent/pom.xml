@@ -97,6 +97,8 @@
         <liteflow.starter.version>2.12.2</liteflow.starter.version>
         <langchain4j.version>0.32.0</langchain4j.version>
 
+        <knife4j-openapi3-jakarta-starter.version>4.5.0</knife4j-openapi3-jakarta-starter.version>
+
         <es-rest-high-level-client.version>7.14.0</es-rest-high-level-client.version>
         <es.version>7.14.0</es.version>
         <easy-es.version>2.0.0</easy-es.version>
@@ -545,6 +547,13 @@
                 <version>${liteflow.starter.version}</version>
             </dependency>
 
+            <!-- knife4j -->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j-openapi3-jakarta-starter.version}</version>
+            </dependency>
+
             <!-- dubbo3 -->
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
@@ -933,6 +942,11 @@
             <dependency>
                 <groupId>com.lvwj.halo</groupId>
                 <artifactId>halo-starter-swagger2</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-starter-swagger3</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>

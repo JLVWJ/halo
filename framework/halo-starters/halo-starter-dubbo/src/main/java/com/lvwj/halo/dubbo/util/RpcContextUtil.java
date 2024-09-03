@@ -3,14 +3,17 @@ package com.lvwj.halo.dubbo.util;
 
 import com.lvwj.halo.common.constants.SystemConstant;
 import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.JsonUtil;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.slf4j.MDC;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
 import java.time.ZoneId;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 
 /**
@@ -68,7 +71,11 @@ public class RpcContextUtil {
      * 获取用户ID
      */
     public static Long getUserId() {
-        return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.USER_ID));
+        Long userId = Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.USER_ID));
+        if (Func.isEmpty(userId)) {
+            userId = Optional.ofNullable(getUserInfo()).map(UserInfo::authId).orElse(null);
+        }
+        return userId;
     }
 
     /**
@@ -95,6 +102,14 @@ public class RpcContextUtil {
     }
 
     /**
+     * 获取TtsID
+     */
+    public static String getTtsId() {
+        RpcContext context = RpcContext.getServerAttachment();
+        return context.getAttachment(SystemConstant.TTS_ID);
+    }
+
+    /**
      * 获取采样率SampleRate
      */
     public static String getSampleRate() {
@@ -106,6 +121,7 @@ public class RpcContextUtil {
      * 设置用户ID
      */
     public static void setUserId(Long userId) {
+        if (null == userId) return;
         RpcContext context = RpcContext.getServerAttachment();
         context.setAttachment(SystemConstant.USER_ID, userId);
     }
@@ -114,6 +130,7 @@ public class RpcContextUtil {
      * 设置成员ID
      */
     public static void setMemberId(Long memberId) {
+        if (null == memberId) return;
         RpcContext context = RpcContext.getServerAttachment();
         context.setAttachment(SystemConstant.MEMBER_ID, memberId);
     }
@@ -122,6 +139,7 @@ public class RpcContextUtil {
      * 设置设备编号
      */
     public static void setDeviceNo(String deviceNo) {
+        if (Func.isBlank(deviceNo)) return;
         RpcContext context = RpcContext.getServerAttachment();
         context.setAttachment(SystemConstant.DEVICE_NO, deviceNo);
     }
@@ -130,8 +148,18 @@ public class RpcContextUtil {
      * 设置编码
      */
     public static void setEnocding(String enocding) {
+        if (Func.isBlank(enocding)) return;
         RpcContext context = RpcContext.getServerAttachment();
         context.setAttachment(SystemConstant.ENCODING, enocding);
+    }
+
+    /**
+     * 设置tts id
+     */
+    public static void setTtsId(String ttsId) {
+        if (Func.isBlank(ttsId)) return;
+        RpcContext context = RpcContext.getServerAttachment();
+        context.setAttachment(SystemConstant.TTS_ID, ttsId);
     }
 
     public static String getTraceId() {
@@ -146,7 +174,24 @@ public class RpcContextUtil {
     }
 
     public static void setTraceId(String traceId) {
+        if (Func.isBlank(traceId) || SystemConstant.DEFAULT_TID.equals(traceId)) return;
         RpcContext context = RpcContext.getServerAttachment();
         context.setAttachment(SystemConstant.TRACE_ID, traceId);
+    }
+
+
+    public static String getUserName() {
+        return Optional.ofNullable(getUserInfo()).map(UserInfo::name).orElse(null);
+    }
+
+    private static UserInfo getUserInfo() {
+        Object employeeInfo = RpcContext.getServerAttachment().getObjectAttachment(SystemConstant.EMPLOYEE_INFO);
+        if (Func.isNotEmpty(employeeInfo)) {
+            return JsonUtil.parse(JsonUtil.toJson(employeeInfo), UserInfo.class);
+        }
+        return null;
+    }
+
+    record UserInfo(String name, String alias, String email, Long authId, Long syncStaffId) implements Serializable {
     }
 }

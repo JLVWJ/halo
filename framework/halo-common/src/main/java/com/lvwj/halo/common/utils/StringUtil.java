@@ -40,7 +40,7 @@ public class StringUtil extends StringUtils {
    * @see Character#isWhitespace
    */
   public static boolean isBlank(final CharSequence cs) {
-    return !StringUtil.hasText(cs);
+    return !hasText(cs);
   }
 
   /**
@@ -58,7 +58,7 @@ public class StringUtil extends StringUtils {
    * @see Character#isWhitespace
    */
   public static boolean isNotBlank(final CharSequence cs) {
-    return StringUtil.hasText(cs);
+    return hasText(cs);
   }
 
   /**
@@ -141,7 +141,7 @@ public class StringUtil extends StringUtils {
         && (end = message.indexOf(StringPool.RIGHT_BRACE, start)) != -1; ) {
       sb.append(message, cursor, start);
       String key = message.substring(start + 2, end);
-      Object value = params.get(StringUtil.trimWhitespace(key));
+      Object value = params.get(key.strip());
       sb.append(value == null ? StringPool.EMPTY : value);
       cursor = end + 1;
     }
@@ -191,7 +191,7 @@ public class StringUtil extends StringUtils {
    * @return the delimited {@code String}
    */
   public static String join(Collection<?> coll) {
-    return StringUtil.collectionToCommaDelimitedString(coll);
+    return collectionToCommaDelimitedString(coll);
   }
 
   /**
@@ -203,7 +203,7 @@ public class StringUtil extends StringUtils {
    * @return the delimited {@code String}
    */
   public static String join(Collection<?> coll, String delim) {
-    return StringUtil.collectionToDelimitedString(coll, delim);
+    return collectionToDelimitedString(coll, delim);
   }
 
   /**
@@ -214,8 +214,7 @@ public class StringUtil extends StringUtils {
    * @return the delimited {@code String}
    */
   public static String joinWithQuote(Collection<?> coll) {
-    return StringUtil.collectionToDelimitedString(coll, ",", StringPool.SINGLE_QUOTE,
-        StringPool.SINGLE_QUOTE);
+    return collectionToDelimitedString(coll, ",", StringPool.SINGLE_QUOTE, StringPool.SINGLE_QUOTE);
   }
 
   /**
@@ -226,7 +225,7 @@ public class StringUtil extends StringUtils {
    * @return the delimited {@code String}
    */
   public static String join(Object[] arr) {
-    return StringUtil.arrayToCommaDelimitedString(arr);
+    return arrayToCommaDelimitedString(arr);
   }
 
   /**
@@ -238,7 +237,7 @@ public class StringUtil extends StringUtils {
    * @return the delimited {@code String}
    */
   public static String join(Object[] arr, String delim) {
-    return StringUtil.arrayToDelimitedString(arr, delim);
+    return arrayToDelimitedString(arr, delim);
   }
 
   /**
@@ -410,7 +409,7 @@ public class StringUtil extends StringUtils {
    * @return 字符串数组
    */
   public static String[] splitTrim(@Nullable String str, @Nullable String delimiter) {
-    return StringUtil.delimitedListToStringArray(str, delimiter, " \t\n\n\f");
+    return delimitedListToStringArray(str, delimiter, " \t\n\n\f");
   }
 
   /**

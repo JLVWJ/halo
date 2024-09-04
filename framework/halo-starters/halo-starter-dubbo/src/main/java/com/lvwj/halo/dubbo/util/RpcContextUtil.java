@@ -81,7 +81,7 @@ public class RpcContextUtil {
     /**
      * 获取角色ID(家庭成员ID)
      */
-    public static Long geMemberId() {
+    public static Long getMemberId() {
         return Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.MEMBER_ID));
     }
 

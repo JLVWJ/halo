@@ -104,6 +104,9 @@ public class NumberConstant {
   public static final String STR_NIGHT = "9";
   public static final String STR_TEN = "10";
 
+  public static final String STR_TRUE = "true";
+  public static final String STR_FALSE = "false";
+
   public static final BigDecimal BIG_ZERO = BigDecimal.ZERO;
   public static final BigDecimal BIG_ONE = BigDecimal.ONE;
   public static final BigDecimal BIG_TWO = new BigDecimal("2");

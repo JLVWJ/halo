@@ -142,11 +142,11 @@ public class StrSpliter {
 	 * @since 3.2.1
 	 */
 	public static List<String> split(String str, char separator, int limit, boolean isTrim, boolean ignoreEmpty, boolean ignoreCase) {
-		if (StringUtil.isEmpty(str)) {
-			return new ArrayList<String>(0);
+		if (StringUtil.isBlank(str)) {
+			return new ArrayList<>(0);
 		}
 		if (limit == 1) {
-			return addToList(new ArrayList<String>(1), str, isTrim, ignoreEmpty);
+			return addToList(new ArrayList<>(1), str, isTrim, ignoreEmpty);
 		}
 
 		final ArrayList<String> list = new ArrayList<>(limit > 0 ? limit : 16);

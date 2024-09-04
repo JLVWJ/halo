@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.parser.JsqlParserSupport;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
@@ -40,9 +41,10 @@ public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements In
         SqlCommandType sct = ms.getSqlCommandType();
         if (sct == SqlCommandType.UPDATE) {
             BoundSql boundSql = handler.boundSql();
-            String sql = parserMulti(boundSql.getSql(), null);
-            if (Func.isNotBlank(sql) && !sql.equals(boundSql.getSql())) {
-                PluginUtils.mpBoundSql(boundSql).sql(sql);
+            String oldSql = boundSql.getSql().replaceAll("\\n+", StringPool.EMPTY);//去除多余换行，避免Jsql解析失败
+            String newSql = parserMulti(oldSql, null);
+            if (Func.isNotBlank(newSql)) {
+                PluginUtils.mpBoundSql(boundSql).sql(newSql);
             }
         }
     }
@@ -53,11 +55,11 @@ public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements In
         TableInfo tableInfo = TableInfoHelper.getTableInfo(tableName);
         //开启了逻辑删除 且 update sql是逻辑删除sql
         if (tableInfo.isWithLogicDelete()
-                && update.getUpdateSets().stream().anyMatch(s -> s.getColumns().get(0).getColumnName().equals(IS_DELETE))) {
+                && update.getUpdateSets().stream().anyMatch(s -> s.getColumn(0).getColumnName().equals(IS_DELETE))) {
             if (tableInfo.getFieldList().stream().anyMatch(s -> s.getColumn().equals(DELETE_TIME))) {
                 update.addUpdateSet(new UpdateSet(new Column(DELETE_TIME), new StringValue(DateTimeUtil.formatDateTime(LocalDateTime.now()))));
             }
-            if (tableInfo.getFieldList().stream().anyMatch(s -> s.getColumn().equals(DELETE_BY))) {
+            if (tableInfo.getFieldList().stream().anyMatch(s -> s.getColumn().equals(DELETE_BY)) && Func.isNotBlank(ThreadLocalUtil.getCurrentUser())) {
                 update.addUpdateSet(new UpdateSet(new Column(DELETE_BY), new StringValue(ThreadLocalUtil.getCurrentUser())));
             }
         }

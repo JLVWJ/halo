@@ -42,6 +42,7 @@
         <module>halo-starter-cache</module>
         <module>halo-starter-tokenizer</module>
         <module>halo-starter-swagger2</module>
+        <module>halo-starter-swagger3</module>
     </modules>
 
     <dependencies>

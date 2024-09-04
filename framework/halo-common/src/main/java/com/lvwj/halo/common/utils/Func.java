@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lvwj.halo.common.constants.DateTimeConstant;
+import com.lvwj.halo.common.constants.NumberConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -460,6 +461,13 @@ public class Func {
    * 字符串转Integer，为空则返回默认值
    */
   public static Integer toInt(@Nullable final Object str, final Integer defaultValue) {
+    if (null != str) {
+      if (NumberConstant.STR_TRUE.equalsIgnoreCase(str.toString())) {
+        return NumberConstant.INT_ONE;
+      } else if (NumberConstant.STR_FALSE.equalsIgnoreCase(str.toString())) {
+        return NumberConstant.INT_ZERO;
+      }
+    }
     return NumberUtil.toInt(String.valueOf(str), defaultValue);
   }
 
@@ -474,6 +482,13 @@ public class Func {
    * 字符串转Long，为空则返回默认值
    */
   public static Long toLong(@Nullable final Object str, final Long defaultValue) {
+    if (null != str) {
+      if (NumberConstant.STR_TRUE.equalsIgnoreCase(str.toString())) {
+        return NumberConstant.LONG_ONE;
+      } else if (NumberConstant.STR_FALSE.equalsIgnoreCase(str.toString())) {
+        return NumberConstant.LONG_ZERO;
+      }
+    }
     return NumberUtil.toLong(String.valueOf(str), defaultValue);
   }
 
@@ -517,6 +532,11 @@ public class Func {
    */
   public static Boolean toBoolean(Object value, Boolean defaultValue) {
     if (value != null) {
+      if (NumberConstant.STR_ONE.equals(value.toString())) {
+        return Boolean.TRUE;
+      } else if (NumberConstant.STR_ZERO.equals(value.toString())) {
+        return Boolean.FALSE;
+      }
       return Boolean.parseBoolean(String.valueOf(value).trim());
     }
     return defaultValue;

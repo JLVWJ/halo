@@ -9,6 +9,7 @@ import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.common.utils.ThreadLocalUtil;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.update.Update;
@@ -27,6 +28,7 @@ import java.time.LocalDateTime;
  * @author lvweijie
  * @date 2023年12月06日 17:18
  */
+@Slf4j
 public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements InnerInterceptor {
 
     private static final String IS_DELETE = "is_delete";
@@ -39,12 +41,17 @@ public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements In
         PluginUtils.MPStatementHandler handler = PluginUtils.mpStatementHandler(sh);
         MappedStatement ms = handler.mappedStatement();
         SqlCommandType sct = ms.getSqlCommandType();
-        if (sct == SqlCommandType.UPDATE) {
-            BoundSql boundSql = handler.boundSql();
-            String oldSql = boundSql.getSql()
-                    .replace(" output="," `output`=") // output是关键字 加引号避免Jsql解析失败
-                    .replaceAll("\\n+", StringPool.EMPTY);//去除多余换行，避免Jsql解析失败
-            String newSql = parserMulti(oldSql, null);
+        BoundSql boundSql = handler.boundSql();
+        String oldSql = boundSql.getSql();
+        if (sct == SqlCommandType.UPDATE && oldSql.indexOf(IS_DELETE) > 0) {
+            String newSql = null;
+            try{
+                oldSql = oldSql.replace(" output=", " `output`=") // output是关键字 加引号避免Jsql解析失败
+                        .replaceAll("\\n+", StringPool.EMPTY); // 去除多余换行，避免Jsql解析失败
+                newSql = parserMulti(oldSql, null);
+            }catch (Exception e){
+                log.warn("[LogicDeleteInnerInterceptor] parser error", e);
+            }
             if (Func.isNotBlank(newSql)) {
                 PluginUtils.mpBoundSql(boundSql).sql(newSql);
             }

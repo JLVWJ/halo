@@ -1,5 +1,6 @@
 package com.lvwj.halo.common.enums;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Objects;
  * @author lvweijie
  * @date 2024年06月09日 15:50
  */
-public interface IEnum<T> {
+public interface IEnum<T> extends Serializable {
 
     /**
      * 枚举编码
@@ -21,7 +22,7 @@ public interface IEnum<T> {
     String getDescription();
 
     static <E extends IEnum<C>, C> E byCode(Class<E> clazz, C code) {
-        if (code == null || !clazz.isEnum()) {
+        if (code == null || null == clazz) {
             return null;
         }
         E[] enums = clazz.getEnumConstants();
@@ -34,7 +35,7 @@ public interface IEnum<T> {
     }
 
     static <E extends IEnum<?>> E byDescription(Class<E> clazz, String description) {
-        if (null == description || description.isEmpty() || !clazz.isEnum()) {
+        if (null == description || description.isEmpty() || null == clazz) {
             return null;
         }
         E[] enums = clazz.getEnumConstants();

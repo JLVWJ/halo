@@ -100,13 +100,13 @@ public @interface RocketMQConsumer {
      *
      * The minimum value is 10 and the maximum is 30000.
      */
-    String suspendCurrentQueueTimeMillis() default "1000";
+    String suspendCurrentQueueTimeMillis() default "10000";
 
     /**
      * Maximum time to await message consuming when shutdown consumer, in milliseconds.
      * The minimum value is 0
      */
-    String awaitTerminationMillisWhenShutdown() default "1000";
+    String awaitTerminationMillisWhenShutdown() default "20000";
 
     String instanceName() default "DEFAULT";
 }

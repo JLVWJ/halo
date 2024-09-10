@@ -10,4 +10,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TagHandler {
     String value() default "";
+
+    /**
+     * 重试次数
+     */
+    int reconsumeTimes() default -1;
+
+    /**
+     * 并发模式适用
+     */
+    int delayLevelWhenNextConsume() default -1;
 }

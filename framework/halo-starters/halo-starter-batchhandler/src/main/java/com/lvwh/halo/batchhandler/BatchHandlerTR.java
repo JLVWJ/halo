@@ -57,6 +57,7 @@ public class BatchHandlerTR<T extends Serializable, R> {
     }
 
     public void handle(T t) {
+        if (null == t) return;
         BatchHandlerResultFuture<T, R> future = new BatchHandlerResultFuture<>();
         future.setT(t);
         future.setR(new CompletableFuture<>());

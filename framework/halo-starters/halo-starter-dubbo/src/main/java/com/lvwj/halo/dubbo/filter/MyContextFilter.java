@@ -1,6 +1,7 @@
 package com.lvwj.halo.dubbo.filter;
 
 import com.lvwj.halo.common.constants.SystemConstant;
+import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import com.lvwj.halo.dubbo.util.RpcContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.constants.CommonConstants;
@@ -21,6 +22,7 @@ public class MyContextFilter implements Filter, Filter.Listener {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         RpcContextUtil.setLocaleContextHolder();
         MDC.put(SystemConstant.TRACE_ID, RpcContextUtil.getTraceId());
+        ThreadLocalUtil.putCurrentUser(RpcContextUtil.getUserName());
         return invoker.invoke(invocation);
     }
 
@@ -28,11 +30,13 @@ public class MyContextFilter implements Filter, Filter.Listener {
     public void onResponse(Result appResponse, Invoker<?> invoker, Invocation invocation) {
         RpcContextUtil.clearLocaleContextHolder();
         MDC.clear();
+        ThreadLocalUtil.clear();
     }
 
     @Override
     public void onError(Throwable t, Invoker<?> invoker, Invocation invocation) {
         RpcContextUtil.clearLocaleContextHolder();
         MDC.clear();
+        ThreadLocalUtil.clear();
     }
 }

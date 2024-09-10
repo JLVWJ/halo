@@ -8,6 +8,9 @@ import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.rocketmq.annotation.RocketMQConsumer;
 import com.lvwj.halo.rocketmq.annotation.TagHandler;
 import jakarta.annotation.Resource;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -18,7 +21,6 @@ import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel;
 import org.apache.rocketmq.spring.autoconfigure.RocketMQProperties;
-import org.apache.rocketmq.spring.support.RocketMQUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -33,6 +35,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel.BROADCASTING;
 import static org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel.CLUSTERING;
 
 /**
@@ -54,6 +56,8 @@ import static org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel.CLUST
 public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecycle {
 
     private final Map<String, Map<String, MethodInvoker>> tagMethodMap = new HashMap<>();
+
+    private final Map<String, Map<String, TagAnnoItem>> tagAnnoItemMap = new HashMap<>();
 
     private final Map<String, DefaultMQPushConsumer> consumerMap = new HashMap<>();
 
@@ -75,14 +79,15 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
         }
         boolean enable = BooleanUtils.toBoolean(resolve(annotation.enable()));
         if (enable) {
-            initTagMethods(bean, beanName);
+            initTag(bean, beanName);
             initConsumer(annotation, beanName);
         }
         return bean;
     }
 
-    private void initTagMethods(Object bean, String beanName) {
+    private void initTag(Object bean, String beanName) {
         Map<String, MethodInvoker> tagMethods = Maps.newHashMap();
+        Map<String, TagAnnoItem> tagAnnoItems = Maps.newHashMap();
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
         List<Method> methods = MethodUtils.getMethodsListWithAnnotation(targetClass, TagHandler.class);
         methods.forEach(method -> {
@@ -107,10 +112,12 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     throw new RuntimeException(msg);
                 }
                 tagMethods.put(s, new MethodInvoker(bean, method));
+                tagAnnoItems.put(s, new TagAnnoItem(tagHandler.reconsumeTimes(), tagHandler.delayLevelWhenNextConsume()));
             }
         });
         if (!tagMethods.isEmpty()) {
             tagMethodMap.put(beanName, tagMethods);
+            tagAnnoItemMap.put(beanName, tagAnnoItems);
         }
     }
 
@@ -160,10 +167,10 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
         }
         switch (annotation.consumeMode()) {
             case ORDERLY:
-                consumer.setMessageListener(new DefaultMessageListenerOrderly(suspendCurrentQueueTimeMillis, beanName, consumerGroup, annotation.messageModel()));
+                consumer.setMessageListener(new DefaultMessageListenerOrderly(maxReconsumeTimes, suspendCurrentQueueTimeMillis, beanName, consumerGroup, annotation.messageModel()));
                 break;
             case CONCURRENTLY:
-                consumer.setMessageListener(new DefaultMessageListenerConcurrently(delayLevelWhenNextConsume, beanName, consumerGroup, annotation.messageModel()));
+                consumer.setMessageListener(new DefaultMessageListenerConcurrently(maxReconsumeTimes, delayLevelWhenNextConsume, beanName, consumerGroup, annotation.messageModel()));
                 break;
             default:
                 throw new IllegalArgumentException("@RocketMQConsumer 'consumeMode' was wrong");
@@ -189,6 +196,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
         private final Logger log = LoggerFactory.getLogger(DefaultMessageListenerOrderly.class);
 
+        private final int maxReconsumeTimes;
         private final long suspendCurrentQueueTimeMillis;
         private final String beanName;
 
@@ -196,7 +204,8 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
         private final MessageModel messageModel;
 
-        public DefaultMessageListenerOrderly(long suspendCurrentQueueTimeMillis, String beanName, String consumerGroup, MessageModel messageModel) {
+        public DefaultMessageListenerOrderly(int maxReconsumeTimes, long suspendCurrentQueueTimeMillis, String beanName, String consumerGroup, MessageModel messageModel) {
+            this.maxReconsumeTimes = maxReconsumeTimes;
             this.suspendCurrentQueueTimeMillis = suspendCurrentQueueTimeMillis;
             this.beanName = beanName;
             this.consumerGroup = consumerGroup;
@@ -212,6 +221,19 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
             return methodInvoker;
         }
 
+        private int getEnableReconsumeTimes(String tag) {
+            int result = 5; //默认重试5次
+            TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag);
+            if (null != annoItem) {
+                if (annoItem.getReconsumeTimes() > 0) {
+                    result = annoItem.getReconsumeTimes();
+                } else if (this.maxReconsumeTimes > 0) {
+                    result = this.maxReconsumeTimes;
+                }
+            }
+            return result;
+        }
+
         @Override
         public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context) {
             for (MessageExt messageExt : msgs) {
@@ -224,6 +246,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                 //String operator = messageExt.getUserProperty("operator");
                 String methodName = "";
                 int reconsumeTimes = messageExt.getReconsumeTimes();
+                int enableReconsumeTimes = getEnableReconsumeTimes(tag);
                 Object payload = null;
                 try {
                     if (StringUtils.hasLength(traceId)) {
@@ -258,7 +281,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     Throwable t = Exceptions.unwrap(e);
                     log.warn("MQ消费失败: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, [异常]:{}, {}[重试]:{}次", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), t.getMessage(), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", reconsumeTimes, t);
                     ConsumeOrderlyStatus consumeOrderlyStatus;
-                    if (skipWhenException() || reconsumeTimes >= 5) { //重试5次 则返回消费成功 转人工处理
+                    if (skipWhenException() || reconsumeTimes >= enableReconsumeTimes) {
                         consumeOrderlyStatus = ConsumeOrderlyStatus.SUCCESS;
                     } else {
                         context.setSuspendCurrentQueueTimeMillis(this.suspendCurrentQueueTimeMillis);
@@ -283,13 +306,15 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
         private final Logger log = LoggerFactory.getLogger(DefaultMessageListenerConcurrently.class);
 
+        private final int maxReconsumeTimes;
         private final int delayLevelWhenNextConsume;
         private final String beanName;
         private final String consumerGroup;
 
         private final MessageModel messageModel;
 
-        public DefaultMessageListenerConcurrently(int delayLevelWhenNextConsume, String beanName, String consumerGroup, MessageModel messageModel) {
+        public DefaultMessageListenerConcurrently(int maxReconsumeTimes, int delayLevelWhenNextConsume, String beanName, String consumerGroup, MessageModel messageModel) {
+           this.maxReconsumeTimes = maxReconsumeTimes;
             this.delayLevelWhenNextConsume = delayLevelWhenNextConsume;
             this.beanName = beanName;
             this.consumerGroup = consumerGroup;
@@ -305,6 +330,33 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
             return methodInvoker;
         }
 
+        private int getEnableReconsumeTimes(String tag) {
+            int result = 16;
+            TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag);
+            if (null != annoItem) {
+                if (annoItem.getReconsumeTimes() > 0) {
+                    result = annoItem.getReconsumeTimes();
+                } else if (this.maxReconsumeTimes > 0) {
+                    result = this.maxReconsumeTimes;
+                }
+                result = Math.min(16, result);
+            }
+            return result;
+        }
+
+        private int getDelayLevelWhenNextConsume(String tag) {
+            int result = 0;
+            TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag);
+            if (null != annoItem) {
+                if (annoItem.getDelayLevelWhenNextConsume() > 0) {
+                    result = annoItem.getDelayLevelWhenNextConsume();
+                } else {
+                    result = this.delayLevelWhenNextConsume;
+                }
+            }
+            return result;
+        }
+
         @Override
         public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
             for (MessageExt messageExt : msgs) {
@@ -317,6 +369,8 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                 //String operator = messageExt.getUserProperty("operator");
                 String methodName = "";
                 int reconsumeTimes = messageExt.getReconsumeTimes();
+                int enableReconsumeTimes = getEnableReconsumeTimes(tag);
+                int delayLevelWhenNextConsume1 = getDelayLevelWhenNextConsume(tag);
                 Object payload = null;
                 try {
                     if (StringUtils.hasLength(traceId)) {
@@ -351,10 +405,10 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     Throwable t = Exceptions.unwrap(e);
                     log.warn("MQ消费失败: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, [异常]:{}, {}[重试]:{}次", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), t.getMessage(), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", reconsumeTimes, t);
                     ConsumeConcurrentlyStatus consumeConcurrentlyStatus;
-                    if (skipWhenException()) {
+                    if (skipWhenException() || reconsumeTimes >= enableReconsumeTimes) {
                         consumeConcurrentlyStatus = ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     } else {
-                        context.setDelayLevelWhenNextConsume(delayLevelWhenNextConsume);
+                        context.setDelayLevelWhenNextConsume(delayLevelWhenNextConsume1);
                         consumeConcurrentlyStatus = ConsumeConcurrentlyStatus.RECONSUME_LATER;
                     }
                     //保存消息消费失败记录
@@ -467,5 +521,15 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
             }
             return JSON.parseObject(str, this.paramType);
         }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class TagAnnoItem implements Serializable{
+        private Integer reconsumeTimes;
+
+        private Integer delayLevelWhenNextConsume;
+
     }
 }

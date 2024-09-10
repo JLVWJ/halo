@@ -17,7 +17,9 @@ public class MyConsumerContextFilter implements Filter {
     @Trace
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-
+        RpcContextUtil.setUserId(RpcContextUtil.getUserId());
+        RpcContextUtil.setDeviceNo(RpcContextUtil.getDeviceNo());
+        RpcContextUtil.setMemberId(RpcContextUtil.getMemberId());
         RpcContextUtil.setTraceId(RpcContextUtil.getTraceId());
         return invoker.invoke(invocation);
     }

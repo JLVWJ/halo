@@ -1,6 +1,9 @@
 package com.lvwj.halo.rocketmq.producer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.lvwj.halo.common.constants.SystemConstant;
+import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.rocketmq.annotation.MessageMode;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +82,7 @@ public class RocketMQProducerHelper {
 
     private String getDestination(String topic, String tag) {
         if (StringUtils.hasText(tag)) {
-            return topic + ":" + tag;
+            return topic + StringPool.COLON + tag;
         } else {
             return topic;
         }
@@ -89,8 +92,8 @@ public class RocketMQProducerHelper {
         body = getBody(msgPK, body, key, tag, bodyWithHeader);
         MessageBuilder<String> builder = MessageBuilder.withPayload(body);
         String traceId = getTraceId();
-        if (StringUtils.hasText(traceId) && !"N/A".equals(traceId)) {
-            builder.setHeader("tid", traceId);
+        if (Func.isNotBlank(traceId)) {
+            builder.setHeader(SystemConstant.TID, traceId);
         }
         if (null != msgPK && msgPK > 0) {
             builder.setHeader("msgPK", msgPK);
@@ -108,9 +111,12 @@ public class RocketMQProducerHelper {
     }
 
     private String getTraceId() {
-        String traceId = ThreadContext.get("traceId");
-        if (!StringUtils.hasText(traceId) || "N/A".equals(traceId)) {
+        String traceId = ThreadContext.get(SystemConstant.TRACE_ID);
+        if (Func.isBlank(traceId) || SystemConstant.DEFAULT_TID.equals(traceId)) {
             traceId = TraceContext.traceId();
+        }
+        if (SystemConstant.DEFAULT_TID.equals(traceId)) {
+            traceId = StringPool.EMPTY;
         }
         return traceId;
     }

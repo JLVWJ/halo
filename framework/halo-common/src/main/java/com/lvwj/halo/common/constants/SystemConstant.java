@@ -13,6 +13,9 @@ public class SystemConstant {
      */
     public static long MACHINE_ID = 1L;
 
+    public static final String TID = "tid";
+    public static final String DEFAULT_TID = "N/A";
+
     public static String ERROR = "system error";
 
     /**
@@ -48,5 +51,9 @@ public class SystemConstant {
 
     public static final String CONVERSATION_ID = "conversationId";
 
+    public static final String TTS_ID = "ttsId";
+
     public static final String SAMPLE_RATE = "sampleRate";
+
+    public static final String EMPLOYEE_INFO = "employeeInfo";
 }

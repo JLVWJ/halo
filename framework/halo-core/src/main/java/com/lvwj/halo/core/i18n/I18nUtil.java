@@ -3,7 +3,6 @@ package com.lvwj.halo.core.i18n;
 import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.env.Environment;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -24,8 +23,6 @@ public class I18nUtil {
 
     private static volatile MessageSource ms = null;
 
-    private static volatile Environment env = null;
-
     private static MessageSource getMessageSource() {
         if (null == ms) {
             synchronized (I18nUtil.class) {
@@ -36,19 +33,6 @@ public class I18nUtil {
         }
         return ms;
     }
-
-    public static Environment getEnvironment(){
-        if(null == env){
-            synchronized (I18nUtil.class) {
-                if(null == env){
-                    env = SpringUtil.getBean(Environment.class);
-                }
-            }
-        }
-        return env;
-    }
-
-
 
     public static String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
         try {
@@ -79,7 +63,7 @@ public class I18nUtil {
     }
 
     private static String getCode(String code) {
-        String prefix = getEnvironment().getProperty("spring.messages.code-prefix");
+        String prefix = SpringUtil.getProperty("spring.messages.code-prefix");
         if (null == prefix || prefix.isEmpty()) {
             return code;
         }

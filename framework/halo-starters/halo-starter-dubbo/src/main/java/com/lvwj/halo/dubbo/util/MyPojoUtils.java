@@ -2,6 +2,7 @@ package com.lvwj.halo.dubbo.util;
 
 import com.lvwj.halo.common.enums.IEnum;
 import com.lvwj.halo.common.utils.DateTimeUtil;
+import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.dubbo.serializer.ISerializer;
 import com.lvwj.halo.dubbo.serializer.SerializerHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -356,7 +357,7 @@ public class MyPojoUtils {
             return null;
         }
 
-        //log.info("[MyPojoUtils.realize1]==>type:" + type + ", genericType:" + genericType + ", pojo:" + pojo);
+        //log.info("[MyPojoUtils.realize1]==>type:" + type + ", genericType:" + genericType + ", pojo:" + pojo+ ", isEnum:" + type.isEnum());
 
         //入参是枚举时，判断枚举如果实现IEnum，则用IEnum.byCode来获取枚举，否则用Enum.valueOf
         if (type != null && type.isEnum()) {
@@ -366,6 +367,9 @@ public class MyPojoUtils {
             }
             if (null == iEnum && pojo.getClass() == String.class) {
                 iEnum = Enum.valueOf((Class<Enum>) type, (String) pojo);
+            }
+            if (null == iEnum) { //枚举需加@JsonCreator
+                iEnum = JsonUtil.parse(pojo.toString(), type);
             }
             return iEnum;
         }

@@ -3,6 +3,7 @@ package com.lvwh.halo.batchhandler;
 import com.lvwh.halo.batchhandler.queue.AbstractBatchQueue;
 import com.lvwh.halo.batchhandler.queue.MemoryBatchQueue;
 import com.lvwh.halo.batchhandler.queue.RedisBatchQueue;
+import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.core.threadpool.ThreadPoolCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -53,22 +54,25 @@ public class BatchHandlerT<T extends Serializable> {
     }
 
     public void handle(T t) {
+        if (null == t) return;
         queue.put(t);
-        if (queue.size() >= threshHold) {
+        if (1 == threshHold || queue.size() >= threshHold) {
             scheduledThreadPool.execute(this::batchHandle);
         }
     }
 
     public void handle(List<T> ts) {
+        if (Func.isEmpty(ts)) return;
         queue.put(ts);
-        if (queue.size() >= threshHold) {
+        if (ts.size() >= threshHold || queue.size() >= threshHold) {
             scheduledThreadPool.execute(this::batchHandle);
         }
     }
 
     public void suspend(List<T> ts) {
+        if (Func.isEmpty(ts)) return;
         queue.putFirst(ts);
-        if (queue.size() >= threshHold) {
+        if (ts.size() >= threshHold || queue.size() >= threshHold) {
             scheduledThreadPool.execute(this::batchHandle);
         }
     }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lvwj.halo.common.constants.DateTimeConstant;
 import com.lvwj.halo.common.constants.NumberConstant;
+import com.lvwj.halo.common.dto.AddressDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -549,7 +550,7 @@ public class Func {
    * @return 结果
    */
   public static Integer[] toIntArray(String str) {
-    return toIntArray(",", str);
+    return toIntArray(StringPool.COMMA, str);
   }
 
   /**
@@ -599,7 +600,7 @@ public class Func {
    * @return 结果
    */
   public static Integer firstInt(String str) {
-    return firstInt(",", str);
+    return firstInt(StringPool.COMMA, str);
   }
 
   /**
@@ -625,7 +626,7 @@ public class Func {
    * @return 结果
    */
   public static Long[] toLongArray(String str) {
-    return toLongArray(",", str);
+    return toLongArray(StringPool.COMMA, str);
   }
 
   /**
@@ -675,7 +676,7 @@ public class Func {
    * @return 结果
    */
   public static Long firstLong(String str) {
-    return firstLong(",", str);
+    return firstLong(StringPool.COMMA, str);
   }
 
   /**
@@ -701,7 +702,7 @@ public class Func {
    * @return 结果
    */
   public static String[] toStrArray(String str) {
-    return toStrArray(",", str);
+    return toStrArray(StringPool.COMMA, str);
   }
 
   /**
@@ -746,7 +747,7 @@ public class Func {
    * @return 结果
    */
   public static String firstStr(String str) {
-    return firstStr(",", str);
+    return firstStr(StringPool.COMMA, str);
   }
 
   /**
@@ -1913,7 +1914,7 @@ public class Func {
    * @return boolean
    */
   public static boolean isJsonArray(String str) {
-    return StringUtil.isJsonStr(str);
+    return StringUtil.isJsonArray(str);
   }
 
   /**
@@ -1924,6 +1925,13 @@ public class Func {
    */
   public static String cleanHtmlTag(String content) {
     return content.replaceAll("(<[^<]*?>)|(<[\\s]*?/[^<]*?>)|(<[^<]*?/[\\s]*?>)", "");
+  }
+
+  /**
+   * 获取CPU核数
+   */
+  public static int getCpuNum(){
+    return RuntimeUtil.getCpuNum();
   }
 
   /**
@@ -2100,5 +2108,26 @@ public class Func {
       }
     });
     return sb.toString();
+  }
+
+  /**
+   * 基于googleMap中的算法得到两经纬度之间的距离,计算精度与谷歌地图的距离精度差不多。
+   */
+  public static double getLocationDistance(double longitude1, double latitude1, double longitude2, double latitude2){
+    return GeoPositionUtil.getDistance(longitude1, latitude1, longitude2, latitude2);
+  }
+
+  /**
+   * 基于googleMap中的算法得到两经纬度之间的距离,计算精度与谷歌地图的距离精度差不多。
+   */
+  public static double getLocationDistance(String location1, String location2){
+    return GeoPositionUtil.getDistance(location1, location2);
+  }
+
+  /**
+   * 解析国内具体地址
+   */
+  public static AddressDTO parseAddress(String address){
+    return AddressUtil.parse(address);
   }
 }

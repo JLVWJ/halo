@@ -1,5 +1,6 @@
 package com.lvwj.halo.core.jackson.builder;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.*;
@@ -43,7 +44,7 @@ public class HaloJackson2ObjectMapperBuilder extends Jackson2ObjectMapperBuilder
     objectMapper.setLocale(LocaleContextHolder.getLocale());
     objectMapper.setTimeZone(TimeZone.getDefault());
     // 属性命名策略定义
-    String nameStrategy = System.getProperty("halo.jackson.property-naming-strategy");
+    String nameStrategy = SpringUtil.getProperty("halo.jackson.property-naming-strategy");
     PropertyNamingStrategy strategy = getNameStrategy(nameStrategy);
     if (strategy != null) {
       objectMapper.setPropertyNamingStrategy(strategy);

@@ -27,7 +27,7 @@ public interface IEnum<T> extends Serializable {
         }
         E[] enums = clazz.getEnumConstants();
         for (E e : enums) {
-            if (Objects.equals(e.getCode(), code)) {
+            if (e.getCode().toString().equalsIgnoreCase(code.toString())) {
                 return e;
             }
         }
@@ -40,7 +40,7 @@ public interface IEnum<T> extends Serializable {
         }
         E[] enums = clazz.getEnumConstants();
         for (E e : enums) {
-            if (Objects.equals(e.getDescription(), description)) {
+            if (e.getDescription().equalsIgnoreCase(description)) {
                 return e;
             }
         }

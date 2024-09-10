@@ -365,11 +365,11 @@ public class MyPojoUtils {
             if (IEnum.class.isAssignableFrom(type)) {
                 iEnum = IEnum.byCode((Class<IEnum>) type, pojo);
             }
-            if (null == iEnum) {
-                iEnum = JsonUtil.parse(pojo.toString(), type);
-            }
             if (null == iEnum && pojo.getClass() == String.class) {
                 iEnum = Enum.valueOf((Class<Enum>) type, (String) pojo);
+            }
+            if (null == iEnum) { //枚举需加@JsonCreator
+                iEnum = JsonUtil.parse(pojo.toString(), type);
             }
             return iEnum;
         }

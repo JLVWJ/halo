@@ -61,7 +61,7 @@
         <dubbo.version>3.2.14</dubbo.version>
         <curator.version>5.4.0</curator.version>
         <redisson.version>3.18.0</redisson.version>
-        <jsqlparser.version>4.7</jsqlparser.version>
+        <jsqlparser.version>5.0</jsqlparser.version>
         <reflections.version>0.10.2</reflections.version>
 
         <okhttp3.version>4.12.0</okhttp3.version>
@@ -421,6 +421,13 @@
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-kotlin</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <!-- jsqlparser -->
+            <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>${jsqlparser.version}</version>
             </dependency>
 
 

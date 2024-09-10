@@ -7,6 +7,7 @@ public interface StringPool {
 
   String AMPERSAND = "&";
   String AND = "and";
+  String OR = "or";
   String AT = "@";
   String ASTERISK = "*";
   String STAR = ASTERISK;
@@ -20,6 +21,7 @@ public interface StringPool {
   String DOT = ".";
   String EMPTY = "";
   String EMPTY_JSON = "{}";
+  String EMPTY_ARRAY_JSON = "[]";
   String BRACE = "{}";
   String EQUAL_TO = "=";
   String FALSE = "false";
@@ -64,7 +66,9 @@ public interface StringPool {
   String MINUS_ONE = "-1";
   String DOLLAR_LEFT_BRACE = "${";
   String UNKNOWN = "unknown";
+  String UNDEFINE = "undefine";
   String GET = "GET";
   String POST = "POST";
-
+  String PUT = "PUT";
+  String DELETE = "DELETE";
 }

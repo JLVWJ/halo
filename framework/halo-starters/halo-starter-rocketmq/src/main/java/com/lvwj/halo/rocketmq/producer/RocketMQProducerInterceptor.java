@@ -2,6 +2,7 @@ package com.lvwj.halo.rocketmq.producer;
 
 
 import com.google.common.collect.Maps;
+import com.lvwj.halo.common.constants.NumberConstant;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.domain.event.IntegrationEvent;
@@ -29,6 +30,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 /**
@@ -46,7 +48,7 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
 
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    private final Executor executor = ThreadPoolCache.getCustomizeThreadPool("RocketMQProducer", 3, 6, 5000);
+    private final Executor executor = ThreadPoolCache.getCustomizeThreadPool("RocketMQProducer", 2, 4, 5000);
 
     @Autowired
     private Environment environment;
@@ -71,12 +73,13 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
         IntegrationEvent event = (IntegrationEvent) arguments[0];
         String msgKey = invokeItem.getKey(arguments);
         String msgBody = JsonUtil.toJson(event);
+        Integer delayLevel = invokeItem.getDelayLevel(arguments);
         //顺序模式，同步发MQ; 普通模式，异步发MQ
         if (invokeItem.getMessageMode().equals(MessageMode.ORDER)) {
-            producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, invokeItem.getDelayLevel(),
+            producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore());
         } else {
-            executor.execute(() -> producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, invokeItem.getDelayLevel(),
+            executor.execute(() -> producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore()));
         }
     }
@@ -87,17 +90,20 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
         boolean enable = BooleanUtils.toBoolean(this.resolve(producer.enable()));
         String topic = this.resolve(producer.topic());
         String tag = this.resolve(producer.tag());
-        int delayLevel = Integer.parseInt(this.resolve(producer.delayLevel()));
 
         String[] parameterNames = parameterNameDiscoverer.getParameterNames(method);
-        Expression expression = null;
+        Expression keyExp = null;
         if (StringUtils.hasText(producer.key())) {
-            expression = expressionParser.parseExpression(producer.key());
+            keyExp = expressionParser.parseExpression(producer.key());
+        }
+        Expression delayLevelExp = null;
+        if (StringUtils.hasText(producer.delayLevel())) {
+            delayLevelExp = expressionParser.parseExpression(producer.delayLevel());
         }
 
-        return new InvokeCacheItem(enable, topic, tag, producer.key(), delayLevel, producer.msg(),
+        return new InvokeCacheItem(enable, topic, tag, producer.key(), delayLevelExp, producer.msg(),
                 producer.communicationMode(), producer.messageMode(),
-                parameterNames, expression, producer.timeout(), producer.bodyWithHeader());
+                parameterNames, keyExp, producer.timeout(), producer.bodyWithHeader());
     }
 
     /**
@@ -116,12 +122,12 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
         private final String topic;
         private final String tag;
         private final String key;
-        private final int delayLevel;
+        private final Expression delayLevelExp;
         private final Class<? extends IntegrationEvent> eventClass;
         private final CommunicationMode communicationMode;
         private final MessageMode messageMode;
         private final String[] parameterNames;
-        private final Expression expression;
+        private final Expression keyExp;
         private final long timeout;
         private final boolean bodyWithHeader;
 
@@ -131,7 +137,16 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
             for (int i = 0; i < parameterNames.length; i++) {
                 evaluationContext.setVariable(parameterNames[i], arguments[i]);
             }
-            return expression.getValue(evaluationContext, String.class);
+            return keyExp.getValue(evaluationContext, String.class);
+        }
+
+        public Integer getDelayLevel(Object[] arguments) {
+            if(null == delayLevelExp) return NumberConstant.INT_NEG_ONE;
+            EvaluationContext evaluationContext = new StandardEvaluationContext();
+            for (int i = 0; i < parameterNames.length; i++) {
+                evaluationContext.setVariable(parameterNames[i], arguments[i]);
+            }
+            return Optional.ofNullable(delayLevelExp.getValue(evaluationContext, Integer.class)).orElse(NumberConstant.INT_NEG_ONE);
         }
     }
 }

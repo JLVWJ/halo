@@ -3,7 +3,6 @@ package com.lvwh.halo.batchhandler;
 import com.lvwh.halo.batchhandler.queue.AbstractBatchQueue;
 import com.lvwh.halo.batchhandler.queue.MemoryBatchQueue;
 import com.lvwh.halo.batchhandler.queue.RedisBatchQueue;
-import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.core.threadpool.ThreadPoolCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -47,7 +46,7 @@ public class BatchHandlerT<T extends Serializable> {
                 return;
             }
             consumer.accept(ts);
-            log.info("BatchHandlerT batchHandle success! ts:" + JsonUtil.toJson(ts));
+            //log.info("BatchHandlerT batchHandle success! ts:" + JsonUtil.toJson(ts));
         } catch (Exception e) {
             log.error("BatchHandlerT batchHandle failed!", e);
         }

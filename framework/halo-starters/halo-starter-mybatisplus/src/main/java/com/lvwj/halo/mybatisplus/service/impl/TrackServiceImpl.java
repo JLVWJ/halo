@@ -1,6 +1,8 @@
 package com.lvwj.halo.mybatisplus.service.impl;
 
 import com.lvwj.halo.common.models.entity.IEntity;
+import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.ObjectUtil;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.track.TrackManager;
 import com.lvwj.halo.core.track.TrackService;
@@ -119,11 +121,23 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
         if (null == changes || changes.isEmpty()) {
             return;
         }
-        Map<String, List<Change>> createMap = changes.stream().filter(this::isCreate)
-                .collect(groupingBy(s -> s.getAffectedGlobalId().getTypeName()));
-        Map<String, Map<Object, List<Change>>> updateMap = changes.stream().filter(this::isUpdate)
-                .collect(groupingBy(s -> s.getAffectedGlobalId().getTypeName(), groupingBy(this::getEntityId)));
-        Map<String, List<Change>> deleteMap = changes.stream().filter(this::isDelete).collect(groupingBy(s -> s.getAffectedGlobalId().getTypeName()));
+        Map<String, List<Change>> createMap = new HashMap<>();
+        Map<String, List<Change>> deleteMap = new HashMap<>();
+        Map<String, Map<Object, List<Change>>> updateMap = new HashMap<>();
+        for (Change change : changes) {
+            String typeName = change.getAffectedGlobalId().getTypeName();
+            if (isCreate(change)) {
+                List<Change> list = createMap.computeIfAbsent(typeName, k -> new ArrayList<>());
+                list.add(change);
+            } else if (isDelete(change)) {
+                List<Change> list = deleteMap.computeIfAbsent(typeName, k -> new ArrayList<>());
+                list.add(change);
+            }else if (isUpdate(change)) {
+                Map<Object, List<Change>> map = updateMap.computeIfAbsent(typeName, k -> new HashMap<>());
+                List<Change> list = map.computeIfAbsent(getEntityId(change), k -> new ArrayList<>());
+                list.add(change);
+            }
+        }
         doCreate(createMap);
         doUpdate(updateMap);
         doDelete(deleteMap);
@@ -162,7 +176,7 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
                 }
                 Object entity = null;
                 for (Change change : itemEntry.getValue()) {
-                    ValueChange valueChange = (ValueChange) change;
+                    PropertyChange<Object> valueChange = (PropertyChange<Object>) change;
                     EntityHolder.EntityField entityField = EntityHolder.getEntityField(entityClass, valueChange.getPropertyName());
                     if (entityField.allowUpdate(valueChange.getRight())) {
                         if (entity == null) {
@@ -210,12 +224,19 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
     }
 
     private boolean isUpdate(Change change) {
-        return change instanceof ValueChange && !(change instanceof InitialValueChange)
-                && !(change instanceof TerminalValueChange);
+        return change instanceof ValueChange && !(change instanceof InitialValueChange) && !(change instanceof TerminalValueChange);
     }
 
     private boolean isDelete(Change change) {
         return change instanceof ObjectRemoved;
+    }
+
+    private boolean existsInMap(Map<String, List<Change>> map, Change change) {
+        if (Func.isEmpty(map) || null == change) return false;
+        String typeName = change.getAffectedGlobalId().getTypeName();
+        Object entityId = getEntityId(change);
+        List<Change> list = map.get(typeName);
+        return Func.isNotEmpty(list) && list.stream().anyMatch(s -> ObjectUtil.nullSafeEquals(getEntityId(s), entityId));
     }
 
     /**
@@ -225,9 +246,8 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
      * @date 2022-12-08 18:06
      */
     private Object getEntityId(Change change) {
-        if (change.getAffectedGlobalId() instanceof InstanceId) {
+        if (change.getAffectedGlobalId() instanceof InstanceId instanceId) {
             //带@id的对象属性变动
-            InstanceId instanceId = (InstanceId) change.getAffectedGlobalId();
             return instanceId.getCdoId();
         } else {
             //其他全部当做ValueObject对象处理

@@ -5,6 +5,7 @@ import com.lvwj.halo.common.enums.IErrorEnum;
 import com.lvwj.halo.common.exceptions.BusinessException;
 import com.lvwj.halo.common.utils.Exceptions;
 import com.lvwj.halo.common.utils.JsonUtil;
+import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.core.i18n.I18nUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.constants.CommonConstants;
@@ -56,7 +57,7 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
         if (appResponse.hasException() && GenericService.class != invoker.getInterface()) {
             Throwable throwable = Exceptions.unwrap(appResponse.getException());
             if (throwable instanceof ConstraintViolationException cve) {
-                String message = "参数验证异常:[" + cve.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(Collectors.joining(",")) + "]";
+                String message = "参数验证异常:[" + cve.getConstraintViolations().stream().map(s -> s.getPropertyPath().toString() + StringPool.COLON + s.getMessage()).collect(Collectors.joining(StringPool.SEMICOLON)) + "]";
                 appResponse.setValue(R.fail(message));
                 appResponse.setException(null);
                 return;

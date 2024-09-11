@@ -7,6 +7,7 @@ import com.lvwj.halo.common.exceptions.ArgumentException;
 import com.lvwj.halo.common.exceptions.BusinessException;
 import com.lvwj.halo.common.exceptions.ForbiddenException;
 import com.lvwj.halo.common.exceptions.UnauthorizedException;
+import com.lvwj.halo.common.utils.StringPool;
 import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -121,7 +122,7 @@ public class GlobalExceptionHandler {
   public R<?> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
     log.warn("MethodArgumentTypeMismatchException:", ex);
     String msg = "参数：[" + ex.getName() + "]的传入值：[" + ex.getValue() +
-        "]与预期的字段类型：[" + Objects.requireNonNull(ex.getRequiredType()).getName() + "]不匹配";
+            "]与预期的字段类型：[" + Objects.requireNonNull(ex.getRequiredType()).getName() + "]不匹配";
     return R.fail(BaseErrorEnum.PARAM_TYPE_ERROR, msg);
   }
 
@@ -137,7 +138,7 @@ public class GlobalExceptionHandler {
   public R<?> missingServletRequestParameterException(MissingServletRequestParameterException ex) {
     log.warn("MissingServletRequestParameterException:", ex);
     return R.fail(BaseErrorEnum.ILLEGAL_ARGUMENT_ERROR,
-        "缺少必须的[" + ex.getParameterType() + "]类型的参数[" + ex.getParameterName() + "]");
+            "缺少必须的[" + ex.getParameterType() + "]类型的参数[" + ex.getParameterName() + "]");
   }
 
   @ExceptionHandler(NullPointerException.class)
@@ -161,7 +162,7 @@ public class GlobalExceptionHandler {
     MediaType contentType = ex.getContentType();
     if (contentType != null) {
       return R.fail(BaseErrorEnum.MEDIA_TYPE_NOT_SUPPORTED,
-          "请求类型(Content-Type)[" + contentType + "] 与实际接口的请求类型不匹配");
+              "请求类型(Content-Type)[" + contentType + "] 与实际接口的请求类型不匹配");
     }
     return R.fail(BaseErrorEnum.MEDIA_TYPE_NOT_SUPPORTED, "无效的Content-Type类型");
   }
@@ -199,7 +200,7 @@ public class GlobalExceptionHandler {
   public R<?> constraintViolationException(ConstraintViolationException ex) {
     log.warn("ConstraintViolationException:", ex);
     Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-    String message = violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining(";"));
+    String message = violations.stream().map(s -> s.getPropertyPath().toString() + StringPool.COLON + s.getMessage()).collect(Collectors.joining(StringPool.SEMICOLON));
     return R.fail(BaseErrorEnum.PARAM_VALID_ERROR, message);
   }
 
@@ -211,7 +212,7 @@ public class GlobalExceptionHandler {
   public R<?> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
     log.warn("MethodArgumentNotValidException:", ex);
     return R.fail(BaseErrorEnum.PARAM_VALID_ERROR,
-        Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage());
+            ex.getBindingResult().getFieldErrors().stream().map(s -> s.getField() + StringPool.COLON + s.getDefaultMessage()).collect(Collectors.joining(StringPool.SEMICOLON)));
   }
 
   /**

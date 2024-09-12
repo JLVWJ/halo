@@ -3,9 +3,8 @@ package com.lvwj.halo.milvus.core;
 import com.lvwj.halo.common.utils.StringUtil;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
-import dev.langchain4j.store.embedding.filter.Filter;
+import com.lvwj.halo.milvus.core.filter.Filter;
 
 import java.util.Collection;
 import java.util.List;
@@ -113,9 +112,5 @@ public interface EmbeddingStorePlus {
     void recoverAll();
 
 
-    EmbeddingSearchResult<TextSegment> search(EmbeddingSearchExtRequest embeddingSearchExtRequest);
-
-    default EmbeddingSearchResult<TextSegment> search(EmbeddingSearchRequest request) {
-        return search(EmbeddingSearchExtRequest.from(request));
-    }
+    EmbeddingSearchResult<TextSegment> search(EmbeddingSearchRequest embeddingSearchRequest);
 }

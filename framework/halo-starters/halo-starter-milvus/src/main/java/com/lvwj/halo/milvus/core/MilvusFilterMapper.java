@@ -1,22 +1,20 @@
 package com.lvwj.halo.milvus.core;
 
-import dev.langchain4j.store.embedding.filter.Filter;
-import dev.langchain4j.store.embedding.filter.comparison.*;
-import dev.langchain4j.store.embedding.filter.logical.And;
-import dev.langchain4j.store.embedding.filter.logical.Not;
-import dev.langchain4j.store.embedding.filter.logical.Or;
+import com.lvwj.halo.milvus.core.filter.Filter;
+import com.lvwj.halo.milvus.core.filter.comparison.*;
+import com.lvwj.halo.milvus.core.filter.logical.And;
+import com.lvwj.halo.milvus.core.filter.logical.Not;
+import com.lvwj.halo.milvus.core.filter.logical.Or;
 import org.springframework.util.StringUtils;
-import org.testcontainers.shaded.com.google.common.collect.Sets;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
-class MilvusMetadataFilterMapper {
+class MilvusFilterMapper {
 
     static String map(Filter filter, String partitionKey) {
         if (filter instanceof IsEqualTo) {
@@ -92,7 +90,7 @@ class MilvusMetadataFilterMapper {
 
     private static String formatKey(String key, String partitionKey) {
         if (StringUtils.hasLength(partitionKey) && key.equals(partitionKey)) return partitionKey;
-        if (KEYS.contains(key)) return key;
+        if (CollectionFieldConstant.KEYS.contains(key)) return key;
         return "metadata[\"" + key + "\"]";
     }
 
@@ -105,9 +103,7 @@ class MilvusMetadataFilterMapper {
     }
 
     protected static List<String> formatValues(Collection<?> values) {
-        return values.stream().map(MilvusMetadataFilterMapper::formatValue).collect(toList());
+        return values.stream().map(MilvusFilterMapper::formatValue).collect(toList());
     }
-
-    private static final Set<String> KEYS = Sets.newHashSet("id", "text", "deleted");
 }
 

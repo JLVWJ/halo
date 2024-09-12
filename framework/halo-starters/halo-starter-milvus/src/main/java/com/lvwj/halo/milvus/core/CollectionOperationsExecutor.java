@@ -1,9 +1,12 @@
 package com.lvwj.halo.milvus.core;
 
-import dev.langchain4j.store.embedding.filter.Filter;
+import com.lvwj.halo.milvus.core.filter.Filter;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
-import io.milvus.grpc.*;
+import io.milvus.grpc.FlushResponse;
+import io.milvus.grpc.MutationResult;
+import io.milvus.grpc.QueryResults;
+import io.milvus.grpc.SearchResults;
 import io.milvus.param.IndexType;
 import io.milvus.param.MetricType;
 import io.milvus.param.R;
@@ -18,6 +21,7 @@ import io.milvus.response.QueryResultsWrapper;
 import io.milvus.response.SearchResultsWrapper;
 import org.springframework.util.StringUtils;
 
+import java.lang.String;
 import java.util.List;
 
 import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;

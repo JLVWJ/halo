@@ -54,8 +54,8 @@ public class MilvusEmbeddingStoreProperties implements Serializable {
         private String indexParam = "{\"nlist\":2048}";
         private MetricType metricType = MetricType.IP;
         private ConsistencyLevelEnum consistencyLevel = ConsistencyLevelEnum.BOUNDED;
-        private Boolean autoFlushOnInsert = Boolean.FALSE;
+        private Boolean autoFlushOnInsert = Boolean.TRUE;
         private Boolean retrieveEmbeddingsOnSearch = Boolean.FALSE;
-        private Boolean softDelete = Boolean.FALSE; //是否启用软删除
+        private Boolean softDelete = Boolean.TRUE; //是否启用软删除
     }
 }

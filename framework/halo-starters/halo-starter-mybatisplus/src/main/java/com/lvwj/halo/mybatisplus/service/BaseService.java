@@ -74,12 +74,10 @@ public interface BaseService<T extends IEntity<?>> extends IService<T> {
   /**
    * 批量插入
    */
-  @Transactional(rollbackFor = Exception.class)
   boolean saveBatch(List<T> entityList);
 
   /**
    * 批量更新
    */
-  @Transactional(rollbackFor = Exception.class)
   boolean updateBatch(List<T> entityList);
 }

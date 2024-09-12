@@ -310,6 +310,7 @@ public class EntityHolder {
       List<FieldStrategy> notNull = Arrays.asList(FieldStrategy.NOT_NULL, FieldStrategy.DEFAULT);
       return null != fieldInfo &&
               (fieldInfo.getUpdateStrategy() == FieldStrategy.IGNORED
+                      || fieldInfo.getUpdateStrategy() == FieldStrategy.ALWAYS
                       || fieldInfo.getUpdateStrategy() == FieldStrategy.NOT_EMPTY && !ObjectUtils.isEmpty(value)
                       || notNull.contains(fieldInfo.getUpdateStrategy()) && null != value);
     }

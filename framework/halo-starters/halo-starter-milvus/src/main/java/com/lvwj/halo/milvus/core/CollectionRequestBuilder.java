@@ -1,7 +1,7 @@
 package com.lvwj.halo.milvus.core;
 
 import com.lvwj.halo.common.utils.StringPool;
-import dev.langchain4j.store.embedding.filter.Filter;
+import com.lvwj.halo.milvus.core.filter.Filter;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.param.MetricType;
 import io.milvus.param.collection.DropCollectionParam;
@@ -15,8 +15,8 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;
-import static com.lvwj.halo.milvus.core.MilvusMetadataFilterMapper.formatValues;
-import static com.lvwj.halo.milvus.core.MilvusMetadataFilterMapper.map;
+import static com.lvwj.halo.milvus.core.MilvusFilterMapper.formatValues;
+import static com.lvwj.halo.milvus.core.MilvusFilterMapper.map;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -83,7 +83,7 @@ class CollectionRequestBuilder {
 
         String filterStr = StringPool.EMPTY;
         if (filter != null) {
-            filterStr = MilvusMetadataFilterMapper.map(filter, partitionKey.getFieldName());
+            filterStr = MilvusFilterMapper.map(filter, partitionKey.getFieldName());
         }
         if (softDelete) {
             String deleteStr = DELETE_FIELD_NAME + "==false";

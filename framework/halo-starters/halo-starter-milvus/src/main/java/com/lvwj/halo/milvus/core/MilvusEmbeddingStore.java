@@ -5,9 +5,8 @@ import com.lvwj.halo.common.utils.Assert;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
-import dev.langchain4j.store.embedding.filter.Filter;
+import com.lvwj.halo.milvus.core.filter.Filter;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.common.clientenum.ConsistencyLevelEnum;
 import io.milvus.grpc.DataType;
@@ -27,7 +26,7 @@ import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;
 import static com.lvwj.halo.milvus.core.CollectionOperationsExecutor.*;
 import static com.lvwj.halo.milvus.core.CollectionRequestBuilder.*;
 import static com.lvwj.halo.milvus.core.Mapper.*;
-import static com.lvwj.halo.milvus.core.MilvusMetadataFilterMapper.*;
+import static com.lvwj.halo.milvus.core.MilvusFilterMapper.*;
 import static io.milvus.common.clientenum.ConsistencyLevelEnum.EVENTUALLY;
 import static io.milvus.param.IndexType.FLAT;
 import static io.milvus.param.MetricType.COSINE;
@@ -110,22 +109,22 @@ public class MilvusEmbeddingStore implements EmbeddingStorePlus {
     }
 
     @Override
-    public EmbeddingSearchResult<TextSegment> search(EmbeddingSearchExtRequest embeddingSearchExtRequest) {
+    public EmbeddingSearchResult<TextSegment> search(EmbeddingSearchRequest embeddingSearchRequest) {
         SearchParam searchParam = buildSearchRequest(
                 collectionName,
-                embeddingSearchExtRequest.queryEmbedding().vectorAsList(),
-                embeddingSearchExtRequest.filter(),
-                embeddingSearchExtRequest.maxResults(),
+                embeddingSearchRequest.getQueryEmbedding().vectorAsList(),
+                embeddingSearchRequest.getFilter(),
+                embeddingSearchRequest.getMaxResults(),
                 metricType,
                 consistencyLevel,
-                embeddingSearchExtRequest.getParams(),
-                embeddingSearchExtRequest.getGroupByFieldName(),
-                embeddingSearchExtRequest.getPartitionNames(),
+                embeddingSearchRequest.getParams(),
+                embeddingSearchRequest.getGroupByFieldName(),
+                embeddingSearchRequest.getPartitionNames(),
                 partitionKey,
                 softDelete);
         SearchResultsWrapper resultsWrapper = CollectionOperationsExecutor.search(milvusClient, searchParam);
         var matches = toEmbeddingMatches(milvusClient, resultsWrapper, collectionName, consistencyLevel, retrieveEmbeddingsOnSearch);
-        var result = matches.stream().filter(match -> match.score() >= embeddingSearchExtRequest.minScore()).toList();
+        var result = matches.stream().filter(match -> match.score() >= embeddingSearchRequest.getMinScore()).toList();
         return new EmbeddingSearchResult<>(result);
     }
 

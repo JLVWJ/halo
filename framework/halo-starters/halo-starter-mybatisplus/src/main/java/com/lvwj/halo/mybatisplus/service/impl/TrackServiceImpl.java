@@ -10,6 +10,7 @@ import com.lvwj.halo.mybatisplus.entity.EntityHolder;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.javers.core.Changes;
+import org.javers.core.ChangesByObject;
 import org.javers.core.diff.Change;
 import org.javers.core.diff.changetype.*;
 import org.javers.core.metamodel.object.InstanceId;
@@ -114,6 +115,15 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
     @Override
     public TrackManager<T> getTrackManager() {
         return this.trackManager;
+    }
+
+    private void doSave(List<ChangesByObject> changes) {
+        if (Func.isEmpty(changes)) {
+            return;
+        }
+
+
+
     }
 
     private void doSave(Changes changes) {

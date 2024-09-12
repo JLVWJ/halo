@@ -2,6 +2,7 @@ package com.lvwj.halo.core.track;
 
 import com.lvwj.halo.common.models.entity.IEntity;
 import org.javers.core.Changes;
+import org.javers.core.ChangesByObject;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -67,6 +68,10 @@ public interface TrackManager<E extends IEntity<?>> {
 
     Changes changeDiff(List<E> list, Class<E> clazz);
 
+    List<ChangesByObject> changeDiffByObject(E e);
+
+    List<ChangesByObject> changeDiffByObject(List<E> list, Class<E> clazz);
+
     /**
      * 获取删除差异数据
      *
@@ -78,4 +83,8 @@ public interface TrackManager<E extends IEntity<?>> {
     Changes deleteDiff(E e);
 
     Changes deleteDiff(List<E> list, Class<E> clazz);
+
+    List<ChangesByObject> deleteDiffByObject(E e);
+
+    List<ChangesByObject> deleteDiffByObject(List<E> list, Class<E> clazz);
 }

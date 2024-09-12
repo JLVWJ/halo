@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.google.common.collect.Lists;
 import com.lvwj.halo.common.models.entity.IEntity;
-import com.lvwj.halo.mybatisplus.entity.EntityHolder;
 import com.lvwj.halo.mybatisplus.injector.CustomSqlMethod;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
 import com.lvwj.halo.mybatisplus.service.BaseService;
@@ -45,6 +44,7 @@ public abstract class BaseServiceImpl<M extends CustomMapper<T>, T extends IEnti
     return saveBatch(entityList, batchSize, CustomSqlMethod.REPLACE_ONE);
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public boolean saveBatch(List<T> entityList) {
     if (CollectionUtils.isEmpty(entityList)) {
@@ -57,6 +57,7 @@ public abstract class BaseServiceImpl<M extends CustomMapper<T>, T extends IEnti
     return true;
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public boolean updateBatch(List<T> entityList) {
     if (CollectionUtils.isEmpty(entityList)) {

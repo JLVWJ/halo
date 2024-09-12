@@ -5,7 +5,6 @@ import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.ObjectUtil;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.track.TrackManager;
-import com.lvwj.halo.core.track.TrackService;
 import com.lvwj.halo.core.track.impl.ThreadLocalTrackManager;
 import com.lvwj.halo.mybatisplus.entity.EntityHolder;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
@@ -32,7 +31,7 @@ import static java.util.stream.Collectors.toSet;
  * @date 2023年11月03日 16:40
  */
 @Slf4j
-public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends JoinServiceImpl<M,T> implements TrackService<T> {
+public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEntity<?>> extends JoinServiceImpl<M,T> {
 
     protected final TrackManager<T> trackManager;
 

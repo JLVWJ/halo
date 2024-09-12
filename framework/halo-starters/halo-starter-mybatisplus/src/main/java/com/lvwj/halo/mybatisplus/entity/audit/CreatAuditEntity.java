@@ -27,6 +27,7 @@ public class CreatAuditEntity<ID extends Serializable> extends Entity<ID> {
   @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
   private LocalDateTime createTime;
 
+  @DiffIgnore
   @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
   private String createBy;
 }

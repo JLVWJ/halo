@@ -6,9 +6,11 @@ import dev.langchain4j.store.embedding.filter.logical.And;
 import dev.langchain4j.store.embedding.filter.logical.Not;
 import dev.langchain4j.store.embedding.filter.logical.Or;
 import org.springframework.util.StringUtils;
+import org.testcontainers.shaded.com.google.common.collect.Sets;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static java.lang.String.format;
@@ -90,6 +92,7 @@ class MilvusMetadataFilterMapper {
 
     private static String formatKey(String key, String partitionKey) {
         if (StringUtils.hasLength(partitionKey) && key.equals(partitionKey)) return partitionKey;
+        if (KEYS.contains(key)) return key;
         return "metadata[\"" + key + "\"]";
     }
 
@@ -104,5 +107,7 @@ class MilvusMetadataFilterMapper {
     protected static List<String> formatValues(Collection<?> values) {
         return values.stream().map(MilvusMetadataFilterMapper::formatValue).collect(toList());
     }
+
+    private static final Set<String> KEYS = Sets.newHashSet("id", "text", "deleted");
 }
 

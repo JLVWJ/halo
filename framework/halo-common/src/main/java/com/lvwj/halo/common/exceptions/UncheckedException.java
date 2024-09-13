@@ -28,11 +28,11 @@ public class UncheckedException extends RuntimeException {
   /**
    * 异常码
    */
-  private transient IErrorEnum errorEnum;
+  private IErrorEnum errorEnum;
   /**
    * args
    */
-  private transient Object[] args;
+  private Object[] args;
 
   public UncheckedException(Throwable cause) {
     super(cause);

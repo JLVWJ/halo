@@ -172,6 +172,16 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
         }
     }
 
+    private void doDelete(Map<String, List<Change>> map) {
+        for (Map.Entry<String, List<Change>> entry : map.entrySet()) {
+            Set<Object> entityIds = entry.getValue().stream().map(this::getEntityId).collect(toSet());
+            if (!CollectionUtils.isEmpty(entityIds)) {
+                CustomMapper mapper = EntityHolder.getMapper(entry.getKey());
+                mapper.deleteByIds(entityIds);
+            }
+        }
+    }
+
     private void doUpdate(Map<String, Map<Object, List<Change>>> map) {
         if (map.isEmpty()) {
             return;
@@ -202,20 +212,6 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
             if (!CollectionUtils.isEmpty(entities)) {
                 EntityHolder.getMapper(entityClass).updateBatch(entities);
                 entities.clear();
-            }
-        }
-    }
-
-    private void doDelete(Map<String, List<Change>> map) {
-        for (Map.Entry<String, List<Change>> entry : map.entrySet()) {
-            Set<Object> entityIds = entry.getValue().stream().map(this::getEntityId).collect(toSet());
-            if (!CollectionUtils.isEmpty(entityIds)) {
-                CustomMapper mapper = EntityHolder.getMapper(entry.getKey());
-                if (entityIds.size() > 1) {
-                    mapper.deleteBatchIds(entityIds);
-                } else {
-                    mapper.deleteById(entityIds.iterator().next());
-                }
             }
         }
     }

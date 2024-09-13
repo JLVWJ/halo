@@ -80,6 +80,18 @@ public class R<T> implements Serializable {
     return BaseErrorEnum.SUCCESS.getCode() == code;
   }
 
+  @Transient
+  @JsonIgnore
+  public Object[] getArgs() {
+    return args;
+  }
+
+  @Transient
+  @JsonIgnore
+  public IErrorEnum getErrorCode() {
+    return errorCode;
+  }
+
   /**
    * 获取数据(code!=200时抛异常)
    *

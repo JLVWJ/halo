@@ -13,6 +13,7 @@ import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.*;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 
+import java.beans.Transient;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -207,6 +208,8 @@ public class MyPojoUtils {
             map.put("class", pojo.getClass().getName());
         }
         for (Method method : pojo.getClass().getMethods()) {
+            //自定义扩展点: 方法上加了@Transient，则不参与序列化
+            if (method.isAnnotationPresent(Transient.class)) continue;
             if (ReflectUtils.isBeanPropertyReadMethod(method)) {
                 ReflectUtils.makeAccessible(method);
                 try {
@@ -220,6 +223,8 @@ public class MyPojoUtils {
         }
         // public field
         for (Field field : pojo.getClass().getFields()) {
+            //自定义扩展点: 字段加了transient，则不参与序列化
+            if (Modifier.isTransient(field.getModifiers())) continue;
             if (ReflectUtils.isPublicInstanceField(field)) {
                 try {
                     Object fieldValue = field.get(pojo);

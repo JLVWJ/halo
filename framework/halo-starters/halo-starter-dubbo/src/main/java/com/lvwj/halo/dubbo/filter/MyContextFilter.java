@@ -16,7 +16,7 @@ import org.slf4j.MDC;
  * @date 2024年04月01日 10:07
  */
 @Slf4j
-@Activate(group = {CommonConstants.PROVIDER})
+@Activate(group = {CommonConstants.PROVIDER}, order = Integer.MIN_VALUE + 1)
 public class MyContextFilter implements Filter, Filter.Listener {
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {

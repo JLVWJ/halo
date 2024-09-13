@@ -1,5 +1,6 @@
 package com.lvwj.halo.dubbo.filter;
 
+import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.validation.Validation;
@@ -7,8 +8,14 @@ import org.apache.dubbo.validation.Validator;
 
 import jakarta.validation.ValidationException;
 
+import static org.apache.dubbo.common.constants.CommonConstants.CONSUMER;
+import static org.apache.dubbo.common.constants.CommonConstants.PROVIDER;
 import static org.apache.dubbo.common.constants.FilterConstants.VALIDATION_KEY;
 
+@Activate(
+        group = {CONSUMER, PROVIDER},
+        value = VALIDATION_KEY,
+        order = 10000)
 public class MyValidationFilter implements Filter {
 
     private Validation validation;

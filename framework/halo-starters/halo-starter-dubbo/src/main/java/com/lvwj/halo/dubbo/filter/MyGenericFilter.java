@@ -4,7 +4,6 @@ package com.lvwj.halo.dubbo.filter;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.lvwj.halo.dubbo.util.MyPojoUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.beanutil.JavaBeanAccessor;
 import org.apache.dubbo.common.beanutil.JavaBeanDescriptor;
 import org.apache.dubbo.common.beanutil.JavaBeanSerializeUtil;
@@ -14,7 +13,6 @@ import org.apache.dubbo.common.config.Configuration;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.constants.LoggerCodeConstants;
 import org.apache.dubbo.common.extension.Activate;
-import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.common.io.UnsafeByteArrayInputStream;
 import org.apache.dubbo.common.io.UnsafeByteArrayOutputStream;
 import org.apache.dubbo.common.json.GsonUtils;
@@ -22,7 +20,6 @@ import org.apache.dubbo.common.logger.ErrorTypeAwareLogger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.serialize.Serialization;
 import org.apache.dubbo.common.utils.ClassUtils;
-import org.apache.dubbo.common.utils.PojoUtils;
 import org.apache.dubbo.common.utils.ReflectUtils;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.rpc.*;
@@ -306,7 +303,6 @@ public class MyGenericFilter implements Filter, Filter.Listener, ScopeModelAware
             if (StringUtils.isBlank(generic)) {
                 generic = getGenericValueFromRpcContext();
             }
-
             if (appResponse.hasException()
                     && Dubbo2CompactUtils.isEnabled()
                     && Dubbo2GenericExceptionUtils.isGenericExceptionClassLoaded()) {
@@ -375,8 +371,6 @@ public class MyGenericFilter implements Filter, Filter.Listener, ScopeModelAware
                     }
                 }
                 appResponse.setValue(value);
-
-
             }
         }
     }

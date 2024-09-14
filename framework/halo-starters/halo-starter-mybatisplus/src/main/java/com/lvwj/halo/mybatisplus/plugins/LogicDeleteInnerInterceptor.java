@@ -43,7 +43,7 @@ public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements In
         SqlCommandType sct = ms.getSqlCommandType();
         BoundSql boundSql = handler.boundSql();
         String oldSql = boundSql.getSql();
-        if (sct == SqlCommandType.UPDATE && oldSql.indexOf(IS_DELETE) > 0) {
+        if (sct == SqlCommandType.UPDATE && oldSql.indexOf("is_delete=1") > 0) {
             String newSql = null;
             try{
                 oldSql = oldSql.replace(" output=", " `output`=") // output是关键字 加引号避免Jsql解析失败

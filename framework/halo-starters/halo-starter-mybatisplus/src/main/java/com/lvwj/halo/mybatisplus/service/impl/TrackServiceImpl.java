@@ -2,7 +2,7 @@ package com.lvwj.halo.mybatisplus.service.impl;
 
 import com.lvwj.halo.common.models.entity.IEntity;
 import com.lvwj.halo.common.utils.Func;
-import com.lvwj.halo.common.utils.ObjectUtil;
+import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.track.TrackManager;
 import com.lvwj.halo.core.track.impl.ThreadLocalTrackManager;
@@ -11,7 +11,9 @@ import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.javers.core.ChangesByObject;
 import org.javers.core.diff.Change;
-import org.javers.core.diff.changetype.*;
+import org.javers.core.diff.changetype.NewObject;
+import org.javers.core.diff.changetype.ObjectRemoved;
+import org.javers.core.diff.changetype.PropertyChange;
 import org.javers.core.metamodel.object.InstanceId;
 import org.javers.core.metamodel.object.ValueObjectId;
 import org.springframework.beans.BeanUtils;
@@ -138,16 +140,13 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
                     ids.add(id);
                 }
             } else if (Func.isNotEmpty(change.getPropertyChanges())) {
+                Set<String> propertyNames = new HashSet<>();
                 for (PropertyChange propertyChange : change.getPropertyChanges()) {
-                    if (!(propertyChange.getAffectedGlobalId() instanceof InstanceId parentId)
-                            || !parentId.getTypeName().equals(typeName)
-                            || !ObjectUtil.nullSafeEquals(parentId.getCdoId(), id)
-                            || checkIsInstanceId(propertyChange.getLeft())
-                            || checkIsInstanceId(propertyChange.getRight()))
-                        continue;
-                    Map<Object, List<Change>> map = updateMap.computeIfAbsent(typeName, k -> new HashMap<>());
-                    List<Change> list = map.computeIfAbsent(id, k -> new ArrayList<>());
-                    list.add(propertyChange);
+                    if(filterPropertyChange(propertyChange, propertyNames)){
+                        Map<Object, List<Change>> map = updateMap.computeIfAbsent(typeName, k -> new HashMap<>());
+                        List<Change> list = map.computeIfAbsent(id, k -> new ArrayList<>());
+                        list.add(propertyChange);
+                    }
                 }
             }
         }
@@ -199,13 +198,19 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
                 Object entity = null;
                 for (Change change : itemEntry.getValue()) {
                     PropertyChange<Object> propertyChange = (PropertyChange<Object>) change;
-                    EntityHolder.EntityField entityField = EntityHolder.getEntityField(entityClass, propertyChange.getPropertyName());
-                    if (entityField.allowUpdate(propertyChange.getRight())) {
+                    String propertyName = propertyChange.getPropertyName();
+                    Object right = propertyChange.getRight();
+                    if (propertyChange.getAffectedGlobalId() instanceof ValueObjectId valueObjectId) {
+                        propertyName = valueObjectId.getFragment();
+                        right = propertyChange.getAffectedObject().get();
+                    }
+                    EntityHolder.EntityField entityField = EntityHolder.getEntityField(entityClass, propertyName);
+                    if (entityField.allowUpdate(right)) {
                         if (entity == null) {
                             entity = BeanUtils.instantiateClass(entityClass);
                             EntityHolder.setFieldValue(entity, "id", itemEntry.getKey());
                         }
-                        EntityHolder.setFieldValue(entity, propertyChange.getPropertyName(), propertyChange.getRight());
+                        EntityHolder.setFieldValue(entity, propertyName, right);
                     }
                 }
                 if (null != entity) {
@@ -248,6 +253,13 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
         if (Func.isEmpty(changes)) return Collections.emptyMap();
         return changes.stream().filter(s -> Func.isNotEmpty(s.getObjectsRemoved()) && s.getGlobalId() instanceof InstanceId)
                 .collect(groupingBy(s -> s.getGlobalId().getTypeName(), Collectors.mapping(a -> ((InstanceId) a.getGlobalId()).getCdoId(), Collectors.toList())));
+    }
+
+    private Boolean filterPropertyChange(PropertyChange propertyChange, Set<String> propertyNames) {
+        return null != propertyChange && (
+                (propertyChange.getAffectedGlobalId() instanceof InstanceId && !checkIsInstanceId(propertyChange.getLeft()) && !checkIsInstanceId(propertyChange.getRight()) && propertyNames.add(propertyChange.getPropertyName()))
+                        || (propertyChange.getAffectedGlobalId() instanceof ValueObjectId valueObjectId && !valueObjectId.getFragment().contains(StringPool.SLASH) && propertyNames.add(valueObjectId.getFragment()))
+        );
     }
 
     private boolean checkIsInstanceId(Object value) {

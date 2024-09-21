@@ -74,15 +74,16 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
 
     private void sendMQ(InvokeCacheItem invokeItem, Object[] arguments, Object result) {
         IntegrationEvent event = (IntegrationEvent) arguments[0];
+        Long msgPK = event.getEventId();
         String msgKey = invokeItem.getKey(arguments, result);
         String msgBody = JsonUtil.toJson(event);
         Integer delayLevel = invokeItem.getDelayLevel(arguments);
         //顺序模式，同步发MQ; 普通模式，异步发MQ
         if (invokeItem.getMessageMode().equals(MessageMode.ORDER)) {
-            producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
+            producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore());
         } else {
-            executor.execute(() -> producerHelper.apply(event.getEventId(), msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
+            executor.execute(() -> producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore()));
         }
     }

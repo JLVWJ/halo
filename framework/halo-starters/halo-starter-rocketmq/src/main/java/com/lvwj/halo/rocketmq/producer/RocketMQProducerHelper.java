@@ -42,7 +42,7 @@ public class RocketMQProducerHelper {
             case SYNC:
                 SendResult sendResult;
                 if (msgMode == MessageMode.ORDER && StringUtils.hasText(msgKey)) {
-                    sendResult = this.rocketMQTemplate.syncSendOrderly(destination, message, msgKey, timeout);
+                    sendResult = this.rocketMQTemplate.syncSendOrderly(destination, message, msgKey, timeout, delayLevel);
                 } else {
                     sendResult = this.rocketMQTemplate.syncSend(destination, message, timeout, delayLevel);
                 }
@@ -65,7 +65,7 @@ public class RocketMQProducerHelper {
                     }
                 };
                 if (msgMode == MessageMode.ORDER && StringUtils.hasText(msgKey)) {
-                    this.rocketMQTemplate.asyncSendOrderly(destination, message, msgKey, sendCallback, timeout);
+                    this.rocketMQTemplate.asyncSendOrderly(destination, message, msgKey, sendCallback, timeout, delayLevel);
                 } else {
                     this.rocketMQTemplate.asyncSend(destination, message, sendCallback, timeout, delayLevel);
                 }

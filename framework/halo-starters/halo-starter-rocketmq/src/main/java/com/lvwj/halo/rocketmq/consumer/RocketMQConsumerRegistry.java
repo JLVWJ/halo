@@ -133,6 +133,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
         Assert.notNull(nameServer, "@RocketMQConsumer 'nameServer' is required");
         Assert.notNull(topic, "@RocketMQConsumer 'topic' is required");
 
+        boolean skipWhenException = annotation.skipWhenException();
         boolean enableMsgTrace = BooleanUtils.toBoolean(resolve(annotation.enableMsgTrace()));
         String customizedTraceTopic = resolve(annotation.customizedTraceTopic());
         int pullBatchSize = Integer.parseInt(resolve(annotation.pullBatchSize()));
@@ -168,10 +169,10 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
         }
         switch (annotation.consumeMode()) {
             case ORDERLY:
-                consumer.setMessageListener(new DefaultMessageListenerOrderly(maxReconsumeTimes, suspendCurrentQueueTimeMillis, beanName, consumerGroup, annotation.messageModel()));
+                consumer.setMessageListener(new DefaultMessageListenerOrderly(skipWhenException, maxReconsumeTimes, suspendCurrentQueueTimeMillis, beanName, consumerGroup, annotation.messageModel()));
                 break;
             case CONCURRENTLY:
-                consumer.setMessageListener(new DefaultMessageListenerConcurrently(maxReconsumeTimes, delayLevelWhenNextConsume, beanName, consumerGroup, annotation.messageModel()));
+                consumer.setMessageListener(new DefaultMessageListenerConcurrently(skipWhenException, maxReconsumeTimes, delayLevelWhenNextConsume, beanName, consumerGroup, annotation.messageModel()));
                 break;
             default:
                 throw new IllegalArgumentException("@RocketMQConsumer 'consumeMode' was wrong");
@@ -196,7 +197,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
     private class DefaultMessageListenerOrderly implements MessageListenerOrderly {
 
         private final Logger log = LoggerFactory.getLogger(DefaultMessageListenerOrderly.class);
-
+        private final boolean skipWhenException;
         private final int maxReconsumeTimes;
         private final long suspendCurrentQueueTimeMillis;
         private final String beanName;
@@ -205,7 +206,8 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
         private final MessageModel messageModel;
 
-        public DefaultMessageListenerOrderly(int maxReconsumeTimes, long suspendCurrentQueueTimeMillis, String beanName, String consumerGroup, MessageModel messageModel) {
+        public DefaultMessageListenerOrderly(boolean skipWhenException, int maxReconsumeTimes, long suspendCurrentQueueTimeMillis, String beanName, String consumerGroup, MessageModel messageModel) {
+            this.skipWhenException = skipWhenException;
             this.maxReconsumeTimes = maxReconsumeTimes;
             this.suspendCurrentQueueTimeMillis = suspendCurrentQueueTimeMillis;
             this.beanName = beanName;
@@ -235,9 +237,18 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
             return result;
         }
 
-        private boolean getSkipWhenException(String tag){
-            TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag);
-            return Optional.ofNullable(annoItem).map(TagAnnoItem::getSkipWhenException).orElse(skipWhenException());
+        private boolean getSkipWhenException(String tag) {
+            boolean result = skipWhenException(); //全局维度
+            if (result) {
+                return result;
+            } else if (this.skipWhenException) { //消费组维度
+                result = this.skipWhenException;
+                return result;
+            } else {
+                TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag); //Tag维度
+                result = Optional.ofNullable(annoItem).map(TagAnnoItem::getSkipWhenException).orElse(this.skipWhenException);
+                return result;
+            }
         }
 
         @Override
@@ -312,6 +323,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
         private final Logger log = LoggerFactory.getLogger(DefaultMessageListenerConcurrently.class);
 
+        private final boolean skipWhenException;
         private final int maxReconsumeTimes;
         private final int delayLevelWhenNextConsume;
         private final String beanName;
@@ -319,8 +331,9 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
 
         private final MessageModel messageModel;
 
-        public DefaultMessageListenerConcurrently(int maxReconsumeTimes, int delayLevelWhenNextConsume, String beanName, String consumerGroup, MessageModel messageModel) {
-           this.maxReconsumeTimes = maxReconsumeTimes;
+        public DefaultMessageListenerConcurrently(boolean skipWhenException, int maxReconsumeTimes, int delayLevelWhenNextConsume, String beanName, String consumerGroup, MessageModel messageModel) {
+            this.skipWhenException = skipWhenException;
+            this.maxReconsumeTimes = maxReconsumeTimes;
             this.delayLevelWhenNextConsume = delayLevelWhenNextConsume;
             this.beanName = beanName;
             this.consumerGroup = consumerGroup;
@@ -350,9 +363,18 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
             return result;
         }
 
-        private boolean getSkipWhenException(String tag){
-            TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag);
-            return Optional.ofNullable(annoItem).map(TagAnnoItem::getSkipWhenException).orElse(skipWhenException());
+        private boolean getSkipWhenException(String tag) {
+            boolean result = skipWhenException(); //全局维度
+            if (result) {
+                return result;
+            } else if (this.skipWhenException) { //消费组维度
+                result = this.skipWhenException;
+                return result;
+            } else {
+                TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag); //Tag维度
+                result = Optional.ofNullable(annoItem).map(TagAnnoItem::getSkipWhenException).orElse(this.skipWhenException);
+                return result;
+            }
         }
 
         private int getDelayLevelWhenNextConsume(String tag) {
@@ -537,7 +559,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    static class TagAnnoItem implements Serializable{
+    static class TagAnnoItem implements Serializable {
 
         private Boolean skipWhenException;
 

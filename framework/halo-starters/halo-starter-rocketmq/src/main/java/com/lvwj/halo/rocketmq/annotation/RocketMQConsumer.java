@@ -109,5 +109,10 @@ public @interface RocketMQConsumer {
     String awaitTerminationMillisWhenShutdown() default "20000";
 
     String instanceName() default "DEFAULT";
+
+    /**
+     * 消费异常时是否跳过，不重试
+     */
+    boolean skipWhenException() default false;
 }
 

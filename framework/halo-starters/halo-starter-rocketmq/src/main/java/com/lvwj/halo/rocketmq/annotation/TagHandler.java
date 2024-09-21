@@ -12,6 +12,11 @@ public @interface TagHandler {
     String value() default "";
 
     /**
+     * 消费异常时是否跳过，不重试
+     */
+    boolean skipWhenException() default false;
+
+    /**
      * 重试次数
      */
     int reconsumeTimes() default -1;

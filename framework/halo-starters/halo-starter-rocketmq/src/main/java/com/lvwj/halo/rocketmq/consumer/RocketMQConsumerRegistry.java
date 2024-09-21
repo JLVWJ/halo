@@ -43,6 +43,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.apache.rocketmq.remoting.protocol.heartbeat.MessageModel.CLUSTERING;
 
@@ -112,7 +113,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     throw new RuntimeException(msg);
                 }
                 tagMethods.put(s, new MethodInvoker(bean, method));
-                tagAnnoItems.put(s, new TagAnnoItem(tagHandler.reconsumeTimes(), tagHandler.delayLevelWhenNextConsume()));
+                tagAnnoItems.put(s, new TagAnnoItem(tagHandler.skipWhenException(), tagHandler.reconsumeTimes(), tagHandler.delayLevelWhenNextConsume()));
             }
         });
         if (!tagMethods.isEmpty()) {
@@ -234,6 +235,11 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
             return result;
         }
 
+        private boolean getSkipWhenException(String tag){
+            TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag);
+            return Optional.ofNullable(annoItem).map(TagAnnoItem::getSkipWhenException).orElse(skipWhenException());
+        }
+
         @Override
         public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context) {
             for (MessageExt messageExt : msgs) {
@@ -281,7 +287,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     Throwable t = Exceptions.unwrap(e);
                     log.warn("MQ消费失败: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, [异常]:{}, {}[重试]:{}次", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), t.getMessage(), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", reconsumeTimes, t);
                     ConsumeOrderlyStatus consumeOrderlyStatus;
-                    if (skipWhenException() || reconsumeTimes >= enableReconsumeTimes) {
+                    if (getSkipWhenException(tag) || reconsumeTimes >= enableReconsumeTimes) {
                         consumeOrderlyStatus = ConsumeOrderlyStatus.SUCCESS;
                     } else {
                         context.setSuspendCurrentQueueTimeMillis(this.suspendCurrentQueueTimeMillis);
@@ -342,6 +348,11 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                 result = Math.min(16, result);
             }
             return result;
+        }
+
+        private boolean getSkipWhenException(String tag){
+            TagAnnoItem annoItem = tagAnnoItemMap.get(beanName).get(tag);
+            return Optional.ofNullable(annoItem).map(TagAnnoItem::getSkipWhenException).orElse(skipWhenException());
         }
 
         private int getDelayLevelWhenNextConsume(String tag) {
@@ -405,7 +416,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     Throwable t = Exceptions.unwrap(e);
                     log.warn("MQ消费失败: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, [异常]:{}, {}[重试]:{}次", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), t.getMessage(), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", reconsumeTimes, t);
                     ConsumeConcurrentlyStatus consumeConcurrentlyStatus;
-                    if (skipWhenException() || reconsumeTimes >= enableReconsumeTimes) {
+                    if (getSkipWhenException(tag) || reconsumeTimes >= enableReconsumeTimes) {
                         consumeConcurrentlyStatus = ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                     } else {
                         context.setDelayLevelWhenNextConsume(delayLevelWhenNextConsume1);
@@ -527,6 +538,9 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
     @NoArgsConstructor
     @AllArgsConstructor
     static class TagAnnoItem implements Serializable{
+
+        private Boolean skipWhenException;
+
         private Integer reconsumeTimes;
 
         private Integer delayLevelWhenNextConsume;

@@ -3,6 +3,7 @@ package com.lvwj.halo.rocketmq.producer;
 
 import com.google.common.collect.Maps;
 import com.lvwj.halo.common.constants.NumberConstant;
+import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.domain.event.IntegrationEvent;
@@ -60,18 +61,20 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
     public Object invoke(MethodInvocation invocation) throws Throwable {
         Method method = invocation.getMethod();
         Object[] arguments = invocation.getArguments();
+        // 先执行方法
+        Object result = invocation.proceed();
         // 从方法中解析注解信息
         InvokeCacheItem invokeItem = this.invokeCache.computeIfAbsent(method, this::parseMethod);
         if (invokeItem.isEnable()) {
             ThreadContext.putIfNull("traceId", TraceContext.traceId());
-            TransactionUtil.afterCommit(() -> sendMQ(invokeItem, arguments));
+            TransactionUtil.afterCommit(() -> sendMQ(invokeItem, arguments, result));
         }
-        return invocation.proceed();
+        return result;
     }
 
-    private void sendMQ(InvokeCacheItem invokeItem, Object[] arguments) {
+    private void sendMQ(InvokeCacheItem invokeItem, Object[] arguments, Object result) {
         IntegrationEvent event = (IntegrationEvent) arguments[0];
-        String msgKey = invokeItem.getKey(arguments);
+        String msgKey = invokeItem.getKey(arguments, result);
         String msgBody = JsonUtil.toJson(event);
         Integer delayLevel = invokeItem.getDelayLevel(arguments);
         //顺序模式，同步发MQ; 普通模式，异步发MQ
@@ -131,9 +134,12 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
         private final long timeout;
         private final boolean bodyWithHeader;
 
-        public String getKey(Object[] arguments) {
+        public String getKey(Object[] arguments, Object result) {
             if (!StringUtils.hasLength(this.key)) return null;
             EvaluationContext evaluationContext = new StandardEvaluationContext();
+            if (Func.isNotEmpty(result)) {
+                evaluationContext.setVariable("_ret", result);
+            }
             for (int i = 0; i < parameterNames.length; i++) {
                 evaluationContext.setVariable(parameterNames[i], arguments[i]);
             }

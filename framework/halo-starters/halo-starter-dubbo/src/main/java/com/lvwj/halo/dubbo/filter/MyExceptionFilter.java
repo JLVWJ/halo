@@ -7,6 +7,7 @@ import com.lvwj.halo.common.utils.Exceptions;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.core.i18n.I18nUtil;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
@@ -15,9 +16,6 @@ import org.apache.dubbo.rpc.service.GenericService;
 import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.springframework.util.ObjectUtils;
-
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.util.StopWatch;
 
 import java.util.Optional;
@@ -111,7 +109,7 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
                 log.error(methodName + "请求异常:", be);
                 ActiveSpan.error(be.getCode() + ":" + be.getMessage());
             } else if (t instanceof ConstraintViolationException cve) {
-                String message = "[" + cve.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(Collectors.joining(",")) + "]";
+                String message = "[" + cve.getConstraintViolations().stream().map(s -> s.getPropertyPath().toString() + StringPool.COLON + s.getMessage()).collect(Collectors.joining(StringPool.SEMICOLON)) + "]";
                 log.error(methodName + "请求参数验证异常:" + message, t);
                 ActiveSpan.error(t);
             } else {

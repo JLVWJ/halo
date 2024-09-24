@@ -42,7 +42,7 @@ public class BatchHandlerT<T extends Serializable> {
 
     private void batchHandle() {
         try {
-            List<T> ts = queue.take(threshHold);
+            List<T> ts = queue.takeAll();
             if (CollectionUtils.isEmpty(ts)) {
                 return;
             }
@@ -72,8 +72,5 @@ public class BatchHandlerT<T extends Serializable> {
     public void suspend(List<T> ts) {
         if (Func.isEmpty(ts)) return;
         queue.putFirst(ts);
-        if (ts.size() >= threshHold || queue.size() >= threshHold) {
-            scheduledThreadPool.execute(this::batchHandle);
-        }
     }
 }

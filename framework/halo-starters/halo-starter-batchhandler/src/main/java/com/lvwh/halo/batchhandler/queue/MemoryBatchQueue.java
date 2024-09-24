@@ -2,6 +2,7 @@ package com.lvwh.halo.batchhandler.queue;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -43,13 +44,18 @@ public class MemoryBatchQueue<T> extends AbstractBatchQueue<T> {
     }
 
     @Override
-    public List<T> take(long len) {
+    public List<T> take(int len) {
         if (len <= 0) {
-            len = 1;
+            return Collections.emptyList();
         }
-        List<T> list = new ArrayList<>((int) len);
-        queue.drainTo(list, (int) len);
+        List<T> list = new ArrayList<>(len);
+        queue.drainTo(list, len);
         return list;
+    }
+
+    @Override
+    public List<T> takeAll() {
+        return take(size());
     }
 
     @Override

@@ -44,7 +44,7 @@ public class BatchHandlerTR<T extends Serializable, R> {
 
     private void batchHandle() {
         try {
-            List<BatchHandlerResultFuture<T, R>> ts = queue.take(threshHold);
+            List<BatchHandlerResultFuture<T, R>> ts = queue.takeAll();
             if (CollectionUtils.isEmpty(ts)) {
                 return;
             }

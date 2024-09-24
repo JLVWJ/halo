@@ -5,7 +5,6 @@ import com.lvwh.halo.batchhandler.BatchHandlerConstant;
 import com.lvwj.halo.redis.RedisTemplatePlus;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -53,35 +52,27 @@ public class RedisBatchQueue<T> extends AbstractBatchQueue<T> {
     }
 
     @Override
-    public List<T> take(long len) {
+    public List<T> take(int len) {
         if (len <= 0) {
-            len = 1;
-        }
-        String cacheKey = cacheKey();
-        Long lLen = redisPlus().lLen(cacheKey);
-        long min = Math.min(lLen, len);
-        if (min > 0) {
-            return redisPlus().lPop(cacheKey, (int) min);
-        }
-        //阻塞等待1分钟，期间如有数据会立马返回。主要是防止定时任务频繁向redis发lLen命令
-        T o = waitToTake();
-        if (null == o) {
             return Collections.emptyList();
         }
-        List<T> list = new ArrayList<>((int) len);
-        list.add(o);
-        if (len > 1) {
-            List<T> ts = redisPlus().lPop(cacheKey, (int) (len - 1));
-            if (!CollectionUtils.isEmpty(ts)) {
-                list.addAll(ts);
-            }
+        String cacheKey = cacheKey();
+        int lLen = redisPlus().lLen(cacheKey).intValue();
+        int min = Math.min(lLen, len);
+        if (min <= 0) {
+            return Collections.emptyList();
         }
-        return list;
+        return redisPlus().lPop(cacheKey, min);
+    }
+
+    @Override
+    public List<T> takeAll() {
+        return take(size());
     }
 
     @Override
     public int size() {
-        return Math.toIntExact(redisPlus().lLen(cacheKey()));
+        return redisPlus().lLen(cacheKey()).intValue();
     }
 
     private static volatile RedisTemplatePlus redisPlus;

@@ -12,6 +12,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
+@Repeatable(RateLimiters.class)
 public @interface RateLimiter {
 
   /**

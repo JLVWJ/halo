@@ -1221,6 +1221,11 @@ public class RedisTemplatePlus {
 
   //-------------- rateLimit -----------
 
+  public void rateLimit(String key, long max, long period, TimeUnit timeUnit) {
+    boolean allowed = isAllowed(key, max, period, timeUnit);
+    Assert.isTrue(allowed, BaseErrorEnum.RATE_LIMIT_ERROR, max, timeUnit.toSeconds(period));
+  }
+
   /**
    * 限流
    *
@@ -1251,6 +1256,8 @@ public class RedisTemplatePlus {
   public <T> T rateLimit(String key, long max, long period, TimeUnit timeUnit, CheckedSupplier<T> supplier) {
     boolean allowed = isAllowed(key, max, period, timeUnit);
     Assert.isTrue(allowed, BaseErrorEnum.RATE_LIMIT_ERROR, max, timeUnit.toSeconds(period));
+    if (null == supplier)
+      return null;
     try {
       return supplier.get();
     } catch (Throwable e) {
@@ -1286,6 +1293,8 @@ public class RedisTemplatePlus {
   public void rateLimit(String key, long max, long period, TimeUnit timeUnit, CheckedRunnable runnable) {
     boolean allowed = isAllowed(key, max, period, timeUnit);
     Assert.isTrue(allowed, BaseErrorEnum.RATE_LIMIT_ERROR, max, timeUnit.toSeconds(period));
+    if (null == runnable)
+      return;
     try {
       runnable.run();
     } catch (Throwable e) {

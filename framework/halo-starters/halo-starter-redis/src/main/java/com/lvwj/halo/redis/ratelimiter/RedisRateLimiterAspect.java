@@ -45,6 +45,14 @@ public class RedisRateLimiterAspect implements ApplicationContextAware, Environm
    */
   @Around("@annotation(limiter)")
   public Object aroundRateLimiter(ProceedingJoinPoint point, RateLimiter limiter) {
+    Boolean enable = Func.toBoolean(resolve(limiter.enable()), Boolean.TRUE);
+    if (!enable) {
+      try {
+        return point.proceed();
+      } catch (Throwable e) {
+        throw new RuntimeException(e);
+      }
+    }
     String limitKey = limiter.value();
     Long max = Func.toLong(resolve(limiter.max()), 1L);
     Long ttl = Func.toLong(resolve(limiter.ttl()), 1L);

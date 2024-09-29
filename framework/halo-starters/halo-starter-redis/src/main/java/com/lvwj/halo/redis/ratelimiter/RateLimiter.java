@@ -3,7 +3,7 @@ package com.lvwj.halo.redis.ratelimiter;
 import java.lang.annotation.*;
 
 /**
- * 分布式限流注解，默认速率为 10次/1秒
+ * 分布式限流注解
  *
  * @author lvwj
  * @version 1.0.0
@@ -15,37 +15,32 @@ import java.lang.annotation.*;
 public @interface RateLimiter {
 
   /**
+   * 限流开关，支持${}
+   */
+  String enable() default "true";
+
+  /**
    * 限流的 key 支持，必须：请保持唯一性
-   *
-   * @return key
    */
   String value();
 
   /**
    * 限流的参数，可选，支持 spring el # 读取方法参数和 @ 读取 spring bean
-   *
-   * @return param
    */
   String param() default "";
 
   /**
-   * 支持的最大请求，默认: 10
-   *
-   * @return 请求数
+   * 支持的最大请求,支持${}
    */
   String max() default "";
 
   /**
-   * 持续时间，默认: 1
-   *
-   * @return 持续时间
+   * 持续时间,支持${}
    */
   String ttl() default "";
 
   /**
-   * 时间单位，默认为分
-   *
-   * @return TimeUnit
+   * 时间单位,支持${}
    */
   String timeUnit() default "";
 }

@@ -1,7 +1,6 @@
 package com.lvwj.halo.redis.ratelimiter;
 
 import java.lang.annotation.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 分布式限流注解，默认速率为 10次/1秒
@@ -34,19 +33,19 @@ public @interface RateLimiter {
    *
    * @return 请求数
    */
-  long max() default 10L;
+  String max() default "";
 
   /**
    * 持续时间，默认: 1
    *
    * @return 持续时间
    */
-  long ttl() default 1L;
+  String ttl() default "";
 
   /**
    * 时间单位，默认为分
    *
    * @return TimeUnit
    */
-  TimeUnit timeUnit() default TimeUnit.SECONDS;
+  String timeUnit() default "";
 }

@@ -1,10 +1,9 @@
-package com.lvwj.halo.log.access;
+package com.lvwj.halo.web.access;
 
 import com.lvwj.halo.common.exceptions.BusinessException;
 import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.StringPool;
-import com.lvwj.halo.log.constant.ResultType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.slf4j.Logger;
@@ -161,9 +160,9 @@ public abstract class AccessLogger<T, R> {
     }
     // 业务异常为warn级别，其他的非预期的，为error级别
     if (e instanceof BusinessException) {
-      accessLog.setResult(ResultType.WARN);
+      accessLog.setResult(AccessLog.ResultType.WARN);
     } else {
-      accessLog.setResult(ResultType.ERROR);
+      accessLog.setResult(AccessLog.ResultType.ERROR);
     }
 
     String exceptionMessage = e.getMessage();
@@ -224,7 +223,7 @@ public abstract class AccessLogger<T, R> {
     accessLog.setCreateTime(LocalDateTime.now());
     accessLog.setTraceId(TraceContext.traceId());
     // 默认为SUCCESS
-    accessLog.setResult(ResultType.SUCCESS);
+    accessLog.setResult(AccessLog.ResultType.SUCCESS);
     accessLog.setHttpMethod(getHttpMethod(request));
     accessLog.setClientIp(getClientIP(request));
     accessLog.setRequestUri(getRequestURI(request));

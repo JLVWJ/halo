@@ -1,4 +1,4 @@
-package com.lvwj.halo.log.access.webmvc;
+package com.lvwj.halo.web.access.webmvc;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

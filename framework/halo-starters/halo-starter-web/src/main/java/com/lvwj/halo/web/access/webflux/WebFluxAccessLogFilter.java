@@ -1,4 +1,4 @@
-package com.lvwj.halo.log.access.webflux;
+package com.lvwj.halo.web.access.webflux;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;

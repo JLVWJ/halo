@@ -933,6 +933,11 @@
             </dependency>
             <dependency>
                 <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-starter-jieba</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
                 <artifactId>halo-starter-milvus</artifactId>
                 <version>${revision}</version>
             </dependency>

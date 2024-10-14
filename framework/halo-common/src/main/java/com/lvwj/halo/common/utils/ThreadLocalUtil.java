@@ -136,5 +136,29 @@ public class ThreadLocalUtil {
     return get(CURRENT_USER);
   }
 
+  /**
+   * 设置当前租户ID
+   *
+   * @author lvweijie
+   * @date 2024/8/31 17:58
+   * @param tenantId 当前用户
+   */
+  public static void putTenantId(Long tenantId) {
+    putIfNotEmpty(CURRENT_TENANT, tenantId);
+  }
+
+  /**
+   * 获取当前租户ID
+   *
+   * @author lvweijie
+   * @date 2024/8/31 17:58
+   * @return java.lang.String
+   */
+  public static Long getTenantId() {
+    return get(CURRENT_TENANT);
+  }
+
   private static final String CURRENT_USER = "currentUser";
+  private static final String CURRENT_TENANT = "tenantId";
+
 }

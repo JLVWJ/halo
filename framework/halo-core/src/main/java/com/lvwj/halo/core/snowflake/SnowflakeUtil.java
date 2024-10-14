@@ -21,13 +21,13 @@ public class SnowflakeUtil {
     return snowflakeGenerator;
   }
 
-    /**
-     * 获取雪花ID
-     *
-     * @author lvweijie
-     * @date 2023/11/8 17:23
-     * @return java.lang.Long 雪花ID
-     */
+  /**
+   * 获取雪花ID
+   *
+   * @return java.lang.Long 雪花ID
+   * @author lvweijie
+   * @date 2023/11/8 17:23
+   */
   public static Long nextId() {
     return getSnowflakeGenerator().nextId();
   }
@@ -35,10 +35,10 @@ public class SnowflakeUtil {
   /**
    * 获取雪花ID
    *
-   * @author lvweijie
-   * @date 2023/11/8 17:23
    * @param shardValue 分片键
    * @return java.lang.Long 雪花ID
+   * @author lvweijie
+   * @date 2023/11/8 17:23
    */
   public static Long nextId(Integer shardValue) {
     if (null == shardValue) {
@@ -50,12 +50,24 @@ public class SnowflakeUtil {
   /**
    * 获取雪花ID的时间
    *
+   * @param id 雪花ID
+   * @return java.time.LocalDateTime
    * @author lvweijie
    * @date 2023/11/8 17:24
-   * @param id  雪花ID
-   * @return java.time.LocalDateTime
    */
-  public static LocalDateTime getTime(long id) {
+  public static LocalDateTime getDateTime(long id) {
     return getSnowflakeGenerator().getDateTime(id);
+  }
+
+  /**
+   * 获取分片键值
+   *
+   * @author lvweijie
+   * @date 2024/10/14 11:10
+   * @param id 雪花ID
+   * @return java.lang.Long
+   */
+  public static Long getShardValue(long id) {
+    return getSnowflakeGenerator().getShardValue(id);
   }
 }

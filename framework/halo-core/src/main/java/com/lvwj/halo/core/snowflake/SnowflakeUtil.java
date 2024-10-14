@@ -40,7 +40,7 @@ public class SnowflakeUtil {
    * @author lvweijie
    * @date 2023/11/8 17:23
    */
-  public static Long nextId(Integer shardValue) {
+  public static Long nextId(Long shardValue) {
     if (null == shardValue) {
       return nextId();
     }

@@ -5,7 +5,6 @@ import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import com.lvwj.halo.core.snowflake.SnowflakeUtil;
 import org.apache.shardingsphere.sharding.spi.KeyGenerateAlgorithm;
 
-import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -20,13 +19,12 @@ public class SnowflakeKeyGenerateAlgorithm implements KeyGenerateAlgorithm {
 
   private Properties props = new Properties();
 
-  private Integer shardingValue;
+  private Long shardingValue;
 
   @Override
   public Comparable<?> generateKey() {
-    Long tenantId = ThreadLocalUtil.getTenantId();
     if (null == shardingValue || shardingValue == 0) {
-      shardingValue = Optional.ofNullable(tenantId).map(Long::intValue).orElse(null);
+      shardingValue = ThreadLocalUtil.getTenantId();
     }
     if (null == shardingValue || shardingValue == 0) {
       return SnowflakeUtil.nextId();
@@ -42,12 +40,7 @@ public class SnowflakeKeyGenerateAlgorithm implements KeyGenerateAlgorithm {
   @Override
   public void init(Properties properties) {
     this.props = properties;
-    this.shardingValue = getShardingValue(properties);
-  }
-
-  private Integer getShardingValue(Properties props) {
-    String property = props.getProperty(SHARDING_VALUE);
-    return Func.isBlank(property) ? null : Func.toInt(property);
+    this.shardingValue = Func.toLong(props.getProperty(SHARDING_VALUE));
   }
 
   @Override

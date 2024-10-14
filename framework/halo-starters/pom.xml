@@ -43,6 +43,7 @@
         <module>halo-starter-tokenizer</module>
         <module>halo-starter-swagger2</module>
         <module>halo-starter-swagger3</module>
+        <module>halo-starter-jieba</module>
     </modules>
 
     <dependencies>

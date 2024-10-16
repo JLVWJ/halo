@@ -19,6 +19,7 @@
         <module>halo-core</module>
         <module>halo-common</module>
         <module>halo-starters</module>
+        <module>halo-codegen</module>
     </modules>
 
 </project>

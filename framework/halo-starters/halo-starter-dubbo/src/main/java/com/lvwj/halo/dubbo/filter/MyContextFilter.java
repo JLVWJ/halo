@@ -23,7 +23,8 @@ public class MyContextFilter implements Filter, Filter.Listener {
         RpcContextUtil.setLocaleContextHolder();
         MDC.put(SystemConstant.TRACE_ID, RpcContextUtil.getTraceId());
         ThreadLocalUtil.putCurrentUser(RpcContextUtil.getUserName());
-        ThreadLocalUtil.putTenantId(RpcContextUtil.getUserId());
+        ThreadLocalUtil.putCurrentUserName(RpcContextUtil.getUserName());
+        ThreadLocalUtil.putCurrentUserId(RpcContextUtil.getUserId());
         return invoker.invoke(invocation);
     }
 

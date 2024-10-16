@@ -1,1 +1,1 @@
-com.lvwj.halo.shardingjdbc.algorithm.TenantIdComplexKeysShardingAlgorithm
+com.lvwj.halo.shardingjdbc.algorithm.CustomComplexKeysShardingAlgorithm

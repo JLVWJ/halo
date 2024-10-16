@@ -11,12 +11,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 多租户复合分片算法
+ * 自定义复合分片算法
  *
  * @author lvweijie
  * @date 2024年10月14日 10:10
  */
-public class TenantIdComplexKeysShardingAlgorithm implements ComplexKeysShardingAlgorithm<Comparable<?>> {
+public class CustomComplexKeysShardingAlgorithm implements ComplexKeysShardingAlgorithm<Comparable<?>> {
 
     private static final String SHARDING_COUNT = "sharding-count";
     private static final String SHARDING_KEY = "sharding-key";
@@ -39,7 +39,7 @@ public class TenantIdComplexKeysShardingAlgorithm implements ComplexKeysSharding
 
     @Override
     public String getType() {
-        return "COMPLEX-TENANT-ID";
+        return "COMPLEX-Custom";
     }
 
     @Override
@@ -51,12 +51,12 @@ public class TenantIdComplexKeysShardingAlgorithm implements ComplexKeysSharding
     public void init(Properties properties) {
         this.props = properties;
         this.shardingCount = Func.toInt(props.get(SHARDING_COUNT));
-        if(null==shardingCount || this.shardingCount < 2 || shardingCount % 2 != 0){
-            throw new IllegalArgumentException("复合分片算法["+getType()+"], 属性["+SHARDING_COUNT+"]必须是2的倍数");
+        if (null == shardingCount || this.shardingCount < 2 || shardingCount % 2 != 0) {
+            throw new IllegalArgumentException("复合分片算法[" + getType() + "], 属性[" + SHARDING_COUNT + "]必须是2的倍数");
         }
         this.shardingKey = Func.toStr(props.get(SHARDING_KEY));
-        if(Func.isBlank(this.shardingKey)){
-            throw new IllegalArgumentException("复合分片算法["+getType()+"], 属性["+SHARDING_KEY+"]不能为空");
+        if (Func.isBlank(this.shardingKey)) {
+            throw new IllegalArgumentException("复合分片算法[" + getType() + "], 属性[" + SHARDING_KEY + "]不能为空");
         }
         this.shardingExtKeys = Func.toStr(props.get(SHARDING_EXT_KEYS));
     }

@@ -24,7 +24,7 @@ public class SnowflakeKeyGenerateAlgorithm implements KeyGenerateAlgorithm {
   @Override
   public Comparable<?> generateKey() {
     if (null == shardingValue || shardingValue == 0) {
-      shardingValue = ThreadLocalUtil.getTenantId();
+      shardingValue = ThreadLocalUtil.getCurrentUserId();
     }
     if (null == shardingValue || shardingValue == 0) {
       return SnowflakeUtil.nextId();

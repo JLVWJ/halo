@@ -1,6 +1,5 @@
-package com.lvwj.halo.log.access;
+package com.lvwj.halo.web.access;
 
-import com.lvwj.halo.log.constant.ResultType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,4 +46,15 @@ public class AccessLog {
 
   // 上下文信息，用于扩展存储
   private Map<String, String> context;
+
+  public enum ResultType {
+    // 请求正常处理
+    SUCCESS,
+
+    // 请求异常
+    ERROR,
+
+    // 抛出BusinessException
+    WARN;
+  }
 }

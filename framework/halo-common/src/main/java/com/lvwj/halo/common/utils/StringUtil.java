@@ -14,6 +14,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.lvwj.halo.common.utils.CharUtil.isChineseCharacter;
+
 /**
  * 字符串工具类
  */
@@ -1621,5 +1623,20 @@ public class StringUtil extends StringUtils {
     }
 
     return result;
+  }
+
+  /**
+   * 移除特殊字符
+   */
+  public static String removeSpecialCharacters(String text) {
+    if(isBlank(text)) return text;
+    StringBuilder sb = new StringBuilder();
+    text.chars().forEach(s -> {
+      char ch = (char) s;
+      if (isChineseCharacter(ch) || Character.isLetterOrDigit(ch)) {
+        sb.append(ch);
+      }
+    });
+    return sb.toString();
   }
 }

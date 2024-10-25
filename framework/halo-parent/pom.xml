@@ -63,7 +63,7 @@
         <redisson.version>3.18.0</redisson.version>
         <jsqlparser.version>5.0</jsqlparser.version>
         <reflections.version>0.10.2</reflections.version>
-
+        <jieba.version>1.0.2</jieba.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <caffeine.version>3.1.8</caffeine.version>
 
@@ -347,12 +347,13 @@
                 <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
                 <version>${shardingsphere-jdbc-core-starter.version}</version>
             </dependency>
+
+            <!-- druid -->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid-spring-boot-starter.version}</version>
             </dependency>
-
 
             <!-- fastjson -->
             <dependency>
@@ -496,6 +497,7 @@
                 <version>${redisson.version}</version>
             </dependency>
 
+            <!-- okhttp3 -->
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
@@ -514,10 +516,18 @@
                 <version>${apollo.client.version}</version>
             </dependency>
 
+            <!-- shenyu -->
             <dependency>
                 <groupId>org.apache.shenyu</groupId>
                 <artifactId>shenyu-spring-boot-starter-client-apache-dubbo</artifactId>
                 <version>${shenyu-spring-boot-starter-client-apache-dubbo.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.huaban/jieba-analysis -->
+            <dependency>
+                <groupId>com.huaban</groupId>
+                <artifactId>jieba-analysis</artifactId>
+                <version>${jieba.version}</version>
             </dependency>
 
             <!-- langchain4j-->
@@ -919,6 +929,11 @@
             <dependency>
                 <groupId>com.lvwj.halo</groupId>
                 <artifactId>halo-starter-join</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-starter-jieba</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>

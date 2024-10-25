@@ -33,6 +33,9 @@ public class SnowflakeGenerator {
   private final int maxTolerateTimeDifferenceMilliseconds;
 
   private final long workerId;
+
+  private final long workerIdBits;
+  private final long sequenceBits;
   private final long shardingBits;
   private long sequence;
 
@@ -57,24 +60,24 @@ public class SnowflakeGenerator {
       LocalDateTime dateTime = DateTimeUtil.parseDateTime(epochDateStr, DateTimeConstant.PATTERN_DATETIME);
       this.customEpoch = DateTimeUtil.toInstant(dateTime).toEpochMilli();
     }
-    long sequenceBits = properties.getSequenceBits();
-    long workerIdBits = properties.getWorkerIdBits();
+    workerIdBits = properties.getWorkerIdBits();
+    sequenceBits = properties.getSequenceBits();
     shardingBits = properties.getShardingBits();
+    maxTolerateTimeDifferenceMilliseconds = properties.getMaxTolerateMills();
 
+    Preconditions.checkArgument(workerIdBits >= 1, "Illegal workerId.bits");
     Preconditions.checkArgument(sequenceBits >= 1, "Illegal sequence.bits");
-    Preconditions.checkArgument(workerIdBits >= 1, "Illegal worker.id.bits");
     Preconditions.checkArgument(shardingBits >= 0, "Illegal sharding.bits");
     Preconditions.checkArgument((sequenceBits + workerIdBits + shardingBits) < 50, "Illegal timestamp bits");
 
     sequenceMask = (1L << sequenceBits) - 1;
-    timestampLeftShiftBits = workerIdBits + shardingBits + sequenceBits;
-    workerIdLeftShiftBits = shardingBits + sequenceBits;
+    timestampLeftShiftBits = workerIdBits + sequenceBits + shardingBits;
+    workerIdLeftShiftBits = sequenceBits + shardingBits;
     shardingMaxValue = shardingBits == 0 ? 0 : (1L << shardingBits) - 1;
     long workerIdMaxValue = (1L << workerIdBits) - 1;
 
     this.workerId = workerId;
-    Preconditions.checkArgument(workerId >= 0L && workerId <= workerIdMaxValue, "Illegal work id");
-    maxTolerateTimeDifferenceMilliseconds = properties.getMaxTolerateMills();
+    Preconditions.checkArgument(workerId >= 0L && workerId <= workerIdMaxValue, "Illegal workId");
   }
 
   /**
@@ -140,5 +143,16 @@ public class SnowflakeGenerator {
   public LocalDateTime getDateTime(long id) {
     long diffTime = id >> timestampLeftShiftBits;
     return Instant.ofEpochMilli(diffTime + customEpoch).atZone(ZoneId.systemDefault()).toLocalDateTime();
+  }
+
+  /**
+   * 反解获取ShardValue
+   */
+  public Long getShardValue(long id) {
+    Long shardValue = null;
+    if (shardingMaxValue > 0) {
+      shardValue = (id & ~(-1L << shardingBits));
+    }
+    return shardValue;
   }
 }

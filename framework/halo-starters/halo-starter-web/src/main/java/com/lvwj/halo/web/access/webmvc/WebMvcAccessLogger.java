@@ -1,6 +1,6 @@
-package com.lvwj.halo.log.access.webmvc;
+package com.lvwj.halo.web.access.webmvc;
 
-import com.lvwj.halo.log.access.AccessLogger;
+import com.lvwj.halo.web.access.AccessLogger;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.DispatcherServlet;

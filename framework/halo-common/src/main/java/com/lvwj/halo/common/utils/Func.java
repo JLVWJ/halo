@@ -321,6 +321,13 @@ public class Func {
   }
 
   /**
+   * 移除特殊字符
+   */
+  public static String removeSpecialCharacters(String text) {
+    return StringUtil.removeSpecialCharacters(text);
+  }
+
+  /**
    * 比较两个对象是否相等。<br> 相同的条件有两个，满足其一即可：<br>
    *
    * @param obj1 对象1

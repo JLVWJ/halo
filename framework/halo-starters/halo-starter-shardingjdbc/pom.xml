@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.lvwj.halo</groupId>
-            <artifactId>halo-common</artifactId>
+            <artifactId>halo-starter</artifactId>
         </dependency>
 
         <dependency>

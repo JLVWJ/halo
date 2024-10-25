@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 关联加载实现
@@ -44,8 +45,10 @@ public abstract class JoinServiceImpl<M extends CustomMapper<T>, T extends IEnti
 
     @Override
     public List<T> getListByIds(List<Serializable> ids, boolean join) {
-        if (CollectionUtils.isEmpty(ids)) return null;
-        List<T> list = listByIds(ids);
+        List<T> empty = new ArrayList<>();
+        if (CollectionUtils.isEmpty(ids))
+            return empty;
+        List<T> list = Optional.ofNullable(listByIds(ids)).orElse(empty);
         if (join) {
             joinEntity(list);
         }
@@ -54,7 +57,7 @@ public abstract class JoinServiceImpl<M extends CustomMapper<T>, T extends IEnti
 
     @Override
     public List<T> getAllList(boolean join) {
-        List<T> list = list();
+        List<T> list = Optional.ofNullable(list()).orElse(new ArrayList<>());
         if (join) {
             joinEntity(list);
         }
@@ -80,6 +83,8 @@ public abstract class JoinServiceImpl<M extends CustomMapper<T>, T extends IEnti
     @Override
     public List<T> getListByCondition(Wrapper<T> wrapper, boolean join) {
         List<T> list = null != wrapper ? super.list(wrapper) : super.list();
+        if (null == list)
+            list = new ArrayList<>();
         if (join) {
             joinEntity(list);
         }

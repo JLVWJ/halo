@@ -35,7 +35,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         fillStrategy(metaObject, IS_DELETE, 0);
         setVersion(metaObject);
 
-        String currentUser = ThreadLocalUtil.getCurrentUser();
+        String currentUser = ThreadLocalUtil.getCurrentUserName();
         if (Func.isNotBlank(currentUser)) {
             fillStrategy(metaObject, CREATE_BY, currentUser);
             fillStrategy(metaObject, UPDATE_BY, currentUser);
@@ -45,7 +45,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         LocalDateTime now = LocalDateTime.now();
-        String currentUser = ThreadLocalUtil.getCurrentUser();
+        String currentUser = ThreadLocalUtil.getCurrentUserName();
         this.setFieldValByName(UPDATE_TIME, now, metaObject);
         if (Func.isNotBlank(currentUser)) {
             fillStrategy(metaObject, UPDATE_BY, currentUser);

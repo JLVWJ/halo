@@ -42,6 +42,7 @@ public enum BaseErrorEnum implements IErrorEnum{
 
     SQL_ERROR(600, "运行SQL出现异常"),
     RPC_FAILED(601, "RPC接口请求失败 {0}"),
+    DESERIALIZE_FAILED(602, "{0} deserialize failed!"),
     REQUIRED_FILE_PARAM_ERROR(610, "请求中必须至少包含一个有效文件"),
     ILLEGAL_ARGUMENT_ERROR(611, "无效参数异常"),
 

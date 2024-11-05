@@ -149,11 +149,16 @@ class Mapper {
                                                           String collectionName,
                                                           String partitionKey,
                                                           List<String> rowIds) {
+        List<String> outFields = new ArrayList<>(5);
+        outFields.addAll(Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME));
+        if (Func.isNotBlank(partitionKey)) {
+            outFields.add(partitionKey);
+        }
         QueryResultsWrapper queryResultsWrapper = queryByIds(
                 milvusClient,
                 collectionName,
                 rowIds,
-                Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME, partitionKey),
+                outFields,
                 ConsistencyLevelEnum.BOUNDED
         );
 
@@ -180,12 +185,17 @@ class Mapper {
                                                    String collectionName,
                                                    String partitionKey,
                                                    Filter filter) {
+        List<String> outFields = new ArrayList<>(5);
+        outFields.addAll(Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME));
+        if (Func.isNotBlank(partitionKey)) {
+            outFields.add(partitionKey);
+        }
         QueryResultsWrapper queryResultsWrapper = queryByFilter(
                 milvusClient,
                 collectionName,
                 partitionKey,
                 filter,
-                Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME, partitionKey),
+                outFields,
                 ConsistencyLevelEnum.BOUNDED
         );
 
@@ -212,11 +222,16 @@ class Mapper {
                                                    String collectionName,
                                                    String partitionKey,
                                                    String expr) {
+        List<String> outFields = new ArrayList<>(5);
+        outFields.addAll(Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME));
+        if (Func.isNotBlank(partitionKey)) {
+            outFields.add(partitionKey);
+        }
         QueryResultsWrapper queryResultsWrapper = queryByExpr(
                 milvusClient,
                 collectionName,
                 expr,
-                Arrays.asList(ID_FIELD_NAME, VECTOR_FIELD_NAME, TEXT_FIELD_NAME, METADATA_FIELD_NAME, DELETE_FIELD_NAME, partitionKey),
+                outFields,
                 ConsistencyLevelEnum.BOUNDED
         );
 

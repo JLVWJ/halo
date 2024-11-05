@@ -1,0 +1,8 @@
+package ${package.Repository};
+
+import com.lvwj.halo.core.domain.repository.IRepository;
+import ${package.Aggregate}.${aggregate};
+
+public interface ${aggregate}Repository extends IRepository<${aggregate}, Long> {
+
+}

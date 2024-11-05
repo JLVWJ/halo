@@ -1,0 +1,16 @@
+package ${package.RepositoryImpl};
+
+import org.springframework.stereotype.Repository;
+import com.lvwj.halo.core.domain.repository.TrackRepository;
+import ${package.Aggregate}.${aggregate};
+import ${package.Entity}.${entity};
+import ${package.Repository}.${aggregate}Repository;
+import ${package.Service}.${aggregate}Dao;
+import ${package.Converter}.${aggregate}Converter;
+
+@Repository
+public class ${aggregate}RepositoryImpl
+        extends TrackRepository<${aggregate}Dao, ${aggregate}Converter, ${aggregate}, ${entity}, Long>
+        implements ${aggregate}Repository {
+
+}

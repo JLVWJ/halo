@@ -1,0 +1,22 @@
+## ---导包宏开始(参数：排除展示的字段)---
+#macro(importEntityPackage $ignoreFieldList)
+    ## 所有字段类型集合
+    #set($typelist = [] )
+    ## ---循环变量所有字段---
+    #foreach($field in ${table.fields})
+        ## 循环遍历所有字段，排除忽略的字段，将其他字段添加到typelist集合中
+        #if(${ignoreFieldList.contains($field.propertyName)})
+            ## 什么也不干
+        #else
+            ## 添加到集合中
+            #set($temp = ${typelist.add($field.propertyType)})
+        #end
+    #end
+    ## 判断类型集合中存在什么类型，导包什么类型
+    #if(${typelist.contains("Date")})
+    import java.util.Date;
+    #elseif(${typelist.contains("BigDecimal")})
+    import java.math.BigDecimal;
+    #end
+#end
+## ---导包宏结束---

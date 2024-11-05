@@ -1,0 +1,54 @@
+package ${package.Request};
+
+## 引入公共资源
+#parse("templates/common.vm")
+## 引入导包宏
+#set($ignoreFieldList = ["id","createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
+#importEntityPackage($ignoreFieldList)
+#if(${springdoc})
+import io.swagger.v3.oas.annotations.media.Schema;
+#elseif(${swagger})
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+#end
+import java.io.Serializable;
+import lombok.Data;
+
+/**
+ * <p>
+ * 聚合根创建请求：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Data
+#if(${springdoc})
+@Schema(name = "${aggregate}创建请求", description = "$!{table.comment}")
+#elseif(${swagger})
+@ApiModel(value = "${aggregate}创建请求", description = "$!{table.comment}")
+#end
+public class ${aggregate}CreateReq implements Serializable {
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+    #if(${ignoreFieldList.contains($field.propertyName)})
+        ## 如果是忽略字段什么都不干
+    #else
+        #if("$!field.comment" != "")
+            #if(${springdoc})
+@Schema(description = "${field.comment}")
+            #elseif(${swagger})
+@ApiModelProperty("${field.comment}")
+            #else
+/**
+ * ${field.comment}
+ */
+            #end
+        #end
+private ${field.propertyType} ${field.propertyName};
+    #end
+#end
+## ----------  END 字段循环遍历  ----------
+
+}

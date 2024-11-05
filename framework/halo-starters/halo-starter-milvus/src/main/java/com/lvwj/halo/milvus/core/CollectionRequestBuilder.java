@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.lvwj.halo.milvus.core.CollectionFieldConstant.*;
 import static com.lvwj.halo.milvus.core.MilvusFilterMapper.formatValues;
@@ -83,7 +84,8 @@ class CollectionRequestBuilder {
 
         String filterStr = StringPool.EMPTY;
         if (filter != null) {
-            filterStr = MilvusFilterMapper.map(filter, partitionKey.getFieldName());
+            String pKey = Optional.ofNullable(partitionKey).map(PartitionKey::getFieldName).orElse(null);
+            filterStr = MilvusFilterMapper.map(filter, pKey);
         }
         if (softDelete) {
             String deleteStr = DELETE_FIELD_NAME + "==false";

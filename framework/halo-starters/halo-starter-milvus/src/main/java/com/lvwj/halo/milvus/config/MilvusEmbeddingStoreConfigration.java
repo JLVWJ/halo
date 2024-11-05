@@ -56,36 +56,16 @@ public class MilvusEmbeddingStoreConfigration {
             for (Map.Entry<String, MilvusEmbeddingStoreProperties.CollectionEntry> entry : properties.getCollections().entrySet()) {
                 if (!entry.getValue().isEnabled()) continue;
 
-                if (StringUtils.hasLength(entry.getKey())) {
-                    builder.collectionName(entry.getKey().trim());
-                }
-                if (StringUtils.hasLength(entry.getValue().getIndexParam())) {
-                    builder.indexParam(entry.getValue().getIndexParam().trim());
-                }
-                if (null != entry.getValue().getPartitionKey()) {
-                    builder.partitionKey(entry.getValue().getPartitionKey());
-                }
-                if (null != entry.getValue().getDimension()) {
-                    builder.dimension(entry.getValue().getDimension());
-                }
-                if (null != entry.getValue().getMetricType()) {
-                    builder.metricType(entry.getValue().getMetricType());
-                }
-                if (null != entry.getValue().getIndexType()) {
-                    builder.indexType(entry.getValue().getIndexType());
-                }
-                if (null != entry.getValue().getConsistencyLevel()) {
-                    builder.consistencyLevel(entry.getValue().getConsistencyLevel());
-                }
-                if (null != entry.getValue().getRetrieveEmbeddingsOnSearch()) {
-                    builder.retrieveEmbeddingsOnSearch(entry.getValue().getRetrieveEmbeddingsOnSearch());
-                }
-                if (null != entry.getValue().getAutoFlushOnInsert()) {
-                    builder.autoFlushOnInsert(entry.getValue().getAutoFlushOnInsert());
-                }
-                if (null != entry.getValue().getSoftDelete()) {
-                    builder.softDelete(entry.getValue().getSoftDelete());
-                }
+                builder.collectionName(entry.getKey().trim());
+                builder.indexParam(entry.getValue().getIndexParam());
+                builder.partitionKey(entry.getValue().getPartitionKey());
+                builder.dimension(entry.getValue().getDimension());
+                builder.metricType(entry.getValue().getMetricType());
+                builder.indexType(entry.getValue().getIndexType());
+                builder.consistencyLevel(entry.getValue().getConsistencyLevel());
+                builder.retrieveEmbeddingsOnSearch(entry.getValue().getRetrieveEmbeddingsOnSearch());
+                builder.autoFlushOnInsert(entry.getValue().getAutoFlushOnInsert());
+                builder.softDelete(entry.getValue().getSoftDelete());
                 SpringUtil.registerBean(entry.getKey(), builder.build());
             }
         };

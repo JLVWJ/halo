@@ -7,7 +7,6 @@ import lombok.*;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * 数据实体基类
@@ -27,7 +26,6 @@ public class BaseEntity extends Entity<Long> {
     @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
     private LocalDateTime createTime;
 
-    @DiffIgnore
     @TableField(fill = FieldFill.INSERT_UPDATE)
     protected LocalDateTime updateTime;
 }

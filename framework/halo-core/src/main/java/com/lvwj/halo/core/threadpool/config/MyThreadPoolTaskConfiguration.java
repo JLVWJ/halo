@@ -4,6 +4,7 @@ package com.lvwj.halo.core.threadpool.config;
 import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.lvwj.halo.core.threadpool.MyThreadPoolTaskExecutor;
 import com.lvwj.halo.core.threadpool.config.prop.AsyncProperties;
+import com.lvwj.halo.core.threadpool.support.SkywalkingTaskDecorator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ public class MyThreadPoolTaskConfiguration extends AsyncConfigurerSupport {
     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
     executor.setWaitForTasksToCompleteOnShutdown(asyncProp.isWaitForTasksToCompleteOnShutdown());
     executor.setAwaitTerminationSeconds(asyncProp.getAwaitTerminationSeconds());
+    executor.setTaskDecorator(SkywalkingTaskDecorator.INSTANCE);
     executor.initialize();
     return TtlExecutors.getTtlExecutor(executor);
   }

@@ -26,13 +26,6 @@ public class DateTimeUtil extends LocalDateTimeUtil {
   }
 
   /**
-   * 当前时间：零时区
-   */
-  public static LocalDateTime nowUTC() {
-    return toDateTime(new Date(), ZoneId.of("UTC"));
-  }
-
-  /**
    * 格式：yyyy-MM-dd HH:mm:ss
    */
   public static String formatDateTime(TemporalAccessor temporal) {

@@ -3,12 +3,14 @@ package com.lvwj.halo.mybatisplus.handler;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 /**
@@ -29,7 +31,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = DateTimeUtil.toDateTime(new Date(), ZoneId.of("UTC"));
         fillStrategy(metaObject, CREATE_TIME, now);
         fillStrategy(metaObject, UPDATE_TIME, now);
         fillStrategy(metaObject, IS_DELETE, 0);
@@ -44,7 +46,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = DateTimeUtil.toDateTime(new Date(), ZoneId.of("UTC"));
         String currentUser = ThreadLocalUtil.getCurrentUserName();
         this.setFieldValByName(UPDATE_TIME, now, metaObject);
         if (Func.isNotBlank(currentUser)) {

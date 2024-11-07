@@ -18,8 +18,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateTimeUtil extends LocalDateTimeUtil {
 
+  /**
+   * 当前时间
+   */
   public static LocalDateTime now() {
     return LocalDateTime.now();
+  }
+
+  /**
+   * 当前时间：零时区
+   */
+  public static LocalDateTime nowUTC() {
+    return toDateTime(new Date(), ZoneId.of("UTC"));
   }
 
   /**

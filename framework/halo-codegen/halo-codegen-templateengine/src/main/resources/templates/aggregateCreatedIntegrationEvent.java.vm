@@ -1,19 +1,20 @@
-package ${package.Command};
+package ${package.IntegrationEvent};
 
 ## 引入公共资源
 #parse("templates/common.vm")
 ## 引入导包宏
-#set($ignoreFieldList = ["createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
+#set($ignoreFieldList = ["isDelete"] )
 #importEntityPackage($ignoreFieldList)
 
-import java.io.Serializable;
+import ${package.Aggregate}.${aggregate};
+import ${superIntegrationEventClassPackage};
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 /**
  * <p>
- * 聚合根保存命令：$!{table.comment}
+ * 集成事件：$!{table.comment}已创建
  * </p>
  *
  * @author ${author}
@@ -21,8 +22,15 @@ import lombok.AllArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor(staticName = "of")
-public class ${aggregate}SaveCmd implements Serializable {
+@AllArgsConstructor
+public class ${aggregate}CreatedIntegrationEvent extends ${superIntegrationEventClass} {
+
+    public static final String TAG = "${aggregate}Created";
+
+    public static ${aggregate}CreatedIntegrationEvent of(${aggregate} agg) {
+
+       return null //TODO:构建${aggregate}CreatedIntegrationEvent
+    }
 
 ## ----------  BEGIN 字段循环遍历  ----------
 #foreach($field in ${table.fields})

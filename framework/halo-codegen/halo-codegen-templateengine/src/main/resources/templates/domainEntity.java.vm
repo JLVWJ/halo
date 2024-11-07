@@ -1,4 +1,4 @@
-package ${package.Aggregate};
+package ${package.DomainEntity};
 
 ## 引入公共资源
 #parse("templates/common.vm")
@@ -6,8 +6,7 @@ package ${package.Aggregate};
 #set($ignoreFieldList = ["id","createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
 #importEntityPackage($ignoreFieldList)
 
-import ${package.DomainEvent}.${aggregate}CreatedEvent;
-import ${superAggregateClassPackage};
+import ${superDomainEntityClassPackage};
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * 聚合根：$!{table.comment}
+ * 子实体：$!{table.comment}
  * </p>
  *
  * @author ${author}
@@ -26,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ${aggregate} extends ${superAggregateClass}<Long> {
+public class ${aggregate} extends ${superDomainEntityClass}<Long> {
 
      public static ${aggregate} create(
         #foreach($field in ${table.fields})
@@ -39,8 +38,7 @@ public class ${aggregate} extends ${superAggregateClass}<Long> {
         ) {
         //TODO:入参校验
 
-        //构建聚合根
-        ${aggregate} aggregate = ${aggregate}.builder()
+        return ${aggregate}.builder()
         #foreach($field in ${table.fields})
             #if(${ignoreFieldList.contains($field.propertyName)} && ${field.propertyName} != 'id')
                 ## 如果是忽略字段什么都不干
@@ -48,10 +46,7 @@ public class ${aggregate} extends ${superAggregateClass}<Long> {
                 .${field.propertyName}(${field.propertyName})
             #end
         #end
-        .build();
-        //注册领域事件
-        aggregate.registerEvent(${aggregate}CreatedEvent.of(aggregate));
-        return aggregate;
+                .build();
      }
 
 ## ----------  BEGIN 字段循环遍历  ----------

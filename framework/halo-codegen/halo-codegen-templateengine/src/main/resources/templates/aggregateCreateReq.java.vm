@@ -46,7 +46,7 @@ public class ${aggregate}CreateReq implements Serializable {
  */
             #end
         #end
-private ${field.propertyType} ${field.propertyName};
+    private ${field.propertyType} ${field.propertyName};
     #end
 #end
 ## ----------  END 字段循环遍历  ----------

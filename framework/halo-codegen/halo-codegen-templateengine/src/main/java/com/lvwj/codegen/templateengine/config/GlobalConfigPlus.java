@@ -54,6 +54,7 @@ public class GlobalConfigPlus  {
     /**
      * 时间类型对应策略
      */
+    @Getter
     private DateType dateType = DateType.TIME_PACK;
 
     /**
@@ -69,13 +70,27 @@ public class GlobalConfigPlus  {
         return !springdoc && swagger;
     }
     
-    public DateType getDateType() {
-        return dateType;
-    }
-    
     public String getCommentDate() {
         return commentDate.get();
     }
+
+
+    @Getter
+    private String superAggregateClass = "com.lvwj.halo.core.domain.entity.Aggregate";
+    @Getter
+    private String superDomainEntityClass = "com.lvwj.halo.core.domain.entity.Entity";
+    @Getter
+    private String superValueObjClass = "com.lvwj.halo.core.domain.entity.IValueObj";
+    @Getter
+    private String superDomainEventClass = "com.lvwj.halo.core.domain.event.DomainEvent";
+    @Getter
+    private String superIntegrationEventClass = "com.lvwj.halo.core.domain.event.IntegrationEvent";
+    @Getter
+    private String superConverterClass = "com.lvwj.halo.common.models.entity.IEntityConverter";
+    @Getter
+    private String superRepositoryClass = "com.lvwj.halo.core.domain.repository.IRepository";
+    @Getter
+    private String superRepositoryImplClass = "com.lvwj.halo.core.domain.repository.TrackRepository";
 
 
     /**
@@ -178,6 +193,53 @@ public class GlobalConfigPlus  {
          */
         public GlobalConfigPlus.Builder commentDate(String pattern) {
             return commentDate(() -> new SimpleDateFormat(pattern).format(new Date()));
+        }
+
+
+        /**
+         * 聚合根基类
+         */
+        public GlobalConfigPlus.Builder superAggregateClass(String superClass) {
+            this.globalConfig.superAggregateClass = superClass;
+            return this;
+        }
+
+        /**
+         * 领域实体基类
+         */
+        public GlobalConfigPlus.Builder superDomainEntityClass(String superClass) {
+            this.globalConfig.superDomainEntityClass = superClass;
+            return this;
+        }
+
+        public GlobalConfigPlus.Builder superValueObjClass(String superClass) {
+            this.globalConfig.superValueObjClass = superClass;
+            return this;
+        }
+
+        public GlobalConfigPlus.Builder superDomainEventClass(String superClass) {
+            this.globalConfig.superDomainEventClass = superClass;
+            return this;
+        }
+
+        public GlobalConfigPlus.Builder superIntegrationEventClass(String superClass) {
+            this.globalConfig.superIntegrationEventClass = superClass;
+            return this;
+        }
+
+        public GlobalConfigPlus.Builder superConverterClass(String superClass) {
+            this.globalConfig.superConverterClass = superClass;
+            return this;
+        }
+
+        public GlobalConfigPlus.Builder superRepositoryClass(String superClass) {
+            this.globalConfig.superRepositoryClass = superClass;
+            return this;
+        }
+
+        public GlobalConfigPlus.Builder superRepositoryImplClass(String superClass) {
+            this.globalConfig.superRepositoryImplClass = superClass;
+            return this;
         }
 
         @Override

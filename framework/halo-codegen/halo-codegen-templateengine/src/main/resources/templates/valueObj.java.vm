@@ -1,4 +1,4 @@
-package ${package.Command};
+package ${package.ValueObj};
 
 ## 引入公共资源
 #parse("templates/common.vm")
@@ -6,23 +6,25 @@ package ${package.Command};
 #set($ignoreFieldList = ["createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
 #importEntityPackage($ignoreFieldList)
 
-import java.io.Serializable;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import ${superValueObjClassPackage};
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /**
  * <p>
- * 聚合根保存命令：$!{table.comment}
+ * 值对象：$!{table.comment}
  * </p>
  *
  * @author ${author}
  * @since ${date}
  */
-@Data
-@NoArgsConstructor
+@Getter
+@Builder
+@EqualsAndHashCode
 @AllArgsConstructor(staticName = "of")
-public class ${aggregate}SaveCmd implements Serializable {
+public class ${aggregate} implements ${superValueObjClass} {
 
 ## ----------  BEGIN 字段循环遍历  ----------
 #foreach($field in ${table.fields})

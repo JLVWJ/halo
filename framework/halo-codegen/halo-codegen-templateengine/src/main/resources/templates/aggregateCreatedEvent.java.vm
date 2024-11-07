@@ -1,7 +1,7 @@
-package ${package.Event};
+package ${package.DomainEvent};
 
 import ${package.Aggregate}.${aggregate};
-import com.lvwj.halo.core.domain.event.DomainEvent;
+import ${superDomainEventClassPackage};
 import lombok.Getter;
 
 /**
@@ -13,7 +13,7 @@ import lombok.Getter;
  * @since ${date}
  */
 @Getter
-public class ${aggregate}CreatedEvent extends DomainEvent<${aggregate}> {
+public class ${aggregate}CreatedEvent extends ${superDomainEventClass}<${aggregate}> {
 
     public ${aggregate}CreatedEvent(${aggregate} agg) {
         super(agg);

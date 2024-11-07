@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
 import java.util.*;
 
 import static com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER;
@@ -631,10 +630,12 @@ public class JsonUtil {
       super.setLocale(locale);
       //去掉默认的时间戳格式
       super.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-      //设置为中国上海时区
-      super.setTimeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
+      //设置为零时区
+      super.setTimeZone(TimeZone.getTimeZone("UTC"));
       //序列化时，日期的统一格式
       super.setDateFormat(new SimpleDateFormat(DateTimeConstant.PATTERN_DATETIME, locale));
+      //禁用时区调整特性
+      super.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
       //单引号处理
       super.configure(JsonReadFeature.ALLOW_SINGLE_QUOTES.mappedFeature(), true);
       super.readerFor(Map.class).withFeatures(ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER);

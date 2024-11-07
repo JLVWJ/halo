@@ -30,7 +30,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        LocalDateTime now = DateTimeUtil.now();
+        LocalDateTime now = DateTimeUtil.nowUTC();
         fillStrategy(metaObject, CREATE_TIME, now);
         fillStrategy(metaObject, UPDATE_TIME, now);
         fillStrategy(metaObject, IS_DELETE, 0);
@@ -45,7 +45,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        LocalDateTime now = DateTimeUtil.now();
+        LocalDateTime now = DateTimeUtil.nowUTC();
         String currentUser = ThreadLocalUtil.getCurrentUserName();
         this.setFieldValByName(UPDATE_TIME, now, metaObject);
         if (Func.isNotBlank(currentUser)) {

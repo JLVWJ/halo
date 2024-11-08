@@ -213,6 +213,10 @@ public class DateTimeUtil extends LocalDateTimeUtil {
     return parseDateTime(dateTime, formatter, zoneId);
   }
 
+  public static LocalDateTime parseUtcDateTime(String dateTime) {
+    return parseDateTime(dateTime, "", ZoneId.of("UTC"));
+  }
+
   /**
    * 将字符串转换为时间
    *

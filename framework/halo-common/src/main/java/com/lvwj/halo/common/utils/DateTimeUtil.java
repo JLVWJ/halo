@@ -18,6 +18,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateTimeUtil extends LocalDateTimeUtil {
 
+  /**
+   * 当前时间
+   */
   public static LocalDateTime now() {
     return LocalDateTime.now();
   }
@@ -193,6 +196,21 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    */
   public static LocalDateTime parseDateTime(long timestamp, ZoneId zoneId) {
     return fromMilliseconds(timestamp, zoneId);
+  }
+
+  public static LocalDateTime parseDateTime(String dateTime, ZoneId zoneId) {
+    return parseDateTime(dateTime, "", zoneId);
+  }
+
+  public static LocalDateTime parseDateTime(String dateTime, DateTimeFormatter formatter, ZoneId zoneId) {
+    formatter = Optional.ofNullable(formatter).orElse(DateTimeConstant.FORMAT_DATETIME);
+    LocalDateTime localDateTime = parseDateTime(dateTime, formatter);
+    return toDateTime(localDateTime, zoneId);
+  }
+
+  public static LocalDateTime parseDateTime(String dateTime, String pattern, ZoneId zoneId) {
+    DateTimeFormatter formatter = Func.isBlank(pattern) ? DateTimeConstant.FORMAT_DATETIME : DateTimeFormatter.ofPattern(pattern);
+    return parseDateTime(dateTime, formatter, zoneId);
   }
 
   /**

@@ -3,7 +3,6 @@ package com.lvwj.halo.mybatisplus.entity.audit;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.*;
-import org.javers.core.metamodel.annotation.DiffIgnore;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -21,7 +20,6 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 public class UpdateAuditEntity<ID extends Serializable> extends CreatAuditEntity<ID> {
 
-  @DiffIgnore
   @TableField(fill = FieldFill.INSERT_UPDATE)
   protected LocalDateTime updateTime;
 

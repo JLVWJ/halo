@@ -6,17 +6,31 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.MapType;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.PackageVersion;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.lvwj.halo.common.constants.DateTimeConstant;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.lang.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
+
+import static com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER;
 
 /**
  * Jackson工具类
@@ -620,16 +634,20 @@ public class JsonUtil {
 
     public JacksonObjectMapper() {
       super();
-      //设置地点为中国
-      super.setLocale(CHINA);
+      Locale locale = LocaleContextHolder.getLocale();
+      //设置地点
+      super.setLocale(locale);
       //去掉默认的时间戳格式
       super.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-      //设置为中国上海时区
-      super.setTimeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
+      //设置为零时区
+      super.setTimeZone(TimeZone.getTimeZone("UTC"));
       //序列化时，日期的统一格式
-      super.setDateFormat(new SimpleDateFormat(DateTimeConstant.PATTERN_DATETIME, Locale.CHINA));
+      super.setDateFormat(new SimpleDateFormat(DateTimeConstant.PATTERN_DATETIME, locale));
+      //禁用时区调整特性
+      super.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
       //单引号处理
       super.configure(JsonReadFeature.ALLOW_SINGLE_QUOTES.mappedFeature(), true);
+      super.readerFor(Map.class).withFeatures(ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER);
       // 允许JSON字符串包含非引号控制字符（值小于32的ASCII字符，包含制表符和换行符）
       super.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
       super.configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER.mappedFeature(), true);
@@ -638,12 +656,38 @@ public class JsonUtil {
       super.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       //日期格式化
       super.registerModule(new JavaTimeModule());
+      super.registerModule(new BigNumberModule());
       super.findAndRegisterModules();
     }
 
     @Override
     public ObjectMapper copy() {
       return new JacksonObjectMapper(this);
+    }
+  }
+
+  private static class BigNumberModule extends SimpleModule {
+    public BigNumberModule() {
+      super(BigNumberModule.class.getName());
+      // Long 和 BigInteger 采用定制的逻辑序列化，避免超过js的精度
+      this.addSerializer(Long.class, ToStringSerializer.instance);
+      this.addSerializer(Long.TYPE, ToStringSerializer.instance);
+      this.addSerializer(BigInteger.class, ToStringSerializer.instance);
+      // BigDecimal 采用 toString 避免精度丢失。
+      //this.addSerializer(BigDecimal.class, ToStringSerializer.instance);
+    }
+  }
+
+  private static class JavaTimeModule extends SimpleModule {
+
+    public JavaTimeModule() {
+      super(PackageVersion.VERSION);
+      this.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeConstant.FORMAT_DATETIME));
+      this.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeConstant.FORMAT_DATE));
+      this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeConstant.FORMAT_TIME));
+      this.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeConstant.FORMAT_DATETIME));
+      this.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeConstant.FORMAT_DATE));
+      this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeConstant.FORMAT_TIME));
     }
   }
 }

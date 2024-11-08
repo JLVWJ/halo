@@ -27,10 +27,6 @@ import java.time.LocalTime;
  */
 public class JavaTimeModule extends SimpleModule {
 
-  public static final JavaTimeModule FORMAT = new JavaTimeModule();
-
-  public static final JavaTimeModule TIMESTAMP = new JavaTimeModule(true);
-
   public JavaTimeModule() {
     this(false);
   }

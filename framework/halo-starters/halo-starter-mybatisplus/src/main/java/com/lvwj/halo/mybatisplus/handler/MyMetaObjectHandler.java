@@ -3,6 +3,7 @@ package com.lvwj.halo.mybatisplus.handler;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.lvwj.halo.common.utils.DateTimeUtil;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,13 +30,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = DateTimeUtil.now();
         fillStrategy(metaObject, CREATE_TIME, now);
         fillStrategy(metaObject, UPDATE_TIME, now);
         fillStrategy(metaObject, IS_DELETE, 0);
         setVersion(metaObject);
 
-        String currentUser = ThreadLocalUtil.getCurrentUser();
+        String currentUser = ThreadLocalUtil.getCurrentUserName();
         if (Func.isNotBlank(currentUser)) {
             fillStrategy(metaObject, CREATE_BY, currentUser);
             fillStrategy(metaObject, UPDATE_BY, currentUser);
@@ -44,8 +45,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        LocalDateTime now = LocalDateTime.now();
-        String currentUser = ThreadLocalUtil.getCurrentUser();
+        LocalDateTime now = DateTimeUtil.now();
+        String currentUser = ThreadLocalUtil.getCurrentUserName();
         this.setFieldValByName(UPDATE_TIME, now, metaObject);
         if (Func.isNotBlank(currentUser)) {
             fillStrategy(metaObject, UPDATE_BY, currentUser);

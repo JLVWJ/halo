@@ -38,11 +38,16 @@ public class HaloJackson2ObjectMapperBuilder extends Jackson2ObjectMapperBuilder
     objectMapper.configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER.mappedFeature(), true);
     objectMapper.findAndRegisterModules();
     // 注册Java时间相关的序列化模块
-    objectMapper.registerModule(JavaTimeModule.FORMAT);
+    objectMapper.registerModule(new JavaTimeModule());
     // 注册大整数的序列化模块
     objectMapper.registerModule(BigNumberModule.INSTANCE);
     objectMapper.setLocale(LocaleContextHolder.getLocale());
-    objectMapper.setTimeZone(TimeZone.getDefault());
+    //设置为零时区
+    objectMapper.setTimeZone(TimeZone.getTimeZone("UTC"));
+    //禁用时区调整特性
+    objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
+    //去掉默认的时间戳格式
+    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     // 属性命名策略定义
     String nameStrategy = SpringUtil.getProperty("halo.jackson.property-naming-strategy");
     PropertyNamingStrategy strategy = getNameStrategy(nameStrategy);

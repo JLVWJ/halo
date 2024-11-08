@@ -336,7 +336,7 @@ public abstract class AbstractTemplateEnginePlus {
         if (config.getGlobalConfig().isDdd()) {
             InjectionConfig t = config.getInjectionConfig();
             Map<String, DomainModelType> map = (Map<String, DomainModelType>) t.getCustomMap().get(DomainModelType.NAME);
-            DomainModelType modelType = map.getOrDefault(tableInfo.getName(), DomainModelType.aggregate);
+            DomainModelType modelType = null != map ? map.getOrDefault(tableInfo.getName(), DomainModelType.aggregate) : DomainModelType.aggregate;
             List<CustomFile> customFileList = customFiles.get(modelType);
             if (null != customFileList && !customFileList.isEmpty()) {
                 t.getCustomFiles().addAll(customFileList);

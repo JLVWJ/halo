@@ -213,6 +213,10 @@ public class DateTimeUtil extends LocalDateTimeUtil {
     return parseDateTime(dateTime, formatter, zoneId);
   }
 
+  public static LocalDateTime parseUtcDateTime(String dateTime) {
+    return parseDateTime(dateTime, "", ZoneId.of("UTC"));
+  }
+
   /**
    * 将字符串转换为时间
    *
@@ -294,7 +298,8 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    * @return Instant
    */
   public static Instant toInstant(LocalDateTime dateTime, ZoneId zoneId) {
-    return dateTime.atZone(Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault())).toInstant();
+    zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
+    return dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toInstant();
   }
 
   public static Instant toInstant(LocalDateTime dateTime) {
@@ -311,7 +316,8 @@ public class DateTimeUtil extends LocalDateTimeUtil {
    * @return java.time.LocalDateTime
    */
   public static LocalDateTime toDateTime(LocalDateTime dateTime, ZoneId zoneId) {
-    return dateTime.atZone(Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault())).toLocalDateTime();
+    zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
+    return dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toLocalDateTime();
   }
 
   /**
@@ -335,7 +341,8 @@ public class DateTimeUtil extends LocalDateTimeUtil {
   public static LocalDateTime toDateTime(Date date, ZoneId zoneId) {
     if (null == date) return null;
     Instant instant = date.toInstant();
-    return instant.atZone(Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault())).toLocalDateTime();
+    zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
+    return instant.atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toLocalDateTime();
   }
 
   public static LocalDateTime toDateTime(Date date) {
@@ -432,7 +439,7 @@ public class DateTimeUtil extends LocalDateTimeUtil {
 
   public static long toMilliseconds(final LocalDateTime localDateTime, ZoneId zoneId) {
     zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
-    return localDateTime.atZone(zoneId).toInstant().toEpochMilli();
+    return localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toInstant().toEpochMilli();
   }
 
   /**

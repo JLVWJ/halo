@@ -447,7 +447,7 @@ public class DateUtil {
 
 	public static Instant toInstant(LocalDateTime dateTime, ZoneId zoneId) {
 		zoneId = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault());
-		return dateTime.atZone(zoneId).toInstant();
+		return dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(zoneId).toInstant();
 	}
 
 	/**

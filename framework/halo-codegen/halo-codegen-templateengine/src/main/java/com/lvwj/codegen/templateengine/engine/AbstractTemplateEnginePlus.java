@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.generator.util.ClassUtils;
 import com.baomidou.mybatisplus.generator.util.FileUtils;
 import com.baomidou.mybatisplus.generator.util.RuntimeUtils;
 import com.lvwj.codegen.templateengine.config.ConfigPlusBuilder;
+import com.lvwj.codegen.templateengine.config.DomainModelType;
 import com.lvwj.codegen.templateengine.config.GlobalConfigPlus;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -191,7 +192,7 @@ public abstract class AbstractTemplateEnginePlus {
     public AbstractTemplateEnginePlus batchOutput() {
         try {
             ConfigPlusBuilder config = this.getConfigPlusBuilder();
-            Map<String, List<CustomFile>> customFiles = getCustomFiles(config.getStrategyConfig());
+            Map<DomainModelType, List<CustomFile>> customFiles = getCustomFiles(config.getStrategyConfig());
             List<TableInfo> tableInfoList = config.getTableInfoList();
             tableInfoList.forEach(tableInfo -> {
                 Map<String, Object> objectMap = this.getObjectMap(config, tableInfo);
@@ -331,11 +332,12 @@ public abstract class AbstractTemplateEnginePlus {
         return this;
     }
 
-    private void addCustomFiles(ConfigPlusBuilder config, TableInfo tableInfo, Map<String, List<CustomFile>> customFiles) {
+    private void addCustomFiles(ConfigPlusBuilder config, TableInfo tableInfo, Map<DomainModelType, List<CustomFile>> customFiles) {
         if (config.getGlobalConfig().isDdd()) {
             InjectionConfig t = config.getInjectionConfig();
-            String flag = t.getCustomMap().get(tableInfo.getName()).toString();
-            List<CustomFile> customFileList = customFiles.get(flag);
+            Map<String, DomainModelType> map = (Map<String, DomainModelType>) t.getCustomMap().get(DomainModelType.NAME);
+            DomainModelType modelType = map.getOrDefault(tableInfo.getName(), DomainModelType.aggregate);
+            List<CustomFile> customFileList = customFiles.get(modelType);
             if (null != customFileList && !customFileList.isEmpty()) {
                 t.getCustomFiles().addAll(customFileList);
             }
@@ -404,7 +406,7 @@ public abstract class AbstractTemplateEnginePlus {
         {put("RepositoryImpl","infrastructure.repository.impl");}
     };
 
-    private static Map<String, List<CustomFile>> getCustomFiles(StrategyConfig strategyConfig) {
+    private static Map<DomainModelType, List<CustomFile>> getCustomFiles(StrategyConfig strategyConfig) {
         String templates = "/templates/";
         CustomFile aggregateFile = new CustomFile.Builder().packageName(packageNames.get("Aggregate"))
                 .templatePath(templates + "aggregate.java.vm")
@@ -456,10 +458,10 @@ public abstract class AbstractTemplateEnginePlus {
                 .templatePath(templates + "valueObj.java.vm")
                 .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig))
                 .enableFileOverride().build();
-        Map<String, List<CustomFile>> result = new HashMap<>(2);
-        result.put("aggregate", Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateDTOFile, repositoryFile, repositoryImplFile, converterFile));
-        result.put("entity", Collections.singletonList(domainEntityFile));
-        result.put("valueObj", Collections.singletonList(valueObjFile));
+        Map<DomainModelType, List<CustomFile>> result = new HashMap<>(2);
+        result.put(DomainModelType.aggregate, Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateDTOFile, repositoryFile, repositoryImplFile, converterFile));
+        result.put(DomainModelType.entity, Collections.singletonList(domainEntityFile));
+        result.put(DomainModelType.valveObj, Collections.singletonList(valueObjFile));
         return result;
     }
 

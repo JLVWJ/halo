@@ -1,0 +1,23 @@
+package ${package.Assembler};
+
+import ${package.Command}.${aggregate}SaveCmd;
+import ${package.Request}.${aggregate}CreateReq;
+import ${package.Request}.${aggregate}UpdateReq;
+import org.mapstruct.Mapper;
+
+/**
+ * <p>
+ * 数据组装器：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Mapper(componentModel = "spring")
+public interface ${aggregate}Assembler {
+
+    ${aggregate}SaveCmd toCmd(${aggregate}CreateReq req);
+
+    ${aggregate}SaveCmd toCmd(${aggregate}UpdateReq req);
+
+}

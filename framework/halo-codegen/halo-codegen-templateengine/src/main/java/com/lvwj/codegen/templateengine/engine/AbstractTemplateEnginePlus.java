@@ -380,6 +380,7 @@ public abstract class AbstractTemplateEnginePlus {
             packageInfo.put("Request", packageConfig.joinPackage(packageNames.get("Request")));
             packageInfo.put("Response", packageConfig.joinPackage(packageNames.get("Response")));
             packageInfo.put("Converter", packageConfig.joinPackage(packageNames.get("Converter")));
+            packageInfo.put("Assembler", packageConfig.joinPackage(packageNames.get("Assembler")));
             packageInfo.put("RepositoryImpl", packageConfig.joinPackage(packageNames.get("RepositoryImpl")));
             packageInfo.put("ApplicationService", packageConfig.joinPackage(packageNames.get("ApplicationService")));
         }
@@ -405,6 +406,7 @@ public abstract class AbstractTemplateEnginePlus {
         {put("Converter","infrastructure.converter");}
         {put("RepositoryImpl","infrastructure.repository.impl");}
         {put("ApplicationService","service");}
+        {put("Assembler","interfaces.assembler");}
     };
 
     private static Map<DomainModelType, List<CustomFile>> getCustomFiles(StrategyConfig strategyConfig) {
@@ -474,6 +476,11 @@ public abstract class AbstractTemplateEnginePlus {
                 .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
                 .fileName("Factory.java")
                 .enableFileOverride().build();
+        CustomFile assemblerFile = new CustomFile.Builder().packageName(packageNames.get("Assembler"))
+                .templatePath(templates + "assembler.java.vm")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("Assembler.java")
+                .enableFileOverride().build();
 
         CustomFile domainEntityFile = new CustomFile.Builder().packageName(packageNames.get("DomainEntity"))
                 .templatePath(templates + "domainEntity.java.vm")
@@ -488,7 +495,7 @@ public abstract class AbstractTemplateEnginePlus {
                 .enableFileOverride().build();
         Map<DomainModelType, List<CustomFile>> result = new HashMap<>(2);
         result.put(DomainModelType.aggregate, Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateDTOFile,
-                repositoryFile, repositoryImplFile, converterFile, cmdServiceFile, qryServiceFile, factoryFile));
+                repositoryFile, repositoryImplFile, converterFile, cmdServiceFile, qryServiceFile, factoryFile, assemblerFile));
         result.put(DomainModelType.entity, Collections.singletonList(domainEntityFile));
         result.put(DomainModelType.valveObj, Collections.singletonList(valueObjFile));
         return result;

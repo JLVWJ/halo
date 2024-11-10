@@ -166,17 +166,9 @@ public class AutoCodeGenerator {
 
         Map<String, Object> customMap = new HashMap<>();
         Map<String, DomainModelType> domainModelTypeMap = new HashMap<>() {
-            {
-                put("knowledges", DomainModelType.aggregate);
-            }
-
-            {
-                put("knowledge_stories", DomainModelType.aggregate);
-            }
-
-            {
-                put("knowledge_story_segments", DomainModelType.entity);
-            }
+            {put("knowledges", DomainModelType.aggregate);}
+            {put("knowledge_stories", DomainModelType.aggregate);}
+            {put("knowledge_story_segments", DomainModelType.entity);}
         };
         customMap.put(DomainModelType.NAME, domainModelTypeMap);
         //注入配置
@@ -187,7 +179,7 @@ public class AutoCodeGenerator {
                 .addInclude("knowledges", "knowledge_stories", "knowledge_story_segments")
                 .serviceBuilder().convertServiceImplFileName(s -> s + "Dao").superServiceImplClass("com.lvwj.halo.mybatisplus.service.impl.TrackServiceImpl")
                 .entityBuilder().convertFileName(s -> s + "PO").addIgnoreColumns("id", "create_time", "create_by", "update_time", "update_by", "delete_time", "delete_by", "is_delete")
-                .enableLombok().superClass("com.lvwj.halo.mybatisplus.entity.DeleteEntity")
+                .disableSerialVersionUID().enableLombok().superClass("com.lvwj.halo.mybatisplus.entity.DeleteEntity")
                 .mapperBuilder().enableBaseResultMap().enableBaseColumnList().superClass("com.lvwj.halo.mybatisplus.mapper.CustomMapper")
                 .controllerBuilder().enableRestStyle()
                 .build();

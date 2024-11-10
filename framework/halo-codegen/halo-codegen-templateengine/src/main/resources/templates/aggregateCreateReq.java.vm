@@ -1,7 +1,7 @@
 package ${package.Request};
 
 ## 引入公共资源
-#parse("templates/common.vm")
+#parse("/templates/common.java.vm")
 ## 引入导包宏
 #set($ignoreFieldList = ["id","createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
 #importEntityPackage($ignoreFieldList)
@@ -30,25 +30,25 @@ import lombok.Data;
 #end
 public class ${aggregate}CreateReq implements Serializable {
 
-## ----------  BEGIN 字段循环遍历  ----------
-#foreach($field in ${table.fields})
-    #if(${ignoreFieldList.contains($field.propertyName)})
-        ## 如果是忽略字段什么都不干
-    #else
-        #if("$!field.comment" != "")
-            #if(${springdoc})
-@Schema(description = "${field.comment}")
-            #elseif(${swagger})
-@ApiModelProperty("${field.comment}")
-            #else
-/**
- * ${field.comment}
- */
+    ## ----------  BEGIN 字段循环遍历  ----------
+    #foreach($field in ${table.fields})
+        #if(${ignoreFieldList.contains($field.propertyName)})
+            ## 如果是忽略字段什么都不干
+        #else
+            #if("$!field.comment" != "")
+                #if(${springdoc})
+    @Schema(description = "${field.comment}")
+                #elseif(${swagger})
+    @ApiModelProperty("${field.comment}")
+                #else
+    /**
+     * ${field.comment}
+     */
+                #end
             #end
-        #end
     private ${field.propertyType} ${field.propertyName};
+        #end
     #end
-#end
-## ----------  END 字段循环遍历  ----------
+    ## ----------  END 字段循环遍历  ----------
 
 }

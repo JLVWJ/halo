@@ -1,7 +1,7 @@
 package ${package.Command};
 
 ## 引入公共资源
-#parse("templates/common.vm")
+#parse("/templates/common.java.vm")
 ## 引入导包宏
 #set($ignoreFieldList = ["createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
 #importEntityPackage($ignoreFieldList)
@@ -24,14 +24,14 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor(staticName = "of")
 public class ${aggregate}SaveCmd implements Serializable {
 
-## ----------  BEGIN 字段循环遍历  ----------
-#foreach($field in ${table.fields})
-    #if(${ignoreFieldList.contains($field.propertyName)})
-        ## 如果是忽略字段什么都不干
-    #else
-    private ${field.propertyType} ${field.propertyName};
+    ## ----------  BEGIN 字段循环遍历  ----------
+    #foreach($field in ${table.fields})
+        #if(${ignoreFieldList.contains($field.propertyName)})
+            ## 如果是忽略字段什么都不干
+        #else
+            private ${field.propertyType} ${field.propertyName};
+        #end
     #end
-#end
-## ----------  END 字段循环遍历  ----------
+    ## ----------  END 字段循环遍历  ----------
 
 }

@@ -5,7 +5,7 @@ import ${superRepositoryImplClassPackage};
 import ${package.Aggregate}.${aggregate};
 import ${package.Entity}.${entity};
 import ${package.Repository}.${aggregate}Repository;
-import ${package.Service}.${aggregate}Dao;
+import ${package.ServiceImpl}.${aggregate}Dao;
 import ${package.Converter}.${aggregate}Converter;
 
 @Repository

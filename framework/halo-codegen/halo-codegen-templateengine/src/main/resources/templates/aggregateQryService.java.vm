@@ -1,0 +1,21 @@
+package ${package.ApplicationService};
+
+import ${package.ServiceImpl}.${table.serviceImplName};
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ * <p>
+ * 应用服务查询端：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Service
+public class ${aggregate}QryService {
+
+    @Autowired
+    private ${table.serviceImplName} dao;
+}
+

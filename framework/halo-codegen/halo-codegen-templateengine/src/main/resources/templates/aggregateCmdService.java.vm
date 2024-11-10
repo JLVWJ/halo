@@ -1,0 +1,31 @@
+package ${package.ApplicationService};
+
+import ${package.Repository}.${aggregate}Repository;
+import ${package.Command}.${aggregate}SaveCmd;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * <p>
+ * 应用服务命令端：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Service
+public class ${aggregate}CmdService {
+
+    @Autowired
+    private ${aggregate}Repository repository;
+
+    /**
+    * 保存 = 创建 或 更新
+    */
+    @Transactional(rollbackFor = Exception.class)
+    public void save(${aggregate}SaveCmd cmd) {
+
+    }
+}
+

@@ -7,9 +7,9 @@ import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.util.ClassUtils;
 import com.baomidou.mybatisplus.generator.util.FileUtils;
 import com.baomidou.mybatisplus.generator.util.RuntimeUtils;
-import com.lvwj.codegen.templateengine.config.ConfigPlusBuilder;
+import com.lvwj.codegen.templateengine.config.ConfigBuilder;
 import com.lvwj.codegen.templateengine.config.DomainModelType;
-import com.lvwj.codegen.templateengine.config.GlobalConfigPlus;
+import com.lvwj.codegen.templateengine.config.GlobalConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,13 +28,13 @@ public abstract class AbstractTemplateEnginePlus {
     /**
      * 配置信息
      */
-    private ConfigPlusBuilder configBuilder;
+    private ConfigBuilder configBuilder;
 
     /**
      * 模板引擎初始化
      */
 
-    public abstract AbstractTemplateEnginePlus init(ConfigPlusBuilder configBuilder);
+    public abstract AbstractTemplateEnginePlus init(ConfigBuilder configBuilder);
 
     /**
      * 输出自定义模板文件
@@ -69,7 +69,7 @@ public abstract class AbstractTemplateEnginePlus {
         String entityName = tableInfo.getEntityName();
         String entityPath = getPathInfo(OutputFile.entity);
         Entity entity = this.getConfigPlusBuilder().getStrategyConfig().entity();
-        GlobalConfigPlus globalConfig = configBuilder.getGlobalConfig();
+        GlobalConfig globalConfig = configBuilder.getGlobalConfig();
         if (entity.isGenerate()) {
             String entityFile = String.format((entityPath + File.separator + "%s" + suffixJavaOrKt()), entityName);
             outputFile(getOutputFile(entityFile, OutputFile.entity), objectMap, templateFilePath(globalConfig.isKotlin() ? entity.getKotlinTemplate() : entity.getJavaTemplate()), getConfigPlusBuilder().getStrategyConfig().entity().isFileOverride());
@@ -191,7 +191,7 @@ public abstract class AbstractTemplateEnginePlus {
 
     public AbstractTemplateEnginePlus batchOutput() {
         try {
-            ConfigPlusBuilder config = this.getConfigPlusBuilder();
+            ConfigBuilder config = this.getConfigPlusBuilder();
             Map<DomainModelType, List<CustomFile>> customFiles = getCustomFiles(config.getStrategyConfig());
             List<TableInfo> tableInfoList = config.getTableInfoList();
             tableInfoList.forEach(tableInfo -> {
@@ -199,10 +199,8 @@ public abstract class AbstractTemplateEnginePlus {
                 Optional.ofNullable(config.getInjectionConfig()).ifPresent(t -> {
                     // 添加自定义属性
                     t.beforeOutputFile(tableInfo, objectMap);
-                    // 添加默认自定义文件
-                    addCustomFiles(config, tableInfo, customFiles);
                     // 输出自定义文件
-                    outputCustomFile(t.getCustomFiles(), tableInfo, objectMap);
+                    outputCustomFile(getCustomFiles(config, tableInfo, customFiles), tableInfo, objectMap);
                 });
                 // entity
                 outputEntity(tableInfo, objectMap);
@@ -254,7 +252,7 @@ public abstract class AbstractTemplateEnginePlus {
      * @return ignore
      */
 
-    public Map<String, Object> getObjectMap(ConfigPlusBuilder config, TableInfo tableInfo) {
+    public Map<String, Object> getObjectMap(ConfigBuilder config, TableInfo tableInfo) {
         StrategyConfig strategyConfig = config.getStrategyConfig();
         Map<String, Object> controllerData = strategyConfig.controller().renderData(tableInfo);
         Map<String, Object> objectMap = new HashMap<>(controllerData);
@@ -266,7 +264,7 @@ public abstract class AbstractTemplateEnginePlus {
         objectMap.putAll(entityData);
         objectMap.put("config", config);
         objectMap.put("package", getPackageInfo(config));
-        GlobalConfigPlus globalConfig = config.getGlobalConfig();
+        GlobalConfig globalConfig = config.getGlobalConfig();
         objectMap.put("author", globalConfig.getAuthor());
         objectMap.put("kotlin", globalConfig.isKotlin());
         objectMap.put("swagger", globalConfig.isSwagger());
@@ -322,29 +320,30 @@ public abstract class AbstractTemplateEnginePlus {
     }
 
 
-    public ConfigPlusBuilder getConfigPlusBuilder() {
+    public ConfigBuilder getConfigPlusBuilder() {
         return configBuilder;
     }
 
 
-    public AbstractTemplateEnginePlus setConfigPlusBuilder(ConfigPlusBuilder configBuilder) {
+    public AbstractTemplateEnginePlus setConfigPlusBuilder(ConfigBuilder configBuilder) {
         this.configBuilder = configBuilder;
         return this;
     }
 
-    private void addCustomFiles(ConfigPlusBuilder config, TableInfo tableInfo, Map<DomainModelType, List<CustomFile>> customFiles) {
+    private List<CustomFile> getCustomFiles(ConfigBuilder config, TableInfo tableInfo, Map<DomainModelType, List<CustomFile>> customFiles) {
+        InjectionConfig t = config.getInjectionConfig();
+        List<CustomFile> customFileList = new ArrayList<>(t.getCustomFiles());
         if (config.getGlobalConfig().isDdd()) {
-            InjectionConfig t = config.getInjectionConfig();
             Map<String, DomainModelType> map = (Map<String, DomainModelType>) t.getCustomMap().get(DomainModelType.NAME);
-            DomainModelType modelType = null != map ? map.getOrDefault(tableInfo.getName(), DomainModelType.aggregate) : DomainModelType.aggregate;
-            List<CustomFile> customFileList = customFiles.get(modelType);
-            if (null != customFileList && !customFileList.isEmpty()) {
-                t.getCustomFiles().addAll(customFileList);
-            }
+            if (null == map)
+                throw new RuntimeException("DDD模式下，需配置相关表的领域模型类型(DomainModelType)。配置路径: InjectionConfig.CustomMap.put(DomainModelType.NAME,{'tb_name1':DomainModelType.aggregate,'tb_name2':DomainModelType.entity})");
+            DomainModelType modelType = map.getOrDefault(tableInfo.getName(), DomainModelType.aggregate);
+            customFileList.addAll(customFiles.get(modelType));
         }
+        return customFileList;
     }
 
-    private void addGlobalConfigToObjectMap(Map<String, Object> objectMap, GlobalConfigPlus globalConfig) {
+    private void addGlobalConfigToObjectMap(Map<String, Object> objectMap, GlobalConfig globalConfig) {
         if (!globalConfig.isDdd()) return;
         objectMap.put("generateService", false);
         objectMap.put("generateServiceImpl", true);
@@ -367,9 +366,9 @@ public abstract class AbstractTemplateEnginePlus {
         objectMap.put("superRepositoryImplClass", ClassUtils.getSimpleName(globalConfig.getSuperRepositoryImplClass()));
     }
 
-    private Map<String,String> getPackageInfo(ConfigPlusBuilder config) {
+    private Map<String,String> getPackageInfo(ConfigBuilder config) {
         PackageConfig packageConfig = config.getPackageConfig();
-        Map<String, String> packageInfo = packageConfig.getPackageInfo();
+        Map<String, String> packageInfo = new HashMap<>(packageConfig.getPackageInfo());
         if (config.getGlobalConfig().isDdd()) {
             packageInfo.put("Aggregate", packageConfig.joinPackage(packageNames.get("Aggregate")));
             packageInfo.put("DomainEntity", packageConfig.joinPackage(packageNames.get("DomainEntity")));
@@ -382,6 +381,7 @@ public abstract class AbstractTemplateEnginePlus {
             packageInfo.put("Response", packageConfig.joinPackage(packageNames.get("Response")));
             packageInfo.put("Converter", packageConfig.joinPackage(packageNames.get("Converter")));
             packageInfo.put("RepositoryImpl", packageConfig.joinPackage(packageNames.get("RepositoryImpl")));
+            packageInfo.put("ApplicationService", packageConfig.joinPackage(packageNames.get("ApplicationService")));
         }
         packageInfo.put(ConstVal.ENTITY, packageConfig.joinPackage("infrastructure.persistence.entity"));
         packageInfo.put(ConstVal.MAPPER, packageConfig.joinPackage("infrastructure.persistence.mapper"));
@@ -404,62 +404,91 @@ public abstract class AbstractTemplateEnginePlus {
         {put("Response","api.dto.resp");}
         {put("Converter","infrastructure.converter");}
         {put("RepositoryImpl","infrastructure.repository.impl");}
+        {put("ApplicationService","service");}
     };
 
     private static Map<DomainModelType, List<CustomFile>> getCustomFiles(StrategyConfig strategyConfig) {
         String templates = "/templates/";
         CustomFile aggregateFile = new CustomFile.Builder().packageName(packageNames.get("Aggregate"))
                 .templatePath(templates + "aggregate.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig))
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName(".java")
                 .enableFileOverride().build();
         CustomFile aggregateCreatedEventFile = new CustomFile.Builder().packageName(packageNames.get("DomainEvent"))
                 .templatePath(templates + "aggregateCreatedEvent.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "CreatedEvent")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("CreatedEvent.java")
                 .enableFileOverride().build();
         CustomFile aggregateCreatedIntegrationEventFile = new CustomFile.Builder().packageName(packageNames.get("IntegrationEvent"))
                 .templatePath(templates + "aggregateCreatedIntegrationEvent.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "CreatedIntegrationEvent")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("CreatedIntegrationEvent.java")
                 .enableFileOverride().build();
         CustomFile aggregateSaveCmdFile = new CustomFile.Builder().packageName(packageNames.get("Command"))
                 .templatePath(templates + "aggregateSaveCmd.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "SaveCmd")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("SaveCmd.java")
                 .enableFileOverride().build();
         CustomFile aggregateCreateReqFile = new CustomFile.Builder().packageName(packageNames.get("Request"))
                 .templatePath(templates + "aggregateCreateReq.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "CreateReq")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("CreateReq.java")
                 .enableFileOverride().build();
         CustomFile aggregateUpdateReqFile = new CustomFile.Builder().packageName(packageNames.get("Request"))
                 .templatePath(templates + "aggregateUpdateReq.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "UpdateReq")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("UpdateReq.java")
                 .enableFileOverride().build();
         CustomFile aggregateDTOFile = new CustomFile.Builder().packageName(packageNames.get("Response"))
                 .templatePath(templates + "aggregateDTO.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "DTO")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("DTO.java")
                 .enableFileOverride().build();
         CustomFile converterFile = new CustomFile.Builder().packageName(packageNames.get("Converter"))
                 .templatePath(templates + "converter.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "Converter")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("Converter.java")
                 .enableFileOverride().build();
         CustomFile repositoryFile = new CustomFile.Builder().packageName(packageNames.get("Repository"))
                 .templatePath(templates + "repository.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "Repository")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("Repository.java")
                 .enableFileOverride().build();
         CustomFile repositoryImplFile = new CustomFile.Builder().packageName(packageNames.get("RepositoryImpl"))
                 .templatePath(templates + "repositoryImpl.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig) + "RepositoryImpl")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("RepositoryImpl.java")
+                .enableFileOverride().build();
+        CustomFile cmdServiceFile = new CustomFile.Builder().packageName(packageNames.get("ApplicationService"))
+                .templatePath(templates + "aggregateCmdService.java.vm")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("CmdService.java")
+                .enableFileOverride().build();
+        CustomFile qryServiceFile = new CustomFile.Builder().packageName(packageNames.get("ApplicationService"))
+                .templatePath(templates + "aggregateQryService.java.vm")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("QryService.java")
+                .enableFileOverride().build();
+        CustomFile factoryFile = new CustomFile.Builder().packageName(packageNames.get("Aggregate"))
+                .templatePath(templates + "aggregateFactory.java.vm")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("Factory.java")
                 .enableFileOverride().build();
 
         CustomFile domainEntityFile = new CustomFile.Builder().packageName(packageNames.get("DomainEntity"))
                 .templatePath(templates + "domainEntity.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig))
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName(".java")
                 .enableFileOverride().build();
 
         CustomFile valueObjFile = new CustomFile.Builder().packageName(packageNames.get("ValueObj"))
                 .templatePath(templates + "valueObj.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(),strategyConfig))
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName(".java")
                 .enableFileOverride().build();
         Map<DomainModelType, List<CustomFile>> result = new HashMap<>(2);
-        result.put(DomainModelType.aggregate, Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateDTOFile, repositoryFile, repositoryImplFile, converterFile));
+        result.put(DomainModelType.aggregate, Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateDTOFile,
+                repositoryFile, repositoryImplFile, converterFile, cmdServiceFile, qryServiceFile, factoryFile));
         result.put(DomainModelType.entity, Collections.singletonList(domainEntityFile));
         result.put(DomainModelType.valveObj, Collections.singletonList(valueObjFile));
         return result;

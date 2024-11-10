@@ -12,10 +12,10 @@ import java.util.function.Supplier;
  * @author lvweijie
  * @date 2024年11月04日 15:51
  */
-public class GlobalConfigPlus  {
+public class GlobalConfig {
 
     @Getter
-    private String outputDir = System.getProperty("os.name").toLowerCase().contains("windows") ? "D://" : "/tmp";
+    private String outputDir = System.getProperty("os.name").toLowerCase().contains("windows") ? "D://" : System.getProperty("user.dir") + "/src/main/data";
 
     /**
      * 是否打开输出目录
@@ -62,14 +62,14 @@ public class GlobalConfigPlus  {
      *
      * @since 3.5.0
      */
-    private Supplier<String> commentDate = () -> new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-    
+    private Supplier<String> commentDate = () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
 
     public boolean isSwagger() {
         // springdoc 设置优先于 swagger
         return !springdoc && swagger;
     }
-    
+
     public String getCommentDate() {
         return commentDate.get();
     }
@@ -99,18 +99,18 @@ public class GlobalConfigPlus  {
      * @author nieqiurong 2020/10/11.
      * @since 3.5.0
      */
-    public static class Builder implements IConfigBuilder<GlobalConfigPlus> {
+    public static class Builder implements IConfigBuilder<GlobalConfig> {
 
-        private final GlobalConfigPlus globalConfig;
+        private final GlobalConfig globalConfig;
 
         public Builder() {
-            this.globalConfig = new GlobalConfigPlus();
+            this.globalConfig = new GlobalConfig();
         }
 
         /**
          * 禁止打开输出目录
          */
-        public GlobalConfigPlus.Builder disableOpenDir() {
+        public GlobalConfig.Builder disableOpenDir() {
             this.globalConfig.open = false;
             return this;
         }
@@ -118,7 +118,7 @@ public class GlobalConfigPlus  {
         /**
          * 输出目录
          */
-        public GlobalConfigPlus.Builder outputDir(String outputDir) {
+        public GlobalConfig.Builder outputDir(String outputDir) {
             this.globalConfig.outputDir = outputDir;
             return this;
         }
@@ -126,7 +126,7 @@ public class GlobalConfigPlus  {
         /**
          * 作者
          */
-        public GlobalConfigPlus.Builder author(String author) {
+        public GlobalConfig.Builder author(String author) {
             this.globalConfig.author = author;
             return this;
         }
@@ -134,7 +134,7 @@ public class GlobalConfigPlus  {
         /**
          * 开启 kotlin 模式
          */
-        public GlobalConfigPlus.Builder enableKotlin() {
+        public GlobalConfig.Builder enableKotlin() {
             this.globalConfig.kotlin = true;
             return this;
         }
@@ -142,7 +142,7 @@ public class GlobalConfigPlus  {
         /**
          * 开启 swagger 模式
          */
-        public GlobalConfigPlus.Builder enableSwagger() {
+        public GlobalConfig.Builder enableSwagger() {
             this.globalConfig.swagger = true;
             return this;
         }
@@ -150,7 +150,7 @@ public class GlobalConfigPlus  {
         /**
          * 开启 springdoc 模式
          */
-        public GlobalConfigPlus.Builder enableSpringdoc() {
+        public GlobalConfig.Builder enableSpringdoc() {
             this.globalConfig.springdoc = true;
             return this;
         }
@@ -158,7 +158,7 @@ public class GlobalConfigPlus  {
         /**
          * 关闭 ddd 模式
          */
-        public GlobalConfigPlus.Builder disableDDD() {
+        public GlobalConfig.Builder disableDDD() {
             this.globalConfig.ddd = false;
             return this;
         }
@@ -166,7 +166,7 @@ public class GlobalConfigPlus  {
         /**
          * 时间类型对应策略
          */
-        public GlobalConfigPlus.Builder dateType(DateType dateType) {
+        public GlobalConfig.Builder dateType(DateType dateType) {
             this.globalConfig.dateType = dateType;
             return this;
         }
@@ -179,7 +179,7 @@ public class GlobalConfigPlus  {
          * @return this
          * @since 3.5.0
          */
-        public GlobalConfigPlus.Builder commentDate(Supplier<String> commentDate) {
+        public GlobalConfig.Builder commentDate(Supplier<String> commentDate) {
             this.globalConfig.commentDate = commentDate;
             return this;
         }
@@ -191,7 +191,7 @@ public class GlobalConfigPlus  {
          * @return this
          * @since 3.5.0
          */
-        public GlobalConfigPlus.Builder commentDate(String pattern) {
+        public GlobalConfig.Builder commentDate(String pattern) {
             return commentDate(() -> new SimpleDateFormat(pattern).format(new Date()));
         }
 
@@ -199,7 +199,7 @@ public class GlobalConfigPlus  {
         /**
          * 聚合根基类
          */
-        public GlobalConfigPlus.Builder superAggregateClass(String superClass) {
+        public GlobalConfig.Builder superAggregateClass(String superClass) {
             this.globalConfig.superAggregateClass = superClass;
             return this;
         }
@@ -207,43 +207,43 @@ public class GlobalConfigPlus  {
         /**
          * 领域实体基类
          */
-        public GlobalConfigPlus.Builder superDomainEntityClass(String superClass) {
+        public GlobalConfig.Builder superDomainEntityClass(String superClass) {
             this.globalConfig.superDomainEntityClass = superClass;
             return this;
         }
 
-        public GlobalConfigPlus.Builder superValueObjClass(String superClass) {
+        public GlobalConfig.Builder superValueObjClass(String superClass) {
             this.globalConfig.superValueObjClass = superClass;
             return this;
         }
 
-        public GlobalConfigPlus.Builder superDomainEventClass(String superClass) {
+        public GlobalConfig.Builder superDomainEventClass(String superClass) {
             this.globalConfig.superDomainEventClass = superClass;
             return this;
         }
 
-        public GlobalConfigPlus.Builder superIntegrationEventClass(String superClass) {
+        public GlobalConfig.Builder superIntegrationEventClass(String superClass) {
             this.globalConfig.superIntegrationEventClass = superClass;
             return this;
         }
 
-        public GlobalConfigPlus.Builder superConverterClass(String superClass) {
+        public GlobalConfig.Builder superConverterClass(String superClass) {
             this.globalConfig.superConverterClass = superClass;
             return this;
         }
 
-        public GlobalConfigPlus.Builder superRepositoryClass(String superClass) {
+        public GlobalConfig.Builder superRepositoryClass(String superClass) {
             this.globalConfig.superRepositoryClass = superClass;
             return this;
         }
 
-        public GlobalConfigPlus.Builder superRepositoryImplClass(String superClass) {
+        public GlobalConfig.Builder superRepositoryImplClass(String superClass) {
             this.globalConfig.superRepositoryImplClass = superClass;
             return this;
         }
 
         @Override
-        public GlobalConfigPlus build() {
+        public GlobalConfig build() {
             return this.globalConfig;
         }
     }

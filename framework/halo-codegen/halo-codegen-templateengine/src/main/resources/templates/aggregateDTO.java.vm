@@ -50,4 +50,5 @@ public class ${aggregate}DTO implements Serializable {
         #end
     #end
     ## ----------  END 字段循环遍历  ----------
+
 }

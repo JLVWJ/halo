@@ -344,26 +344,32 @@ public abstract class AbstractTemplateEnginePlus {
     }
 
     private void addGlobalConfigToObjectMap(Map<String, Object> objectMap, GlobalConfig globalConfig) {
-        if (!globalConfig.isDdd()) return;
-        objectMap.put("generateService", false);
-        objectMap.put("generateServiceImpl", true);
+        objectMap.put("dubbo", globalConfig.isDubbo());
+        objectMap.put("feign", globalConfig.isFeign());
+        objectMap.put("appName", globalConfig.getAppName());
+        objectMap.put("responseWrapperClassPackage", globalConfig.getResponseWrapperClass());
+        objectMap.put("responseWrapperClass", ClassUtils.getSimpleName(globalConfig.getResponseWrapperClass()));
+        if (globalConfig.isDdd()) {
+            objectMap.put("generateService", false);
+            objectMap.put("generateServiceImpl", true);
 
-        objectMap.put("superAggregateClassPackage", globalConfig.getSuperAggregateClass());
-        objectMap.put("superAggregateClass", ClassUtils.getSimpleName(globalConfig.getSuperAggregateClass()));
-        objectMap.put("superDomainEntityClassPackage", globalConfig.getSuperDomainEntityClass());
-        objectMap.put("superDomainEntityClass", ClassUtils.getSimpleName(globalConfig.getSuperDomainEntityClass()));
-        objectMap.put("superValueObjClassPackage", globalConfig.getSuperValueObjClass());
-        objectMap.put("superValueObjClass", ClassUtils.getSimpleName(globalConfig.getSuperValueObjClass()));
-        objectMap.put("superDomainEventClassPackage", globalConfig.getSuperDomainEventClass());
-        objectMap.put("superDomainEventClass", ClassUtils.getSimpleName(globalConfig.getSuperDomainEventClass()));
-        objectMap.put("superIntegrationEventClassPackage", globalConfig.getSuperIntegrationEventClass());
-        objectMap.put("superIntegrationEventClass", ClassUtils.getSimpleName(globalConfig.getSuperIntegrationEventClass()));
-        objectMap.put("superConverterClassPackage", globalConfig.getSuperConverterClass());
-        objectMap.put("superConverterClass", ClassUtils.getSimpleName(globalConfig.getSuperConverterClass()));
-        objectMap.put("superRepositoryClassPackage", globalConfig.getSuperRepositoryClass());
-        objectMap.put("superRepositoryClass", ClassUtils.getSimpleName(globalConfig.getSuperRepositoryClass()));
-        objectMap.put("superRepositoryImplClassPackage", globalConfig.getSuperRepositoryImplClass());
-        objectMap.put("superRepositoryImplClass", ClassUtils.getSimpleName(globalConfig.getSuperRepositoryImplClass()));
+            objectMap.put("superAggregateClassPackage", globalConfig.getSuperAggregateClass());
+            objectMap.put("superAggregateClass", ClassUtils.getSimpleName(globalConfig.getSuperAggregateClass()));
+            objectMap.put("superDomainEntityClassPackage", globalConfig.getSuperDomainEntityClass());
+            objectMap.put("superDomainEntityClass", ClassUtils.getSimpleName(globalConfig.getSuperDomainEntityClass()));
+            objectMap.put("superValueObjClassPackage", globalConfig.getSuperValueObjClass());
+            objectMap.put("superValueObjClass", ClassUtils.getSimpleName(globalConfig.getSuperValueObjClass()));
+            objectMap.put("superDomainEventClassPackage", globalConfig.getSuperDomainEventClass());
+            objectMap.put("superDomainEventClass", ClassUtils.getSimpleName(globalConfig.getSuperDomainEventClass()));
+            objectMap.put("superIntegrationEventClassPackage", globalConfig.getSuperIntegrationEventClass());
+            objectMap.put("superIntegrationEventClass", ClassUtils.getSimpleName(globalConfig.getSuperIntegrationEventClass()));
+            objectMap.put("superConverterClassPackage", globalConfig.getSuperConverterClass());
+            objectMap.put("superConverterClass", ClassUtils.getSimpleName(globalConfig.getSuperConverterClass()));
+            objectMap.put("superRepositoryClassPackage", globalConfig.getSuperRepositoryClass());
+            objectMap.put("superRepositoryClass", ClassUtils.getSimpleName(globalConfig.getSuperRepositoryClass()));
+            objectMap.put("superRepositoryImplClassPackage", globalConfig.getSuperRepositoryImplClass());
+            objectMap.put("superRepositoryImplClass", ClassUtils.getSimpleName(globalConfig.getSuperRepositoryImplClass()));
+        }
     }
 
     private Map<String,String> getPackageInfo(ConfigBuilder config) {
@@ -383,6 +389,8 @@ public abstract class AbstractTemplateEnginePlus {
             packageInfo.put("Assembler", packageConfig.joinPackage(packageNames.get("Assembler")));
             packageInfo.put("RepositoryImpl", packageConfig.joinPackage(packageNames.get("RepositoryImpl")));
             packageInfo.put("ApplicationService", packageConfig.joinPackage(packageNames.get("ApplicationService")));
+            packageInfo.put("Facade", packageConfig.joinPackage(packageNames.get("Facade")));
+            packageInfo.put("FacadeImpl", packageConfig.joinPackage(packageNames.get("FacadeImpl")));
         }
         packageInfo.put(ConstVal.ENTITY, packageConfig.joinPackage("infrastructure.persistence.entity"));
         packageInfo.put(ConstVal.MAPPER, packageConfig.joinPackage("infrastructure.persistence.mapper"));
@@ -407,6 +415,8 @@ public abstract class AbstractTemplateEnginePlus {
         {put("RepositoryImpl","infrastructure.repository.impl");}
         {put("ApplicationService","service");}
         {put("Assembler","interfaces.assembler");}
+        {put("Facade","api.facade");}
+        {put("FacadeImpl","interfaces.facade.impl");}
     };
 
     private static Map<DomainModelType, List<CustomFile>> getCustomFiles(StrategyConfig strategyConfig) {
@@ -481,6 +491,16 @@ public abstract class AbstractTemplateEnginePlus {
                 .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
                 .fileName("Assembler.java")
                 .enableFileOverride().build();
+        CustomFile rpcFacadeFile = new CustomFile.Builder().packageName(packageNames.get("Facade"))
+                .templatePath(templates + "rpcFacade.java.vm")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("RpcFacade.java")
+                .enableFileOverride().build();
+        CustomFile rpcFacadeImplFile = new CustomFile.Builder().packageName(packageNames.get("FacadeImpl"))
+                .templatePath(templates + "rpcFacadeImpl.java.vm")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
+                .fileName("RpcFacadeImpl.java")
+                .enableFileOverride().build();
 
         CustomFile domainEntityFile = new CustomFile.Builder().packageName(packageNames.get("DomainEntity"))
                 .templatePath(templates + "domainEntity.java.vm")
@@ -495,7 +515,7 @@ public abstract class AbstractTemplateEnginePlus {
                 .enableFileOverride().build();
         Map<DomainModelType, List<CustomFile>> result = new HashMap<>(2);
         result.put(DomainModelType.aggregate, Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateDTOFile,
-                repositoryFile, repositoryImplFile, converterFile, cmdServiceFile, qryServiceFile, factoryFile, assemblerFile));
+                repositoryFile, repositoryImplFile, converterFile, cmdServiceFile, qryServiceFile, factoryFile, assemblerFile, rpcFacadeFile, rpcFacadeImplFile));
         result.put(DomainModelType.entity, Collections.singletonList(domainEntityFile));
         result.put(DomainModelType.valveObj, Collections.singletonList(valueObjFile));
         return result;

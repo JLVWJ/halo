@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DubboService(version = "1.0.0", timeout = 60000)
 #end
 @Component
-public class ${aggregate}${apiType}FacadeImpl implements ${aggregate}${apiType}Facade{
+public class ${aggregate}${apiType}FacadeImpl implements ${aggregate}${apiType}Facade {
 
     @Autowired
     private ${aggregate}CmdService cmdService;

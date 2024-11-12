@@ -53,8 +53,18 @@ public abstract class AbstractTemplateEnginePlus {
                 filePath = filePath + File.separator + file.getPackageName().replaceAll("\\.", "\\" + File.separator);
             }
             Function<TableInfo, String> formatNameFunction = file.getFormatNameFunction();
-            String fileName = filePath + File.separator + (null != formatNameFunction ? formatNameFunction.apply(tableInfo) : entityName) + file.getFileName();
-            outputFile(new File(fileName), objectMap, file.getTemplatePath(), file.isFileOverride());
+            //生成带apiType的文件
+            if (fileNames.contains(file.getFileName())) {
+                List<String> apiTypes = (List<String>) objectMap.get("apiTypes");
+                for (String apiType : apiTypes) {
+                    objectMap.put("apiType", apiType);
+                    String fileName = filePath + File.separator + apiType.toLowerCase() + File.separator + (null != formatNameFunction ? formatNameFunction.apply(tableInfo) : entityName) + apiType + file.getFileName();
+                    outputFile(new File(fileName), objectMap, file.getTemplatePath(), file.isFileOverride());
+                }
+            } else {
+                String fileName = filePath + File.separator + (null != formatNameFunction ? formatNameFunction.apply(tableInfo) : entityName) + file.getFileName();
+                outputFile(new File(fileName), objectMap, file.getTemplatePath(), file.isFileOverride());
+            }
         });
     }
 
@@ -347,6 +357,7 @@ public abstract class AbstractTemplateEnginePlus {
         objectMap.put("dubbo", globalConfig.isDubbo());
         objectMap.put("feign", globalConfig.isFeign());
         objectMap.put("appName", globalConfig.getAppName());
+        objectMap.put("apiTypes", globalConfig.getApiTypes());
         objectMap.put("responseWrapperClassPackage", globalConfig.getResponseWrapperClass());
         objectMap.put("responseWrapperClass", ClassUtils.getSimpleName(globalConfig.getResponseWrapperClass()));
         if (globalConfig.isDdd()) {
@@ -443,18 +454,18 @@ public abstract class AbstractTemplateEnginePlus {
                 .enableFileOverride().build();
         CustomFile aggregateCreateReqFile = new CustomFile.Builder().packageName(packageNames.get("Request"))
                 .templatePath(templates + "aggregateCreateReq.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
-                .fileName("CreateReq.java")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig) + "Create")
+                .fileName("Req.java")
                 .enableFileOverride().build();
         CustomFile aggregateUpdateReqFile = new CustomFile.Builder().packageName(packageNames.get("Request"))
                 .templatePath(templates + "aggregateUpdateReq.java.vm")
-                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
-                .fileName("UpdateReq.java")
+                .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig) + "Update")
+                .fileName("Req.java")
                 .enableFileOverride().build();
-        CustomFile aggregateDTOFile = new CustomFile.Builder().packageName(packageNames.get("Response"))
-                .templatePath(templates + "aggregateDTO.java.vm")
+        CustomFile aggregateRespFile = new CustomFile.Builder().packageName(packageNames.get("Response"))
+                .templatePath(templates + "aggregateResp.java.vm")
                 .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
-                .fileName("DTO.java")
+                .fileName("Resp.java")
                 .enableFileOverride().build();
         CustomFile converterFile = new CustomFile.Builder().packageName(packageNames.get("Converter"))
                 .templatePath(templates + "converter.java.vm")
@@ -491,15 +502,15 @@ public abstract class AbstractTemplateEnginePlus {
                 .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
                 .fileName("Assembler.java")
                 .enableFileOverride().build();
-        CustomFile rpcFacadeFile = new CustomFile.Builder().packageName(packageNames.get("Facade"))
-                .templatePath(templates + "rpcFacade.java.vm")
+        CustomFile facadeFile = new CustomFile.Builder().packageName(packageNames.get("Facade"))
+                .templatePath(templates + "facade.java.vm")
                 .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
-                .fileName("RpcFacade.java")
+                .fileName("Facade.java")
                 .enableFileOverride().build();
-        CustomFile rpcFacadeImplFile = new CustomFile.Builder().packageName(packageNames.get("FacadeImpl"))
-                .templatePath(templates + "rpcFacadeImpl.java.vm")
+        CustomFile facadeImplFile = new CustomFile.Builder().packageName(packageNames.get("FacadeImpl"))
+                .templatePath(templates + "facadeImpl.java.vm")
                 .formatNameFunction(t -> getEntityName(t.getName(), strategyConfig))
-                .fileName("RpcFacadeImpl.java")
+                .fileName("FacadeImpl.java")
                 .enableFileOverride().build();
 
         CustomFile domainEntityFile = new CustomFile.Builder().packageName(packageNames.get("DomainEntity"))
@@ -514,8 +525,8 @@ public abstract class AbstractTemplateEnginePlus {
                 .fileName(".java")
                 .enableFileOverride().build();
         Map<DomainModelType, List<CustomFile>> result = new HashMap<>(2);
-        result.put(DomainModelType.aggregate, Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateDTOFile,
-                repositoryFile, repositoryImplFile, converterFile, cmdServiceFile, qryServiceFile, factoryFile, assemblerFile, rpcFacadeFile, rpcFacadeImplFile));
+        result.put(DomainModelType.aggregate, Arrays.asList(aggregateFile, aggregateSaveCmdFile, aggregateCreatedEventFile, aggregateCreatedIntegrationEventFile, aggregateCreateReqFile, aggregateUpdateReqFile, aggregateRespFile,
+                repositoryFile, repositoryImplFile, converterFile, cmdServiceFile, qryServiceFile, factoryFile, assemblerFile, facadeFile, facadeImplFile));
         result.put(DomainModelType.entity, Collections.singletonList(domainEntityFile));
         result.put(DomainModelType.valveObj, Collections.singletonList(valueObjFile));
         return result;
@@ -544,4 +555,6 @@ public abstract class AbstractTemplateEnginePlus {
         }
         return propertyName;
     }
+
+    private static final List<String> fileNames = Arrays.asList("Facade.java","FacadeImpl.java","Req.java","Resp.java");
 }

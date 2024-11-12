@@ -1,8 +1,8 @@
-package ${package.Facade};
+package ${package.Facade}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)};
 
 import ${responseWrapperClassPackage};
-import ${package.Request}.${aggregate}CreateReq;
-import ${package.Request}.${aggregate}UpdateReq;
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Create${apiType}Req;
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Update${apiType}Req;
 #if(${springdoc})
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,27 +23,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * <p>
- * $!{table.comment} - RPC接口
+ * $!{table.comment} - ${apiType}接口
  * </p>
  *
  * @author ${author}
  * @since ${date}
  */
 #if(${springdoc})
-@Tag(name = "${aggregate}", description = "$!{table.comment} - RPC接口")
+@Tag(name = "${aggregate}", description = "$!{table.comment} - ${apiType}接口")
 #elseif(${swagger})
-@Api(tags = {"$!{table.comment} - RPC接口"})
+@Api(tags = {"$!{table.comment} - ${apiType}接口"})
 #end
 #if(${feign})
 @FeignClient(value = "${appName}")
 @Validated
 #end
-public interface ${aggregate}RpcFacade {
+public interface ${aggregate}${apiType}Facade {
 
     /**
      * API接口前缀
      */
-    String API_PREFIX = "/rpc/${aggregate}";
+    String API_PREFIX = "/${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}/${aggregate.substring(0,1).toLowerCase()}${aggregate.substring(1)}";
 
     /**
      * $!{table.comment} - 创建
@@ -63,7 +63,7 @@ public interface ${aggregate}RpcFacade {
     #if(${feign})
     @PostMapping(CREATE)
     #end
-    ${responseWrapperClass}<Boolean> create(#if(${feign})@Valid @RequestBody#end ${aggregate}CreateReq req);
+    ${responseWrapperClass}<Boolean> create(#if(${feign})@Valid @RequestBody#end ${aggregate}Create${apiType}Req req);
 
     #if(${springdoc})
     @Operation(summary = "$!{table.comment} - 更新", description = "$!{table.comment} - 更新")
@@ -73,5 +73,5 @@ public interface ${aggregate}RpcFacade {
     #if(${feign})
     @PostMapping(UPDATE)
     #end
-    ${responseWrapperClass}<Boolean> update(#if(${feign})@Valid @RequestBody#end ${aggregate}UpdateReq req);
+    ${responseWrapperClass}<Boolean> update(#if(${feign})@Valid @RequestBody#end ${aggregate}Update${apiType}Req req);
 }

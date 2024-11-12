@@ -1,11 +1,15 @@
 package com.lvwj.codegen.templateengine.config;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.generator.config.IConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import lombok.Getter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -91,6 +95,12 @@ public class GlobalConfig {
     public String getCommentDate() {
         return commentDate.get();
     }
+
+    /**
+     * API接口类型集合: 默认有["Rpc","Admin","App"]
+     */
+    @Getter
+    private List<String> apiTypes = Arrays.asList("Rpc","Admin","App");
 
 
     @Getter
@@ -293,6 +303,18 @@ public class GlobalConfig {
          */
         public GlobalConfig.Builder responseWrapperClass(String responseWrapperClass) {
             this.globalConfig.responseWrapperClass = responseWrapperClass;
+            return this;
+        }
+
+        /**
+         * 新增API类型
+         */
+        public GlobalConfig.Builder apiType(String apiType) {
+            if (StringUtils.isNotBlank(apiType) && !this.globalConfig.getApiTypes().contains(apiType)) {
+                List<String> apiTypes = new ArrayList<>(this.globalConfig.apiTypes);
+                apiTypes.add(apiType);
+                this.globalConfig.apiTypes = apiTypes;
+            }
             return this;
         }
 

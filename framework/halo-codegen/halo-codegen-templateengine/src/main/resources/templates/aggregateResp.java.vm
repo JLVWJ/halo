@@ -1,4 +1,4 @@
-package ${package.Response};
+package ${package.Response}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)};
 
 ## 引入公共资源
 #parse("/templates/common.java.vm")
@@ -16,7 +16,7 @@ import lombok.Data;
 
 /**
  * <p>
- * 聚合根详情：$!{table.comment}
+ * $!{table.comment}${apiType}响应
  * </p>
  *
  * @author ${author}
@@ -24,11 +24,11 @@ import lombok.Data;
  */
 @Data
 #if(${springdoc})
-@Schema(name = "${aggregate}响应内容", description = "$!{table.comment}")
+@Schema(name = "${aggregate}${apiType}响应", description = "$!{table.comment}")
 #elseif(${swagger})
-@ApiModel(value = "${aggregate}响应内容", description = "$!{table.comment}")
+@ApiModel(value = "${aggregate}${apiType}响应", description = "$!{table.comment}")
 #end
-public class ${aggregate}DTO implements Serializable {
+public class ${aggregate}.${apiType}Resp implements Serializable {
 
     ## ----------  BEGIN 字段循环遍历  ----------
     #foreach($field in ${table.fields})

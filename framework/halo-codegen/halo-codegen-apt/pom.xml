@@ -11,15 +11,16 @@
 
     <artifactId>halo-codegen-apt</artifactId>
     <packaging>jar</packaging>
-    <version>${revision}</version>
 
     <properties>
+        <javapoet.version>1.13.0</javapoet.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.squareup</groupId>
             <artifactId>javapoet</artifactId>
+            <version>${javapoet.version}</version>
         </dependency>
     </dependencies>
 

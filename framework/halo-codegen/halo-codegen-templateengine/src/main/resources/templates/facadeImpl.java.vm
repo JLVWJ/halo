@@ -1,9 +1,9 @@
-package ${package.FacadeImpl};
+package ${package.FacadeImpl}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)};
 
 import ${responseWrapperClassPackage};
-import ${package.Facade}.${aggregate}RpcFacade;
-import ${package.Request}.${aggregate}CreateReq;
-import ${package.Request}.${aggregate}UpdateReq;
+import ${package.Facade}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}${apiType}Facade;
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Create${apiType}Req;
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Update${apiType}Req;
 import ${package.ApplicationService}.${aggregate}CmdService;
 import ${package.ApplicationService}.${aggregate}QryService;
 #if(${dubbo})
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * <p>
- * $!{table.comment} - RPC接口
+ * $!{table.comment} - ${apiType}接口
  * </p>
  *
  * @author ${author}
@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DubboService(version = "1.0.0", timeout = 60000)
 #end
 @Component
-public class ${aggregate}RpcFacadeImpl implements ${aggregate}RpcFacade{
+public class ${aggregate}${apiType}FacadeImpl implements ${aggregate}${apiType}Facade{
 
     @Autowired
     private ${aggregate}CmdService cmdService;
@@ -37,7 +37,7 @@ public class ${aggregate}RpcFacadeImpl implements ${aggregate}RpcFacade{
     @ShenyuDubboClient(path = CREATE)
     #end
     @Override
-    public ${responseWrapperClass}<Boolean> create(${aggregate}CreateReq req) {
+    public ${responseWrapperClass}<Boolean> create(${aggregate}Create${apiType}Req req) {
 
         return null;
     }
@@ -46,7 +46,7 @@ public class ${aggregate}RpcFacadeImpl implements ${aggregate}RpcFacade{
     @ShenyuDubboClient(path = UPDATE)
     #end
     @Override
-    public ${responseWrapperClass}<Boolean> update(${aggregate}UpdateReq req) {
+    public ${responseWrapperClass}<Boolean> update(${aggregate}Update${apiType}Req req) {
 
         return null;
     }

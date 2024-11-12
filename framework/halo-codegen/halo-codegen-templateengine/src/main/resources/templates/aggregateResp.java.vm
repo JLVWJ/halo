@@ -28,7 +28,7 @@ import lombok.Data;
 #elseif(${swagger})
 @ApiModel(value = "${aggregate}${apiType}响应", description = "$!{table.comment}")
 #end
-public class ${aggregate}.${apiType}Resp implements Serializable {
+public class ${aggregate}${apiType}Resp implements Serializable {
 
     ## ----------  BEGIN 字段循环遍历  ----------
     #foreach($field in ${table.fields})
@@ -47,6 +47,7 @@ public class ${aggregate}.${apiType}Resp implements Serializable {
                 #end
             #end
     private ${field.propertyType} ${field.propertyName};
+
         #end
     #end
     ## ----------  END 字段循环遍历  ----------

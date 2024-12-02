@@ -1,11 +1,15 @@
 package com.lvwj.codegen.templateengine.config;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.generator.config.IConfigBuilder;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import lombok.Getter;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -30,6 +34,12 @@ public class GlobalConfig {
     private String author = "lvweijie";
 
     /**
+     * 应用服务名称
+     */
+    @Getter
+    private String appName = "halo-codegen";
+
+    /**
      * 开启 Kotlin 模式（默认 false）
      */
     @Getter
@@ -50,6 +60,18 @@ public class GlobalConfig {
      */
     @Getter
     private boolean ddd = true;
+
+    /**
+     * dubbo接口模式
+     */
+    @Getter
+    private boolean dubbo = true;
+
+    /**
+     * openFeign接口模式
+     */
+    @Getter
+    private boolean feign = false;
 
     /**
      * 时间类型对应策略
@@ -74,6 +96,12 @@ public class GlobalConfig {
         return commentDate.get();
     }
 
+    /**
+     * API接口类型集合: 默认有["Rpc","Admin","App"]
+     */
+    @Getter
+    private List<String> apiTypes = Arrays.asList("Rpc","Admin","App");
+
 
     @Getter
     private String superAggregateClass = "com.lvwj.halo.core.domain.entity.Aggregate";
@@ -91,6 +119,8 @@ public class GlobalConfig {
     private String superRepositoryClass = "com.lvwj.halo.core.domain.repository.IRepository";
     @Getter
     private String superRepositoryImplClass = "com.lvwj.halo.core.domain.repository.TrackRepository";
+    @Getter
+    private String responseWrapperClass = "com.lvwj.halo.common.dto.response.R";
 
 
     /**
@@ -132,6 +162,14 @@ public class GlobalConfig {
         }
 
         /**
+         * 应用服务名称
+         */
+        public GlobalConfig.Builder appName(String appName) {
+            this.globalConfig.appName = appName;
+            return this;
+        }
+
+        /**
          * 开启 kotlin 模式
          */
         public GlobalConfig.Builder enableKotlin() {
@@ -160,6 +198,24 @@ public class GlobalConfig {
          */
         public GlobalConfig.Builder disableDDD() {
             this.globalConfig.ddd = false;
+            return this;
+        }
+
+        /**
+         * 开启 openFeign接口 模式
+         */
+        public GlobalConfig.Builder enableFeign() {
+            this.globalConfig.feign = true;
+            this.globalConfig.dubbo = false;
+            return this;
+        }
+
+        /**
+         * 开启 dubbo接口 模式
+         */
+        public GlobalConfig.Builder enableDubbo() {
+            this.globalConfig.feign = false;
+            this.globalConfig.dubbo = true;
             return this;
         }
 
@@ -239,6 +295,26 @@ public class GlobalConfig {
 
         public GlobalConfig.Builder superRepositoryImplClass(String superClass) {
             this.globalConfig.superRepositoryImplClass = superClass;
+            return this;
+        }
+
+        /**
+         * 响应通用包装类
+         */
+        public GlobalConfig.Builder responseWrapperClass(String responseWrapperClass) {
+            this.globalConfig.responseWrapperClass = responseWrapperClass;
+            return this;
+        }
+
+        /**
+         * 新增API类型
+         */
+        public GlobalConfig.Builder apiType(String apiType) {
+            if (StringUtils.isNotBlank(apiType) && !this.globalConfig.getApiTypes().contains(apiType)) {
+                List<String> apiTypes = new ArrayList<>(this.globalConfig.apiTypes);
+                apiTypes.add(apiType);
+                this.globalConfig.apiTypes = apiTypes;
+            }
             return this;
         }
 

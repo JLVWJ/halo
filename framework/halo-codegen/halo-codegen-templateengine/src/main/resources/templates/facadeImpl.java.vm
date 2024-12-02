@@ -1,0 +1,53 @@
+package ${package.FacadeImpl}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)};
+
+import ${responseWrapperClassPackage};
+import ${package.Facade}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}${apiType}Facade;
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Create${apiType}Req;
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Update${apiType}Req;
+import ${package.ApplicationService}.${aggregate}CmdService;
+import ${package.ApplicationService}.${aggregate}QryService;
+#if(${dubbo})
+import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
+#end
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ * <p>
+ * $!{table.comment} - ${apiType}接口
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${dubbo})
+@DubboService(version = "1.0.0", timeout = 60000)
+#end
+@Component
+public class ${aggregate}${apiType}FacadeImpl implements ${aggregate}${apiType}Facade {
+
+    @Autowired
+    private ${aggregate}CmdService cmdService;
+
+    @Autowired
+    private ${aggregate}QryService qryService;
+
+    #if(${dubbo})
+    @ShenyuDubboClient(path = CREATE)
+    #end
+    @Override
+    public ${responseWrapperClass}<Boolean> create(${aggregate}Create${apiType}Req req) {
+
+        return null;
+    }
+
+    #if(${dubbo})
+    @ShenyuDubboClient(path = UPDATE)
+    #end
+    @Override
+    public ${responseWrapperClass}<Boolean> update(${aggregate}Update${apiType}Req req) {
+
+        return null;
+    }
+}

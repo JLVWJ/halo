@@ -1,8 +1,10 @@
 package ${package.Assembler};
 
 import ${package.Command}.${aggregate}SaveCmd;
-import ${package.Request}.${aggregate}CreateReq;
-import ${package.Request}.${aggregate}UpdateReq;
+#foreach($item in ${apiTypes})
+import ${package.Request}.${item.substring(0,1).toLowerCase()}${item.substring(1)}.${aggregate}Create${item}Req;
+import ${package.Request}.${item.substring(0,1).toLowerCase()}${item.substring(1)}.${aggregate}Update${item}Req;
+#end
 import org.mapstruct.Mapper;
 
 /**
@@ -16,8 +18,10 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ${aggregate}Assembler {
 
-    ${aggregate}SaveCmd toCmd(${aggregate}CreateReq req);
+#foreach($item in ${apiTypes})
+    ${aggregate}SaveCmd toCmd(${aggregate}Create${item}Req req);
+    ${aggregate}SaveCmd toCmd(${aggregate}Update${item}Req req);
 
-    ${aggregate}SaveCmd toCmd(${aggregate}UpdateReq req);
+#end
 
 }

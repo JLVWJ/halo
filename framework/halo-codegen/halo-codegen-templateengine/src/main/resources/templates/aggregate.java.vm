@@ -29,11 +29,11 @@ import lombok.experimental.SuperBuilder;
 public class ${aggregate} extends ${superAggregateClass}<Long> {
 
     public static ${aggregate} create(#foreach($field in ${table.fields})#if(${ignoreFieldList.contains($field.propertyName)} && ${field.propertyName} !=
-    'id')#else${field.propertyType} ${field.propertyName}#if($foreach.hasNext),#end#end#end){
+    'id')#else${field.propertyType} ${field.propertyName}#if($foreach.hasNext),#end#end#end) {
         //TODO:入参校验
 
         //构建聚合根
-        ${aggregate} aggregate= ${aggregate}.builder()
+        ${aggregate} aggregate = ${aggregate}.builder()
     #foreach($field in ${table.fields})
         #if(${ignoreFieldList.contains($field.propertyName)} && ${field.propertyName} != 'id')
             ## 如果是忽略字段什么都不干

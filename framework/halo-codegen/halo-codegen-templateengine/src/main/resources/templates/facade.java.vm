@@ -1,0 +1,77 @@
+package ${package.Facade}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)};
+
+import ${responseWrapperClassPackage};
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Create${apiType}Req;
+import ${package.Request}.${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}.${aggregate}Update${apiType}Req;
+#if(${springdoc})
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+#elseif(${swagger})
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+#end
+
+#if(${feign})
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+#end
+
+/**
+ * <p>
+ * $!{table.comment} - ${apiType}接口
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${springdoc})
+@Tag(name = "${aggregate}", description = "$!{table.comment} - ${apiType}接口")
+#elseif(${swagger})
+@Api(tags = {"$!{table.comment} - ${apiType}接口"})
+#end
+#if(${feign})
+@FeignClient(value = "${appName}")
+@Validated
+#end
+public interface ${aggregate}${apiType}Facade {
+
+    /**
+     * API接口前缀
+     */
+    String API_PREFIX = "/${apiType.substring(0,1).toLowerCase()}${apiType.substring(1)}/${aggregate.substring(0,1).toLowerCase()}${aggregate.substring(1)}";
+
+    /**
+     * $!{table.comment} - 创建
+     */
+    String CREATE = API_PREFIX + "/create";
+    /**
+     * $!{table.comment} - 更新
+     */
+    String UPDATE = API_PREFIX + "/update";
+
+
+    #if(${springdoc})
+    @Operation(summary = "$!{table.comment} - 创建", description = "$!{table.comment} - 创建")
+    #elseif(${swagger})
+    @ApiOperation("$!{table.comment} - 创建")
+    #end
+    #if(${feign})
+    @PostMapping(CREATE)
+    #end
+    ${responseWrapperClass}<Boolean> create(#if(${feign})@Valid @RequestBody#end ${aggregate}Create${apiType}Req req);
+
+    #if(${springdoc})
+    @Operation(summary = "$!{table.comment} - 更新", description = "$!{table.comment} - 更新")
+    #elseif(${swagger})
+    @ApiOperation("$!{table.comment} - 更新")
+    #end
+    #if(${feign})
+    @PostMapping(UPDATE)
+    #end
+    ${responseWrapperClass}<Boolean> update(#if(${feign})@Valid @RequestBody#end ${aggregate}Update${apiType}Req req);
+}

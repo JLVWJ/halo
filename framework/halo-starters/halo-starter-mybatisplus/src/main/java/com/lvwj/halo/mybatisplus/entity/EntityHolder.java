@@ -192,7 +192,7 @@ public class EntityHolder {
       //获取加@JoinEntity字段的PrimaryKeyValue集合
       String key = StringUtils.hasLength(primaryKey) ? primaryKey : "id";
       Map<Object, IEntity<?>> pkMap = pkCache.computeIfAbsent(key,
-              k -> entities.stream().collect(Collectors.toMap(entityField::getPrimaryKeyValue, Function.identity())));
+              k -> entities.stream().collect(Collectors.toMap(entityField::getPrimaryKeyValue, Function.identity(), (o, n) -> n)));
 
       //根据fieldActualType定位到对应mapper接口，获取关联数据集合
       Set<Object> pks = pkMap.keySet();
@@ -211,7 +211,7 @@ public class EntityHolder {
 
       //注解@JoinEntity的primaryKey有值，说明当前实体和关联字段是一对一关系
       if (StringUtils.hasLength(primaryKey)) {
-        Map<Object, IEntity<?>> subMap = list.stream().collect(Collectors.toMap(IEntity::getId, Function.identity()));
+        Map<Object, IEntity<?>> subMap = list.stream().collect(Collectors.toMap(IEntity::getId, Function.identity(), (o, n) -> n));
         for (Map.Entry<Object, IEntity<?>> entry : pkMap.entrySet()) {
           entityField.setFieldValue(entry.getValue(), subMap.get(entry.getKey()));
         }

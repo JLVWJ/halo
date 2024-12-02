@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.lvwj.halo.common.models.entity.IEntity;
+import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.mybatisplus.annotation.JoinEntity;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
 import jakarta.annotation.PostConstruct;
@@ -188,8 +189,9 @@ public class EntityHolder {
       String foreignKey = entityField.getJoinEntity().foreignKey();
       Class<?> fieldActualType = entityField.getFieldActualType();//字段实际类型
 
-      //根据fieldActualType定位到对应mapper接口，获取关联数据集合
-      Set<Object> pks = entities.stream().map(entityField::getPrimaryKeyValue).collect(Collectors.toSet());
+      //获取primaryKey集合
+      Set<Object> pks = entities.stream().map(entityField::getPrimaryKeyValue).filter(Func::isNotEmpty).collect(Collectors.toSet());
+      if (Func.isEmpty(pks)) continue;
       QueryWrapper<IEntity<?>> query = Wrappers.query();
       if (pks.size() > 1) {
         query.in(StringUtils.hasLength(primaryKey), "id", pks);
@@ -198,12 +200,13 @@ public class EntityHolder {
         query.eq(StringUtils.hasLength(primaryKey), "id", pks.iterator().next());
         query.eq(StringUtils.hasLength(foreignKey), getColumnName(fieldActualType, foreignKey), pks.iterator().next());
       }
+      //根据fieldActualType定位到对应mapper接口，获取关联数据集合
       List<IEntity<?>> list = getMapper(fieldActualType).selectList(query);
       if (CollectionUtils.isEmpty(list)) {
         continue;
       }
 
-      //注解@JoinEntity的primaryKey有值，说明当前实体和关联字段是一对一关系
+      //注解@JoinEntity的primaryKey有值，说明当前实体和关联实体是一对一关系 或 多对一关系
       if (StringUtils.hasLength(primaryKey)) {
         Map<Object, IEntity<?>> subMap = list.stream().collect(Collectors.toMap(IEntity::getId, Function.identity(), (o, n) -> n));
         for (IEntity<?> entity : entities) {
@@ -214,7 +217,7 @@ public class EntityHolder {
         }
       }
 
-      //注解@JoinEntity的foreignKey有值，说明当前实体和关联字段是一对一关系 或 一对多关系
+      //注解@JoinEntity的foreignKey有值，说明当前实体和关联实体是一对一关系 或 一对多关系
       if (StringUtils.hasLength(foreignKey)) {
         Map<Object, List<IEntity<?>>> subMap = list.stream().collect(groupingBy(s -> getFieldValue(s, foreignKey)));
         for (IEntity<?> entity : entities) {

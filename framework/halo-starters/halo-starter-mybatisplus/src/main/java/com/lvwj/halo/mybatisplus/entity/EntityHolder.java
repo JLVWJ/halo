@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.google.common.collect.Maps;
 import com.lvwj.halo.common.models.entity.IEntity;
 import com.lvwj.halo.mybatisplus.annotation.JoinEntity;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
@@ -182,20 +181,15 @@ public class EntityHolder {
     if (CollectionUtils.isEmpty(fieldList)) {
       return;
     }
-    //缓存PrimaryKeyValue集合
-    Map<String, Map<Object, IEntity<?>>> pkCache = Maps.newHashMapWithExpectedSize(entities.size());
+
     //循环处理加@JoinEntity的字段
     for (EntityField entityField : fieldList) {
       String primaryKey = entityField.getJoinEntity().primaryKey();
       String foreignKey = entityField.getJoinEntity().foreignKey();
       Class<?> fieldActualType = entityField.getFieldActualType();//字段实际类型
-      //获取加@JoinEntity字段的PrimaryKeyValue集合
-      String key = StringUtils.hasLength(primaryKey) ? primaryKey : "id";
-      Map<Object, IEntity<?>> pkMap = pkCache.computeIfAbsent(key,
-              k -> entities.stream().collect(Collectors.toMap(entityField::getPrimaryKeyValue, Function.identity(), (o, n) -> n)));
 
       //根据fieldActualType定位到对应mapper接口，获取关联数据集合
-      Set<Object> pks = pkMap.keySet();
+      Set<Object> pks = entities.stream().map(entityField::getPrimaryKeyValue).collect(Collectors.toSet());
       QueryWrapper<IEntity<?>> query = Wrappers.query();
       if (pks.size() > 1) {
         query.in(StringUtils.hasLength(primaryKey), "id", pks);
@@ -212,8 +206,11 @@ public class EntityHolder {
       //注解@JoinEntity的primaryKey有值，说明当前实体和关联字段是一对一关系
       if (StringUtils.hasLength(primaryKey)) {
         Map<Object, IEntity<?>> subMap = list.stream().collect(Collectors.toMap(IEntity::getId, Function.identity(), (o, n) -> n));
-        for (Map.Entry<Object, IEntity<?>> entry : pkMap.entrySet()) {
-          entityField.setFieldValue(entry.getValue(), subMap.get(entry.getKey()));
+        for (IEntity<?> entity : entities) {
+          Object primaryKeyValue = entityField.getPrimaryKeyValue(entity);
+          if (null != primaryKeyValue) {
+            entityField.setFieldValue(entity, subMap.get(primaryKeyValue));
+          }
         }
       }
 

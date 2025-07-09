@@ -1,0 +1,23 @@
+package ${package.Converter};
+
+import ${package.Aggregate}.${aggregate};
+import ${package.Entity}.${entity};
+import com.lvwj.halo.common.models.entity.IEntityConverter;
+import org.mapstruct.Mapper;
+
+/**
+ * <p>
+ * 数据转换器：$!{table.comment} Converter 接口
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Mapper(componentModel = "spring")
+#if(${kotlin})
+interface ${aggregate}Converter : IEntityConverter<${aggregate},${entity}>
+#else
+public interface ${aggregate}Converter extends IEntityConverter<${aggregate},${entity}> {
+
+}
+#end

@@ -1,0 +1,25 @@
+package ${package.Aggregate};
+
+import ${package.Aggregate}.${aggregate};
+import org.springframework.stereotype.Service;
+
+/**
+ * <p>
+ * 领域工厂: 静态类方法 或 注入到ioc
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Service
+public class ${aggregate}Factory {
+
+    /**
+    * 构建聚合根
+    */
+    public ${aggregate} create() {
+
+        return null;
+    }
+}
+

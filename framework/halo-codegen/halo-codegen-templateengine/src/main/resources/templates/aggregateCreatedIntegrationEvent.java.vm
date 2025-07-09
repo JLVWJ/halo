@@ -1,0 +1,45 @@
+package ${package.IntegrationEvent};
+
+## 引入公共资源
+#parse("/templates/common.java.vm")
+## 引入导包宏
+#set($ignoreFieldList = ["isDelete"] )
+#importEntityPackage($ignoreFieldList)
+
+import ${package.Aggregate}.${aggregate};
+import ${superIntegrationEventClassPackage};
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+/**
+ * <p>
+ * 集成事件：$!{table.comment}已创建
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ${aggregate}CreatedIntegrationEvent extends ${superIntegrationEventClass} {
+
+    public static final String TAG = "${aggregate}Created";
+
+    public static ${aggregate}CreatedIntegrationEvent of(${aggregate} agg) {
+
+       return null //TODO:构建${aggregate}CreatedIntegrationEvent
+    }
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+    #if(${ignoreFieldList.contains($field.propertyName)})
+        ## 如果是忽略字段什么都不干
+    #else
+    private ${field.propertyType} ${field.propertyName};
+    #end
+#end
+## ----------  END 字段循环遍历  ----------
+
+}

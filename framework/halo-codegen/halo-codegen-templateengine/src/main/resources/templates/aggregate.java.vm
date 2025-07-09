@@ -1,0 +1,60 @@
+package ${package.Aggregate};
+
+## 引入公共资源
+#parse("/templates/common.java.vm")
+## 引入导包宏
+#set($ignoreFieldList = ["id","createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
+#importEntityPackage($ignoreFieldList)
+
+import ${package.DomainEvent}.${aggregate}CreatedEvent;
+import ${superAggregateClassPackage};
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
+/**
+ * <p>
+ * 聚合根：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Getter
+@ToString(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ${aggregate} extends ${superAggregateClass}<Long> {
+
+    public static ${aggregate} create(#foreach($field in ${table.fields})#if(${ignoreFieldList.contains($field.propertyName)} && ${field.propertyName} !=
+    'id')#else${field.propertyType} ${field.propertyName}#if($foreach.hasNext),#end#end#end) {
+        //TODO:入参校验
+
+        //构建聚合根
+        ${aggregate} aggregate = ${aggregate}.builder()
+    #foreach($field in ${table.fields})
+        #if(${ignoreFieldList.contains($field.propertyName)} && ${field.propertyName} != 'id')
+            ## 如果是忽略字段什么都不干
+        #else
+                .${field.propertyName}(${field.propertyName})
+        #end
+    #end
+                .build();
+        //注册领域事件
+        aggregate.registerEvent(${aggregate}CreatedEvent.of(aggregate));
+        return aggregate;
+    }
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+    #if(${ignoreFieldList.contains($field.propertyName)})
+        ## 如果是忽略字段什么都不干
+    #else
+    private ${field.propertyType} ${field.propertyName};
+    #end
+#end
+## ----------  END 字段循环遍历  ----------
+
+}

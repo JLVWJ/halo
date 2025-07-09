@@ -1,0 +1,39 @@
+package ${package.ValueObj};
+
+## 引入公共资源
+#parse("/templates/common.java.vm")
+## 引入导包宏
+#set($ignoreFieldList = ["createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
+#importEntityPackage($ignoreFieldList)
+
+import ${superValueObjClassPackage};
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+/**
+ * <p>
+ * 值对象：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Getter
+@Builder
+@EqualsAndHashCode
+@AllArgsConstructor(staticName = "of")
+public class ${aggregate} implements ${superValueObjClass} {
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+    #if(${ignoreFieldList.contains($field.propertyName)})
+        ## 如果是忽略字段什么都不干
+    #else
+    private ${field.propertyType} ${field.propertyName};
+    #end
+#end
+## ----------  END 字段循环遍历  ----------
+
+}

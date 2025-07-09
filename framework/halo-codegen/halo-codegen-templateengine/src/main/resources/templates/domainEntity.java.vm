@@ -1,0 +1,53 @@
+package ${package.DomainEntity};
+
+## 引入公共资源
+#parse("/templates/common.java.vm")
+## 引入导包宏
+#set($ignoreFieldList = ["id","createTime","createBy","updateTime","updateBy","deleteTime","deleteBy","isDelete"] )
+#importEntityPackage($ignoreFieldList)
+
+import ${superDomainEntityClassPackage};
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
+/**
+ * <p>
+ * 子实体：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Getter
+@ToString(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ${aggregate} extends ${superDomainEntityClass}<Long> {
+
+    public static ${aggregate} create(#foreach($field in ${table.fields})#if(${ignoreFieldList.contains($field.propertyName)} && ${field.propertyName} !=
+    'id')#else${field.propertyType} ${field.propertyName}#if($foreach.hasNext),#end#end#end){
+        //TODO:入参校验
+        return ${aggregate}.builder()
+    #foreach($field in ${table.fields})
+        #if(${ignoreFieldList.contains($field.propertyName)} && ${field.propertyName} != 'id')
+        #else
+                .${field.propertyName}(${field.propertyName})
+        #end
+    #end
+                .build();
+    }
+
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+    #if(${ignoreFieldList.contains($field.propertyName)})
+        ## 如果是忽略字段什么都不干
+    #else
+    private ${field.propertyType} ${field.propertyName};
+    #end
+#end
+## ----------  END 字段循环遍历  ----------
+
+}

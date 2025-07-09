@@ -1,0 +1,16 @@
+package ${package.RepositoryImpl};
+
+import org.springframework.stereotype.Repository;
+import ${superRepositoryImplClassPackage};
+import ${package.Aggregate}.${aggregate};
+import ${package.Entity}.${entity};
+import ${package.Repository}.${aggregate}Repository;
+import ${package.ServiceImpl}.${aggregate}Dao;
+import ${package.Converter}.${aggregate}Converter;
+
+@Repository
+public class ${aggregate}RepositoryImpl
+        extends ${superRepositoryImplClass}<${aggregate}Dao, ${aggregate}Converter, ${aggregate}, ${entity}, Long>
+        implements ${aggregate}Repository {
+
+}

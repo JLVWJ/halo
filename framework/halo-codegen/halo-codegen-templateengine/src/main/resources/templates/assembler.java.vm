@@ -1,0 +1,27 @@
+package ${package.Assembler};
+
+import ${package.Command}.${aggregate}SaveCmd;
+#foreach($item in ${apiTypes})
+import ${package.Request}.${item.substring(0,1).toLowerCase()}${item.substring(1)}.${aggregate}Create${item}Req;
+import ${package.Request}.${item.substring(0,1).toLowerCase()}${item.substring(1)}.${aggregate}Update${item}Req;
+#end
+import org.mapstruct.Mapper;
+
+/**
+ * <p>
+ * 数据组装器：$!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Mapper(componentModel = "spring")
+public interface ${aggregate}Assembler {
+
+#foreach($item in ${apiTypes})
+    ${aggregate}SaveCmd toCmd(${aggregate}Create${item}Req req);
+    ${aggregate}SaveCmd toCmd(${aggregate}Update${item}Req req);
+
+#end
+
+}

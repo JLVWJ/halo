@@ -172,13 +172,18 @@ public class JsonUtil {
    */
   public static <T> List<T> parseArray(String content, Class<T> valueTypeRef) {
     try {
-
       if (!StringUtil.startsWithIgnoreCase(content, StringPool.LEFT_SQ_BRACKET)) {
         content = StringPool.LEFT_SQ_BRACKET + content + StringPool.RIGHT_SQ_BRACKET;
       }
 
+      if (ClassUtil.isSimpleType(valueTypeRef)) {
+        return getInstance().readValue(content,
+                new TypeReference<>() {
+                });
+      }
+
       List<Map<String, Object>> list = getInstance().readValue(content,
-              new TypeReference<List<Map<String, Object>>>() {
+              new TypeReference<>() {
               });
 
       List<T> result = new ArrayList<>();
@@ -598,6 +603,11 @@ public class JsonUtil {
 
   public static <T> Map<String, T> toMap(String content, Class<T> valueTypeRef) {
     try {
+      if (ClassUtil.isSimpleType(valueTypeRef)) {
+        return getInstance().readValue(content,
+                new TypeReference<>() {
+                });
+      }
       Map<String, Map<String, Object>> map = getInstance().readValue(content,
               new TypeReference<>() {
               });
@@ -625,8 +635,6 @@ public class JsonUtil {
   }
 
   private static class JacksonObjectMapper extends ObjectMapper {
-
-    private static final Locale CHINA = Locale.CHINA;
 
     public JacksonObjectMapper(ObjectMapper src) {
       super(src);

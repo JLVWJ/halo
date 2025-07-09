@@ -5,15 +5,15 @@ import com.lvwj.halo.common.utils.DateTimeUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
+import java.time.temporal.Temporal;
 
 /**
- * TemporalAccessor实现类：LocalDateTime LocalDate LocalTime
+ * Temporal实现类：LocalDateTime LocalDate LocalTime
  *
  * @author lvweijie
  * @date 2024年01月24日 12:21
  */
-public class TemporalAccessorSerializer implements ISerializer<TemporalAccessor> {
+public class TemporalSerializer implements ISerializer<Temporal> {
 
     @Override
     public Object serialize(Object date) {

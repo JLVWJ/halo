@@ -1,0 +1,8 @@
+package ${package.Repository};
+
+import ${superRepositoryClassPackage};
+import ${package.Aggregate}.${aggregate};
+
+public interface ${aggregate}Repository extends ${superRepositoryClass}<${aggregate}, Long> {
+
+}

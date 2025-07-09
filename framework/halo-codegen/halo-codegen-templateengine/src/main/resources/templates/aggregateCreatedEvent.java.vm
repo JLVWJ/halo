@@ -1,0 +1,25 @@
+package ${package.DomainEvent};
+
+import ${package.Aggregate}.${aggregate};
+import ${superDomainEventClassPackage};
+import lombok.Getter;
+
+/**
+ * <p>
+ * 领域事件：$!{table.comment}已创建
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+@Getter
+public class ${aggregate}CreatedEvent extends ${superDomainEventClass}<${aggregate}> {
+
+    public ${aggregate}CreatedEvent(${aggregate} agg) {
+        super(agg);
+    }
+
+    public static ${aggregate}CreatedEvent of(${aggregate} agg) {
+        return new ${aggregate}CreatedEvent(agg);
+    }
+}

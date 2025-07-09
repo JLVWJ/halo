@@ -29,7 +29,7 @@ import java.lang.reflect.WildcardType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAccessor;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -139,6 +139,7 @@ public class MyPojoUtils {
         //插入自定义序列化扩展
         ISerializer<?> serializer = SerializerHolder.find(pojo);
         if (null != serializer) {
+            log.debug("[MyPojoUtils.generalize]==> pojoClass:{} pojo:{} serializer:{}", pojo.getClass().getName(), pojo, serializer);
             return serializer.serialize(pojo);
         }
 
@@ -362,7 +363,7 @@ public class MyPojoUtils {
             return null;
         }
 
-        //log.info("[MyPojoUtils.realize1]==>type:" + type + ", genericType:" + genericType + ", pojo:" + pojo+ ", isEnum:" + type.isEnum());
+        log.debug("[MyPojoUtils.realize1]==>type:" + type + ", genericType:" + genericType + ", pojo:" + pojo+ ", isEnum:" + type.isEnum());
 
         //入参是枚举时，判断枚举如果实现IEnum，则用IEnum.byCode来获取枚举，否则用Enum.valueOf
         if (type != null && type.isEnum()) {
@@ -379,13 +380,14 @@ public class MyPojoUtils {
             return iEnum;
         }
 
-        if(type!=null && TemporalAccessor.class.isAssignableFrom(type)) {
+        if(type!=null && Temporal.class.isAssignableFrom(type)) {
+            String timeStr = ((String) pojo).replace("T"," ");
             if(type.equals(LocalDateTime.class)){
-                return DateTimeUtil.parseDateTime((String) pojo);
+                return DateTimeUtil.parseDateTime(timeStr);
             } else if (type.equals(LocalDate.class)) {
-                return DateTimeUtil.parseDate((String) pojo);
+                return DateTimeUtil.parseDate(timeStr);
             } else if (type.equals(LocalTime.class)) {
-                return DateTimeUtil.parseTime((String) pojo);
+                return DateTimeUtil.parseTime(timeStr);
             }
         }
 

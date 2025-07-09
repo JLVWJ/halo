@@ -14,9 +14,11 @@ public class DurationConstant {
     public static final long SECONDS_HALF_HOUR = 1800L;
     public static final long SECONDS_ONE_HOUR = 3600L;
     public static final long SECONDS_ONE_DAY = 86400L;
+    public static final long SECONDS_ONE_WEEK = 604800L;
     public static final long SECONDS_ONE_MONTH = 2592000L;
     public static final long SECONDS_ONE_YEAR = 31536000L;
     public static final long HOUR_ONE_DAY = 24L;
+    public static final long HOUR_ONE_WEEK = 168L;
     public static final long HOUR_ONE_MONTH = 720L;
     public static final long HOUR_ONE_YEAR = 8760L;
 }

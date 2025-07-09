@@ -3,7 +3,7 @@ package com.lvwj.halo.dubbo.config;
 import com.lvwj.halo.dubbo.metric.DubboThreadPoolMetrics;
 import com.lvwj.halo.dubbo.serializer.BigNumberSerializer;
 import com.lvwj.halo.dubbo.serializer.DateSerializer;
-import com.lvwj.halo.dubbo.serializer.TemporalAccessorSerializer;
+import com.lvwj.halo.dubbo.serializer.TemporalSerializer;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -28,8 +28,8 @@ public class HaloDubboConfigration {
 
 
     @Bean
-    public TemporalAccessorSerializer temporalAccessorSerializer(){
-        return new TemporalAccessorSerializer();
+    public TemporalSerializer temporalAccessorSerializer(){
+        return new TemporalSerializer();
     }
 
     @Bean

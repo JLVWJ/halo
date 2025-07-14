@@ -1,9 +1,8 @@
 package com.lvwj.halo.mybatisplus.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.lvwj.halo.common.models.entity.IEntity;
-import com.lvwj.halo.common.utils.Func;
-import com.lvwj.halo.common.utils.StringPool;
-import com.lvwj.halo.common.utils.TransactionUtil;
+import com.lvwj.halo.common.utils.*;
 import com.lvwj.halo.core.track.TrackManager;
 import com.lvwj.halo.core.track.impl.ThreadLocalTrackManager;
 import com.lvwj.halo.mybatisplus.entity.EntityHolder;
@@ -48,14 +47,19 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
         if (null == t) {
             return;
         }
+        //版本号字段处理
         boolean hasVersionField = EntityHolder.hasVersionField(getEntityClass());
         if (hasVersionField) {
             Object verObj = EntityHolder.getFieldValue(t, EntityHolder.VERSION);
             Long version = verObj != null ? Long.parseLong(verObj.toString()) + 1 : 0;
             EntityHolder.setFieldValue(t, EntityHolder.VERSION, version);
         }
+        //获取差异
         List<ChangesByObject> changes = this.trackManager.changeDiffByObject(t);
-        doSave(changes);
+        //获取所有PO实体 key:PO类名, value:(key:主键, value:PO实体)
+        Map<String, Map<Object, IEntity<?>>> entityMap = getEntityMap(Collections.singletonList(t));
+        //保存
+        doSave(changes, entityMap);
         //this.trackManager.merge(t); 更新快照数据，为了可以多次saveByTrack
         //事务完成后，解除变更追踪
         TransactionUtil.afterCompletion(() -> this.trackManager.detach(t));
@@ -67,6 +71,7 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
+        //版本号字段处理
         boolean hasVersionField = EntityHolder.hasVersionField(getEntityClass());
         if (hasVersionField) {
             for (T t : list) {
@@ -75,8 +80,12 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
                 EntityHolder.setFieldValue(t, EntityHolder.VERSION, version);
             }
         }
+        //获取差异
         List<ChangesByObject> changes = this.trackManager.changeDiffByObject(list, getEntityClass());
-        doSave(changes);
+        //获取所有PO实体 key:PO类名, value:(key:主键, value:PO实体)
+        Map<String, Map<Object, IEntity<?>>> entityMap = getEntityMap((List<IEntity<?>>) list);
+        //保存
+        doSave(changes, entityMap);
         //this.trackManager.merge(list); 更新快照数据，为了可以多次saveByTrack
         //事务完成后，解除变更追踪
         TransactionUtil.afterCompletion(() -> this.trackManager.detach(list));
@@ -118,13 +127,13 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
         return this.trackManager;
     }
 
-    private void doSave(List<ChangesByObject> changes) {
+    private void doSave(List<ChangesByObject> changes, Map<String, Map<Object, IEntity<?>>> newEntityMap) {
         if (Func.isEmpty(changes)) {
             return;
         }
         Map<String, List<Change>> createMap = new HashMap<>();
         Map<String, List<Object>> deleteMap = new HashMap<>();
-        Map<String, Map<Object, List<Change>>> updateMap = new HashMap<>();
+        Map<String, Map<Object, Set<String>>> updateMap = new HashMap<>();
 
         for (ChangesByObject change : changes) {
             if (!(change.getGlobalId() instanceof InstanceId instanceId))
@@ -140,19 +149,22 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
                     ids.add(id);
                 }
             } else if (Func.isNotEmpty(change.getPropertyChanges())) {
-                Set<String> propertyNames = new HashSet<>();
                 for (PropertyChange propertyChange : change.getPropertyChanges()) {
-                    if(filterPropertyChange(propertyChange, propertyNames)){
-                        Map<Object, List<Change>> map = updateMap.computeIfAbsent(typeName, k -> new HashMap<>());
-                        List<Change> list = map.computeIfAbsent(id, k -> new ArrayList<>());
-                        list.add(propertyChange);
+                    String propertyName = propertyChange.getPropertyName();
+                    if (propertyChange.getAffectedGlobalId() instanceof ValueObjectId valueObjectId) {
+                        String fragment = valueObjectId.getFragment();
+                        int index = fragment.indexOf(StringPool.SLASH);
+                        propertyName = index > -1 ? fragment.substring(0, index) : fragment;
                     }
+                    Map<Object, Set<String>> map = updateMap.computeIfAbsent(typeName, k -> new HashMap<>());
+                    Set<String> set = map.computeIfAbsent(id, k -> new HashSet<>());
+                    set.add(propertyName);
                 }
             }
         }
 
         doCreate(createMap);
-        doUpdate(updateMap);
+        doUpdate(updateMap, newEntityMap);
         doDelete(deleteMap);
     }
 
@@ -184,26 +196,25 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
         }
     }
 
-    private void doUpdate(Map<String, Map<Object, List<Change>>> map) {
-        if (Func.isEmpty(map)) {
+    //map => key:po类名, value:(key:主键, value:更新的字段名集合)
+    private void doUpdate(Map<String, Map<Object, Set<String>>> map, Map<String, Map<Object, IEntity<?>>> newEntityMap) {
+        if (Func.isEmpty(map) || Func.isEmpty(newEntityMap)) {
             return;
         }
         List<Object> entities = new ArrayList<>();
-        for (Map.Entry<String, Map<Object, List<Change>>> entityEntry : map.entrySet()) {
+        for (Map.Entry<String, Map<Object, Set<String>>> entityEntry : map.entrySet()) {
+            //entityClass：PO类
             Class<?> entityClass = EntityHolder.getEntityClass(entityEntry.getKey());
-            for (Map.Entry<Object, List<Change>> itemEntry : entityEntry.getValue().entrySet()) {
-                if (null == itemEntry.getKey()) {
+            Map<Object, IEntity<?>> entityMap = newEntityMap.get(entityEntry.getKey());
+
+            for (Map.Entry<Object, Set<String>> itemEntry : entityEntry.getValue().entrySet()) {
+                IEntity<?> newEntity = entityMap.get(itemEntry.getKey());
+                if (null == newEntity) {
                     continue;
                 }
                 Object entity = null;
-                for (Change change : itemEntry.getValue()) {
-                    PropertyChange<Object> propertyChange = (PropertyChange<Object>) change;
-                    String propertyName = propertyChange.getPropertyName();
-                    Object right = propertyChange.getRight();
-                    if (propertyChange.getAffectedGlobalId() instanceof ValueObjectId valueObjectId) {
-                        propertyName = valueObjectId.getFragment();
-                        right = propertyChange.getAffectedObject().get();
-                    }
+                for (String propertyName : itemEntry.getValue()) {
+                    Object right = BeanUtil.getFieldValue(newEntity, propertyName);
                     EntityHolder.EntityField entityField = EntityHolder.getEntityField(entityClass, propertyName);
                     if (entityField.allowUpdate(right)) {
                         if (entity == null) {
@@ -255,16 +266,43 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
                 .collect(groupingBy(s -> s.getGlobalId().getTypeName(), Collectors.mapping(a -> ((InstanceId) a.getGlobalId()).getCdoId(), Collectors.toList())));
     }
 
-    private Boolean filterPropertyChange(PropertyChange propertyChange, Set<String> propertyNames) {
-        return null != propertyChange && (
-                (propertyChange.getAffectedGlobalId() instanceof InstanceId && !checkIsInstanceId(propertyChange.getLeft()) && !checkIsInstanceId(propertyChange.getRight()) && propertyNames.add(propertyChange.getPropertyName()))
-                        || (propertyChange.getAffectedGlobalId() instanceof ValueObjectId valueObjectId && !valueObjectId.getFragment().contains(StringPool.SLASH) && propertyNames.add(valueObjectId.getFragment()))
-        );
+    private Map<String, Map<Object, IEntity<?>>> getEntityMap(List<IEntity<?>> inputs) {
+        Map<String, Map<Object, IEntity<?>>> result = new HashMap<>();
+        List<IEntity<?>> entities = getEntityList(inputs);
+        for (IEntity<?> entity : entities) {
+            Map<Object, IEntity<?>> map = result.computeIfAbsent(entity.getClass().getName(), k -> new HashMap<>());
+            map.put(entity.getId(), entity);
+        }
+        return result;
     }
 
-    private boolean checkIsInstanceId(Object value) {
-        return null != value
-                && ((value instanceof Collection<?> collection && collection.iterator().next() instanceof InstanceId)
-                    || value instanceof InstanceId);
+    private List<IEntity<?>> getEntityList(List<IEntity<?>> inputs) {
+        List<IEntity<?>> outputs = new ArrayList<>();
+        if (Func.isNotEmpty(inputs)) {
+            outputs.addAll(inputs);
+            doGetEntityList(inputs, outputs);
+        }
+        return outputs;
+    }
+
+    private void doGetEntityList(List<IEntity<?>> inputs, List<IEntity<?>> outputs) {
+        List<IEntity<?>> list = new ArrayList<>();
+        for (IEntity<?> input : inputs) {
+            ReflectUtil.doWithFields(input.getClass(), field -> {
+                if (IEntity.class.isAssignableFrom(field.getType())) {
+                    list.add((IEntity<?>) BeanUtil.getFieldValue(input, field.getName()));
+                } else if (Collection.class.isAssignableFrom(field.getType())) {
+                    Class<?> genericClass = ReflectUtil.getFieldGenericType(field);
+                    if (IEntity.class.isAssignableFrom(genericClass)) {
+                        Collection<IEntity<?>> fieldValue = (Collection<IEntity<?>>) BeanUtil.getFieldValue(input, field.getName());
+                        fieldValue.forEach(e -> list.add(e));
+                    }
+                }
+            });
+        }
+        if (Func.isNotEmpty(list)) {
+            outputs.addAll(list);
+            doGetEntityList(list, outputs);
+        }
     }
 }

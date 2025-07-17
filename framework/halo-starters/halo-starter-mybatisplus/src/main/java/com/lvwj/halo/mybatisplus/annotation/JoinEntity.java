@@ -33,4 +33,9 @@ public @interface JoinEntity {
    * @date 2022-12-08 18:27
    */
   String foreignKey() default "";
+
+  /**
+   * 查询关联实体的额外条件(例如: 主表关联查询明细表,额外条件是明细表的状态等于1且类型等于2，extraCondition="status=1 and type=2")
+   */
+  String extraCondition() default "";
 }

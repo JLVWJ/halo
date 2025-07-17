@@ -1476,7 +1476,7 @@ public class StringUtil extends StringUtils {
     StringBuilder result = new StringBuilder();
     String[] a = para.split("_");
     for (String s : a) {
-      if (result.length() == 0) {
+      if (result.isEmpty()) {
         result.append(s.toLowerCase());
       } else {
         result.append(s.substring(0, 1).toUpperCase());
@@ -1511,7 +1511,7 @@ public class StringUtil extends StringUtils {
     StringBuilder result = new StringBuilder();
     String[] a = para.split("-");
     for (String s : a) {
-      if (result.length() == 0) {
+      if (result.isEmpty()) {
         result.append(s.toLowerCase());
       } else {
         result.append(s.substring(0, 1).toUpperCase());

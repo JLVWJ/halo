@@ -8,7 +8,7 @@ import org.springframework.boot.jdbc.metadata.HikariDataSourcePoolMetadata;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
-public class ShardingJdbcConfigration {
+public class ShardingJdbcConfiguration {
 
   /**
    * 解决新版Spring中,健康检查用到sharding jdbc时,该组件没有完全实现MySQL驱动导致的问题.

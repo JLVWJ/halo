@@ -89,12 +89,13 @@
         <javafaker.version>1.0.2</javafaker.version>
         <junit-jupiter-api.version>5.10.2</junit-jupiter-api.version>
 
-        <snakeyaml.version>2.0</snakeyaml.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
         <grpc.version>1.59.1</grpc.version>
         <httpclient.version>4.5.13</httpclient.version>
 
         <druid-spring-boot-starter.version>1.2.23</druid-spring-boot-starter.version>
         <shardingsphere-jdbc-core-starter.version>5.2.1</shardingsphere-jdbc-core-starter.version>
+        <shardingsphere-jdbc-core.version>5.3.2</shardingsphere-jdbc-core.version>
 
         <skywalking-toolkit.version>9.3.0</skywalking-toolkit.version>
         <liteflow.starter.version>2.12.2</liteflow.starter.version>
@@ -359,12 +360,19 @@
                 <version>${rocketmq.starter.version}</version>
             </dependency>
 
-            <!-- sharding-jdbc -->
+            <!-- sharding-jdbc-->
             <dependency>
                 <groupId>org.apache.shardingsphere</groupId>
                 <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
                 <version>${shardingsphere-jdbc-core-starter.version}</version>
             </dependency>
+
+            <!-- 5.3.2版本不在依赖SpringBoot-starter 直接导入shardingsphere-jdbc-core就行
+            <dependency>
+                <groupId>org.apache.shardingsphere</groupId>
+                <artifactId>shardingsphere-jdbc-core</artifactId>
+                <version>${shardingsphere-jdbc-core.version}</version>
+            </dependency>-->
 
             <!-- druid -->
             <dependency>

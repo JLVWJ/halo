@@ -10,7 +10,6 @@ import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.util.ClassUtils;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -116,12 +115,6 @@ public class ClassUtil extends ClassUtils {
     return ResourceUtil.getResourceURL(resource);
   }
 
-
-  public static final String ARRAY_SUFFIX = "[]";
-  /**
-   * Prefix for internal array class names: "[L"
-   */
-  private static final String INTERNAL_ARRAY_PREFIX = "[L";
   /**
    * Map with primitive type name as key and corresponding primitive type as
    * value, for example: "int" -> "int.class".
@@ -170,8 +163,6 @@ public class ClassUtil extends ClassUtils {
           Object.class
   );
 
-  private static final char PACKAGE_SEPARATOR_CHAR = '.';
-
   static {
     PRIMITIVE_WRAPPER_TYPE_MAP.put(Boolean.class, boolean.class);
     PRIMITIVE_WRAPPER_TYPE_MAP.put(Byte.class, byte.class);
@@ -190,20 +181,6 @@ public class ClassUtil extends ClassUtils {
     for (Class<?> primitiveTypeName : primitiveTypeNames) {
       PRIMITIVE_TYPE_NAME_MAP.put(primitiveTypeName.getName(), primitiveTypeName);
     }
-  }
-
-  public static Class<?> forNameWithThreadContextClassLoader(String name)
-          throws ClassNotFoundException {
-    return forName(name, Thread.currentThread().getContextClassLoader());
-  }
-
-  public static Class<?> forNameWithCallerClassLoader(String name, Class<?> caller)
-          throws ClassNotFoundException {
-    return forName(name, caller.getClassLoader());
-  }
-
-  public static ClassLoader getCallerClassLoader(Class<?> caller) {
-    return caller.getClassLoader();
   }
 
   /**
@@ -250,64 +227,7 @@ public class ClassUtil extends ClassUtils {
    * @see java.lang.Thread#getContextClassLoader()
    */
   public static ClassLoader getClassLoader() {
-    return getClassLoader(ClassUtils.class);
-  }
-
-  /**
-   * Same as <code>Class.forName()</code>, except that it works for primitive
-   * types.
-   */
-  public static Class<?> forName(String name) throws ClassNotFoundException {
-    return forName(name, getClassLoader());
-  }
-
-  /**
-   * Replacement for <code>Class.forName()</code> that also returns Class
-   * instances for primitives (like "int") and array class names (like
-   * "String[]").
-   *
-   * @param name        the name of the Class
-   * @param classLoader the class loader to use (may be <code>null</code>,
-   *                    which indicates the default class loader)
-   * @return Class instance for the supplied name
-   * @throws ClassNotFoundException if the class was not found
-   * @throws LinkageError           if the class file could not be loaded
-   * @see Class#forName(String, boolean, ClassLoader)
-   */
-  public static Class<?> forName(String name, ClassLoader classLoader)
-          throws ClassNotFoundException, LinkageError {
-
-    Class<?> clazz = resolvePrimitiveClassName(name);
-    if (clazz != null) {
-      return clazz;
-    }
-
-    // "java.lang.String[]" style arrays
-    if (name.endsWith(ARRAY_SUFFIX)) {
-      String elementClassName = name.substring(0, name.length() - ARRAY_SUFFIX.length());
-      Class<?> elementClass = forName(elementClassName, classLoader);
-      return Array.newInstance(elementClass, 0).getClass();
-    }
-
-    // "[Ljava.lang.String;" style arrays
-    int internalArrayMarker = name.indexOf(INTERNAL_ARRAY_PREFIX);
-    if (internalArrayMarker != -1 && name.endsWith(";")) {
-      String elementClassName = null;
-      if (internalArrayMarker == 0) {
-        elementClassName = name
-                .substring(INTERNAL_ARRAY_PREFIX.length(), name.length() - 1);
-      } else if (name.startsWith("[")) {
-        elementClassName = name.substring(1);
-      }
-      Class<?> elementClass = forName(elementClassName, classLoader);
-      return Array.newInstance(elementClass, 0).getClass();
-    }
-
-    ClassLoader classLoaderToUse = classLoader;
-    if (classLoaderToUse == null) {
-      classLoaderToUse = getClassLoader();
-    }
-    return classLoaderToUse.loadClass(name);
+    return getClassLoader(ClassUtil.class);
   }
 
   /**
@@ -338,7 +258,6 @@ public class ClassUtil extends ClassUtils {
       return "null";
     }
     return obj.getClass().getSimpleName() + "@" + System.identityHashCode(obj);
-
   }
 
   public static String simpleClassName(Class<?> clazz) {
@@ -346,7 +265,7 @@ public class ClassUtil extends ClassUtils {
       throw new NullPointerException("clazz");
     }
     String className = clazz.getName();
-    final int lastDotIdx = className.lastIndexOf(PACKAGE_SEPARATOR_CHAR);
+    final int lastDotIdx = className.lastIndexOf(StringPool.DOT);
     if (lastDotIdx > -1) {
       return className.substring(lastDotIdx + 1);
     }
@@ -403,22 +322,6 @@ public class ClassUtil extends ClassUtils {
       return null;
     }
     return value;
-  }
-
-
-  /**
-   * We only check boolean value at this moment.
-   *
-   * @param type
-   * @param value
-   * @return
-   */
-  public static boolean isTypeMatch(Class<?> type, String value) {
-    if ((type == boolean.class || type == Boolean.class)
-            && !("true".equals(value) || "false".equals(value))) {
-      return false;
-    }
-    return true;
   }
 
   /**

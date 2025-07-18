@@ -223,6 +223,32 @@ public class ReflectUtil extends ReflectionUtils {
     return (Class<?>) params[index];
   }
 
+  public static <T> Class<T> getFieldGenericType(final Field field) {
+    return getFieldGenericType(field, 0);
+  }
+
+  /**
+   * 通过反射, 获得Field字段类型的泛型参数的类型. 如无法找到, 返回Object.class.
+   *
+   * @param field
+   * @param index
+   * @return
+   */
+  public static Class getFieldGenericType(final Field field, final int index) {
+    Type genType = field.getGenericType();
+    if (!(genType instanceof ParameterizedType)) {
+      return (Class) genType;
+    }
+    Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+    if (index >= params.length || index < 0) {
+      return (Class) genType;
+    }
+    if (!(params[index] instanceof Class)) {
+      return (Class) genType;
+    }
+    return (Class<?>) params[index];
+  }
+
   /**
    * <p>
    * 请仅在确定类存在的情况下调用该方法

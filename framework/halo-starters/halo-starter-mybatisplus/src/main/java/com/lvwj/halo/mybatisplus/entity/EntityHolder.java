@@ -9,14 +9,15 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.lvwj.halo.common.models.entity.IEntity;
+import com.lvwj.halo.common.utils.CharPool;
 import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.StringUtil;
 import com.lvwj.halo.mybatisplus.annotation.JoinEntity;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -68,8 +69,7 @@ public class EntityHolder {
       MapperMap.put(cls, mapper);
 
       Map<Field, TableFieldInfo> fieldInfoMap = tableInfo.getFieldList().stream().collect(Collectors.toMap(TableFieldInfo::getField, Function.identity()));
-      FieldMap.put(cls, FieldUtils.getAllFieldsList(cls).stream().map(s -> new EntityField(s, fieldInfoMap.get(s)))
-              .collect(Collectors.toList()));
+      FieldMap.put(cls, ReflectionKit.getFieldList(cls).stream().map(s -> new EntityField(s, fieldInfoMap.get(s))).collect(Collectors.toList()));
     }
   }
 
@@ -81,7 +81,7 @@ public class EntityHolder {
    * @date 2022-12-06 14:45
    */
   public static CustomMapper getMapper(Class<?> clazz) {
-    String errorMsg = String.format("PO[%s] has no CustomMapper!", clazz.getName());
+    String errorMsg = String.format("PO[%s] has no mapper which extends CustomMapper!", clazz.getName());
     return Optional.ofNullable(MapperMap.get(clazz)).orElseThrow(() -> new RuntimeException(errorMsg));
   }
 
@@ -149,7 +149,6 @@ public class EntityHolder {
       return null;
     }
     return getEntityFields(entityClass).stream().filter(s -> s.matchName(fieldName)).findFirst().orElse(null);
-    //orElseThrow(() -> new RuntimeException(String.format("entity[%s] has no field[%s]", entityClass.getName(), fieldName)))
   }
 
   public static List<EntityField> getEntityFields(Class<?> entityClass) {
@@ -185,9 +184,10 @@ public class EntityHolder {
 
     //循环处理加@JoinEntity的字段
     for (EntityField entityField : fieldList) {
+      Class<?> fieldActualType = entityField.getFieldActualType();//字段实际类型
       String primaryKey = entityField.getJoinEntity().primaryKey();
       String foreignKey = entityField.getJoinEntity().foreignKey();
-      Class<?> fieldActualType = entityField.getFieldActualType();//字段实际类型
+      String extraCondition = parseExtraCondition(fieldActualType, entityField.getJoinEntity().extraCondition());
 
       //获取primaryKey集合
       Set<Object> pks = entities.stream().map(entityField::getPrimaryKeyValue).filter(Func::isNotEmpty).collect(Collectors.toSet());
@@ -199,6 +199,9 @@ public class EntityHolder {
       } else {
         query.eq(StringUtils.hasLength(primaryKey), "id", pks.iterator().next());
         query.eq(StringUtils.hasLength(foreignKey), getColumnName(fieldActualType, foreignKey), pks.iterator().next());
+      }
+      if (Func.isNotEmpty(extraCondition)) {
+        query.last(extraCondition);
       }
       //根据fieldActualType定位到对应mapper接口，获取关联数据集合
       List<IEntity<?>> list = getMapper(fieldActualType).selectList(query);
@@ -238,6 +241,43 @@ public class EntityHolder {
       //递归加载关联数据
       joinEntity(fieldActualType, list);
     }
+  }
+
+  private static String parseExtraCondition(Class<?> fieldActualType, String extraCondition) {
+    if (Func.isEmpty(extraCondition)) {
+      return null;
+    }
+    Map<String, String> fieldNameMap = new HashMap<>();
+    List<Character> ignore = Arrays.asList(CharPool.EQUAL_TO, CharPool.LEFT_BRACKET, CharPool.RIGHT_BRACKET, CharPool.SPACE, CharPool.QUOTE, CharPool.SINGLE_QUOTE, CharPool.NEWLINE);
+    List<Character> chars = new ArrayList<>();
+    extraCondition.chars().forEach(c -> {
+      char ch = (char) c;
+      if (!ignore.contains(ch)) {
+        chars.add(ch);
+      } else {
+        if (!chars.isEmpty()) {
+          String fieldName = String.valueOf(chars);
+          String columnName = getColumnName(fieldActualType, fieldName);
+          if (Func.isNotEmpty(columnName)) {
+            fieldNameMap.put(fieldName, getColumnName(fieldActualType, fieldName));
+          }
+          //fieldName.indexOf(CharPool.UNDERSCORE) > -1 表示用的可能是表字段名
+          else if (fieldName.indexOf(CharPool.UNDERSCORE) > -1) {
+            if (Func.isNotEmpty(getColumnName(fieldActualType, StringUtil.underlineToHump(fieldName)))) {
+              fieldNameMap.put(fieldName, fieldName);
+            }
+          }
+          chars.clear();
+        }
+      }
+    });
+    String result = extraCondition;
+    for (Map.Entry<String, String> entry : fieldNameMap.entrySet()) {
+      if (!entry.getKey().equals(entry.getValue())) {
+        result = result.replace(entry.getKey(), entry.getValue());
+      }
+    }
+    return result;
   }
 
   private Class<?> getEntityClass(CustomMapper<?> mapper) {
@@ -283,11 +323,11 @@ public class EntityHolder {
       if (!StringUtils.hasLength(primaryKey) && !StringUtils.hasLength(foreignKey)
               || (StringUtils.hasLength(primaryKey) && StringUtils.hasLength(foreignKey))) {
         throw new RuntimeException(
-                String.format("Field[%s]: @JoinEntity's foreignKey or primaryKey only one can be set", field.getName()));
+                String.format("Field[%s]: @JoinEntity's foreignKey or primaryKey only one can be set", getFieldName()));
       }
       if (StringUtils.hasLength(primaryKey) && isCollectionType()) {
         throw new RuntimeException(
-                String.format("Field[%s]: @JoinEntity primaryKey isn't applicable to Type[Collection]", field.getName()));
+                String.format("Field[%s]: @JoinEntity primaryKey isn't applicable to Type[Collection]", getFieldName()));
       }
     }
 

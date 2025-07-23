@@ -1,5 +1,6 @@
 package com.lvwj.halo.dubbo.config;
 
+import com.lvwj.halo.dubbo.config.prop.HaloDubboProperties;
 import com.lvwj.halo.dubbo.metric.DubboThreadPoolMetrics;
 import com.lvwj.halo.dubbo.serializer.BigNumberSerializer;
 import com.lvwj.halo.dubbo.serializer.DateSerializer;
@@ -8,6 +9,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 import static org.apache.dubbo.spring.boot.util.DubboUtils.DUBBO_PREFIX;
@@ -18,6 +20,7 @@ import static org.apache.dubbo.spring.boot.util.DubboUtils.DUBBO_PREFIX;
  */
 @AutoConfiguration
 @ConditionalOnProperty(prefix = DUBBO_PREFIX, name = "registry.address")
+@EnableConfigurationProperties({HaloDubboProperties.class})
 public class HaloDubboConfigration {
 
     @Bean

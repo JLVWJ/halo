@@ -35,7 +35,7 @@
 
         <auto-service.version>1.1.1</auto-service.version>
         <javapoet.version>1.13.0</javapoet.version>
-
+        <netty.version>4.1.113.Final</netty.version>
         <mysql.version>9.0.0</mysql.version>
         <hutool.version>5.8.32</hutool.version>
         <guava.version>33.2.1-jre</guava.version>
@@ -61,7 +61,7 @@
         <rocketmq.starter.version>2.3.0</rocketmq.starter.version>
         <apollo.client.version>2.2.0</apollo.client.version>
         <milvus.version>2.4.1</milvus.version>
-        <dubbo.version>3.2.14</dubbo.version>
+        <dubbo.version>3.2.18</dubbo.version>
         <curator.version>5.4.0</curator.version>
         <redisson.version>3.18.0</redisson.version>
         <jsqlparser.version>5.0</jsqlparser.version>
@@ -72,7 +72,7 @@
 
         <shenyu-spring-boot-starter-client-apache-dubbo.version>2.5.0</shenyu-spring-boot-starter-client-apache-dubbo.version>
 
-        <protobuf-java.version>3.24.0</protobuf-java.version>
+        <protobuf-java.version>3.24.2</protobuf-java.version>
 
         <javax.servlet-api>4.0.1</javax.servlet-api>
 
@@ -235,6 +235,13 @@
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java-util</artifactId>
                 <version>${protobuf-java.version}</version>
+            </dependency>
+
+            <!-- netty -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
             </dependency>
 
             <!-- grpc -->
@@ -722,6 +729,11 @@
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
                 <version>3.30.2-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tdunning</groupId>
+                <artifactId>t-digest</artifactId>
+                <version>3.3</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>

@@ -1,5 +1,6 @@
 package com.lvwj.halo.dubbo.filter;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.lvwj.halo.common.dto.response.R;
 import com.lvwj.halo.common.enums.IErrorEnum;
 import com.lvwj.halo.common.exceptions.BusinessException;
@@ -7,17 +8,20 @@ import com.lvwj.halo.common.utils.Exceptions;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.core.i18n.I18nUtil;
+import com.lvwj.halo.dubbo.config.prop.HaloDubboProperties;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.service.GenericService;
+import org.apache.dubbo.rpc.support.RpcUtils;
 import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,6 +35,8 @@ import java.util.stream.Collectors;
 @Activate(group = {CommonConstants.PROVIDER})
 public class MyExceptionFilter implements Filter, Filter.Listener {
 
+    private static final HaloDubboProperties haloDubboProperties = SpringUtil.getBean(HaloDubboProperties.class);
+
     @Trace
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -43,7 +49,7 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
             return invoker.invoke(invocation);
         } finally {
             sw.stop();
-            log.info(methodName + "请求耗时(毫秒): " + sw.getTotalTimeMillis());
+            log.info("{}请求耗时(毫秒): {}", methodName, sw.getTotalTimeMillis());
         }
     }
 
@@ -89,12 +95,15 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
     }
 
     private String getMethodName(Invoker<?> invoker, Invocation invocation) {
-        return invoker.getInterface().getSimpleName() + "." + invocation.getMethodName();
+        String methodName = RpcUtils.getMethodName(invocation);
+        return invoker.getInterface().getSimpleName() + "." + methodName;
     }
 
     private void printRequestLog(String methodName, Object[] args) {
         String requestParam = JsonUtil.toJson(args);
-        log.info(methodName + "请求入参:{}", requestParam);
+        if (enablePrintRequestLog(methodName)) {
+            log.info("{}请求入参:{}", methodName, requestParam);
+        }
         ActiveSpan.tag("requestParams", requestParam);
         //Sentry.getCurrentHub().addBreadcrumb("requestParams",requestParam);
     }
@@ -102,15 +111,17 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
     private void printResponseLog(String methodName, Object result, Throwable t) {
         if (!ObjectUtils.isEmpty(result)) {
             String res = JsonUtil.toJson(result);
-            log.info(methodName + "请求结果:{}", res);
-            ActiveSpan.tag("result", res);
+            if (enablePrintResponseLog(methodName)) {
+                log.info("{}请求结果:{}", methodName, res);
+                ActiveSpan.tag("result", res);
+            }
         } else if (null != t) {
             if (t instanceof BusinessException be) {
-                log.error(methodName + "请求异常:", be);
+                log.error("{}请求异常:", methodName, be);
                 ActiveSpan.error(be.getCode() + ":" + be.getMessage());
             } else if (t instanceof ConstraintViolationException cve) {
                 String message = "[" + cve.getConstraintViolations().stream().map(s -> s.getPropertyPath().toString() + StringPool.COLON + s.getMessage()).collect(Collectors.joining(StringPool.SEMICOLON)) + "]";
-                log.error(methodName + "请求参数验证异常:" + message, t);
+                log.error("{}请求参数验证异常:{}", methodName, message, t);
                 ActiveSpan.error(t);
             } else {
                 printErrorLog(methodName, t);
@@ -119,8 +130,24 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
     }
 
     private void printErrorLog(String methodName, Throwable throwable) {
-        log.error(methodName + "请求异常:", throwable);
+        log.error("{}请求异常:", methodName, throwable);
         ActiveSpan.error(throwable);
+    }
+
+    private boolean enablePrintRequestLog(String methodName) {
+        if (!haloDubboProperties.getFilter().getRequestLogEnable())
+            return false;
+
+        ArrayList<String> excludeFacadeMethods = haloDubboProperties.getFilter().getRequestLogExcludeFacadeMethods();
+        return !excludeFacadeMethods.contains(methodName);
+    }
+
+    private boolean enablePrintResponseLog(String methodName) {
+        if (!haloDubboProperties.getFilter().getResponseLogEnable())
+            return false;
+
+        ArrayList<String> excludeFacadeMethods = haloDubboProperties.getFilter().getResponseLogExcludeFacadeMethods();
+        return !excludeFacadeMethods.contains(methodName);
     }
 }
 

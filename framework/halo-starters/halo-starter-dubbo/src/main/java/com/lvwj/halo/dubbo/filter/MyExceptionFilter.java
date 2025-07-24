@@ -21,7 +21,7 @@ import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -135,18 +135,18 @@ public class MyExceptionFilter implements Filter, Filter.Listener {
     }
 
     private boolean enablePrintRequestLog(String methodName) {
-        if (!haloDubboProperties.getFilter().getRequestLogEnable())
+        if (!haloDubboProperties.getFilter().getRequestLog().getEnable())
             return false;
 
-        ArrayList<String> excludeFacadeMethods = haloDubboProperties.getFilter().getRequestLogExcludeFacadeMethods();
+        List<String> excludeFacadeMethods = haloDubboProperties.getFilter().getRequestLog().getExcludeMethods();
         return !excludeFacadeMethods.contains(methodName);
     }
 
     private boolean enablePrintResponseLog(String methodName) {
-        if (!haloDubboProperties.getFilter().getResponseLogEnable())
+        if (!haloDubboProperties.getFilter().getResponseLog().getEnable())
             return false;
 
-        ArrayList<String> excludeFacadeMethods = haloDubboProperties.getFilter().getResponseLogExcludeFacadeMethods();
+        List<String> excludeFacadeMethods = haloDubboProperties.getFilter().getResponseLog().getExcludeMethods();
         return !excludeFacadeMethods.contains(methodName);
     }
 }

@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @ConfigurationProperties(prefix = HaloDubboProperties.PREFIX)
@@ -19,11 +20,13 @@ public class HaloDubboProperties {
 
     @Data
     public class FilterConfigProp {
+        private FilterLogConfigProp requestLog = new FilterLogConfigProp();
+        private FilterLogConfigProp responseLog= new FilterLogConfigProp();
+    }
 
-        private Boolean requestLogEnable = true;
-        private Boolean responseLogEnable = true;
-
-        private ArrayList<String> requestLogExcludeFacadeMethods = new ArrayList<>();
-        private ArrayList<String> responseLogExcludeFacadeMethods = new ArrayList<>();
+    @Data
+    public class FilterLogConfigProp {
+        private Boolean enable = true;
+        private List<String> excludeMethods = new ArrayList<>();
     }
 }

@@ -288,17 +288,19 @@ public abstract class TrackServiceImpl<M extends CustomMapper<T>, T extends IEnt
     private void doGetEntityList(List<IEntity<?>> inputs, List<IEntity<?>> outputs) {
         List<IEntity<?>> list = new ArrayList<>();
         for (IEntity<?> input : inputs) {
-            ReflectUtil.doWithFields(input.getClass(), field -> {
-                if (IEntity.class.isAssignableFrom(field.getType())) {
-                    list.add((IEntity<?>) BeanUtil.getFieldValue(input, field.getName()));
-                } else if (Collection.class.isAssignableFrom(field.getType())) {
-                    Class<?> genericClass = ReflectUtil.getFieldGenericType(field);
-                    if (IEntity.class.isAssignableFrom(genericClass)) {
-                        Collection<IEntity<?>> fieldValue = (Collection<IEntity<?>>) BeanUtil.getFieldValue(input, field.getName());
-                        fieldValue.forEach(e -> list.add(e));
-                    }
+            List<EntityHolder.EntityField> entityJoinFields = EntityHolder.getEntityJoinFields(input.getClass());
+            if (Func.isEmpty(entityJoinFields)) {
+                break;
+            }
+            for (EntityHolder.EntityField joinField : entityJoinFields) {
+                Object value = joinField.getFieldValue(input);
+                if (joinField.isCollectionType()) {
+                    Collection<IEntity<?>> fieldValue = (Collection<IEntity<?>>) value;
+                    fieldValue.forEach(e -> list.add(e));
+                } else {
+                    list.add((IEntity<?>) value);
                 }
-            });
+            }
         }
         if (Func.isNotEmpty(list)) {
             outputs.addAll(list);

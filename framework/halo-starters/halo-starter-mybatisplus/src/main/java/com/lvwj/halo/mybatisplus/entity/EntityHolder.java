@@ -69,7 +69,7 @@ public class EntityHolder {
       MapperMap.put(cls, mapper);
 
       Map<Field, TableFieldInfo> fieldInfoMap = tableInfo.getFieldList().stream().collect(Collectors.toMap(TableFieldInfo::getField, Function.identity()));
-      FieldMap.put(cls, ReflectionKit.getFieldList(cls).stream().map(s -> new EntityField(s, fieldInfoMap.get(s))).collect(Collectors.toList()));
+      FieldMap.put(cls, ReflectionKit.getFieldList(cls).stream().map(s -> new EntityField(cls, s, fieldInfoMap.get(s))).collect(Collectors.toList()));
     }
   }
 
@@ -81,7 +81,7 @@ public class EntityHolder {
    * @date 2022-12-06 14:45
    */
   public static CustomMapper getMapper(Class<?> clazz) {
-    String errorMsg = String.format("PO[%s] has no mapper which extends CustomMapper!", clazz.getName());
+    String errorMsg = String.format("Entity[%s] has no mapper which extends CustomMapper!", clazz.getName());
     return Optional.ofNullable(MapperMap.get(clazz)).orElseThrow(() -> new RuntimeException(errorMsg));
   }
 
@@ -135,7 +135,7 @@ public class EntityHolder {
     }
     return Optional.ofNullable(entityField.getFieldInfo()).map(TableFieldInfo::getColumn).orElseThrow(
             () -> new RuntimeException(
-                    String.format("entity[%s]-field[%s] has no column", entityClass.getName(), fieldName)));
+                    String.format("entity[%s] field[%s] has no column", entityClass.getName(), fieldName)));
   }
 
   /**
@@ -156,7 +156,7 @@ public class EntityHolder {
   }
 
   public static List<EntityField> getEntityJoinFields(Class<?> entityClass) {
-    return getEntityFields(entityClass).stream().filter(s -> null != s.getJoinEntity()).collect(Collectors.toList());
+    return getEntityFields(entityClass).stream().filter(EntityField::isJoinEntity).collect(Collectors.toList());
   }
 
   /**
@@ -166,7 +166,7 @@ public class EntityHolder {
    * @date 2022-12-25 19:56
    */
   public static boolean hasVersionField(Class<?> entityClass) {
-    return FieldMap.getOrDefault(entityClass, new ArrayList<>()).stream().anyMatch(s -> s.matchName(VERSION));
+    return getEntityFields(entityClass).stream().anyMatch(s -> s.matchName(VERSION));
   }
 
   /**
@@ -259,7 +259,7 @@ public class EntityHolder {
           String fieldName = String.valueOf(chars);
           String columnName = getColumnName(fieldActualType, fieldName);
           if (Func.isNotEmpty(columnName)) {
-            fieldNameMap.put(fieldName, getColumnName(fieldActualType, fieldName));
+            fieldNameMap.put(fieldName, columnName);
           }
           //fieldName.indexOf(CharPool.UNDERSCORE) > -1 表示用的可能是表字段名
           else if (fieldName.indexOf(CharPool.UNDERSCORE) > -1) {
@@ -292,14 +292,15 @@ public class EntityHolder {
    */
   @Getter
   public static class EntityField {
-
+    private final Class<?> entityType;
     private final Field field;
     private final Class<?> fieldType;
     private final Class<?> fieldActualType;
     private final JoinEntity joinEntity;
     private final TableFieldInfo fieldInfo;
 
-    public EntityField(Field field, TableFieldInfo fieldInfo) {
+    public EntityField(Class<?> entityType, Field field, TableFieldInfo fieldInfo) {
+      this.entityType = entityType;
       this.field = field;
       this.fieldType = field.getType();
       this.fieldActualType = fieldActualType();
@@ -308,13 +309,21 @@ public class EntityHolder {
       checkJoinEntity();
     }
 
+    public boolean isJoinEntity() {
+      return joinEntity != null;
+    }
+
     private void checkJoinEntity() {
       if (null == this.joinEntity) {
         return;
       }
       //@JoinEntity 不支持的字段类型
       if (ClassUtils.isPrimitiveOrWrapper(fieldType) || fieldType.isEnum() || fieldType.isArray() || Map.class.isAssignableFrom(fieldType)) {
-        throw new RuntimeException(String.format("Field[%s]: @JoinEntity isn't support type[%s]  ", getFieldName(), getFieldTypeName()));
+        throw new RuntimeException(String.format("Entity[%s] Field[%s]: @JoinEntity isn't support type[%s]  ", getEntityTypeName(), getFieldName(), getFieldTypeName()));
+      }
+      //@JoinEntity 加了这个注解的数据实体类必须实现IEntity
+      if(!IEntity.class.isAssignableFrom(fieldActualType)) {
+        throw new RuntimeException(String.format("Entity[%s] Field[%s]: should implements IEntity", getEntityTypeName(), getFieldName()));
       }
 
       //@JoinEntity primaryKey或foreignKey 是否设置正确
@@ -323,11 +332,11 @@ public class EntityHolder {
       if (!StringUtils.hasLength(primaryKey) && !StringUtils.hasLength(foreignKey)
               || (StringUtils.hasLength(primaryKey) && StringUtils.hasLength(foreignKey))) {
         throw new RuntimeException(
-                String.format("Field[%s]: @JoinEntity's foreignKey or primaryKey only one can be set", getFieldName()));
+                String.format("Entity[%s] Field[%s]: @JoinEntity's foreignKey or primaryKey only one can be set", getEntityTypeName(), getFieldName()));
       }
       if (StringUtils.hasLength(primaryKey) && isCollectionType()) {
         throw new RuntimeException(
-                String.format("Field[%s]: @JoinEntity primaryKey isn't applicable to Type[Collection]", getFieldName()));
+                String.format("Entity[%s] Field[%s]: @JoinEntity primaryKey isn't applicable to Type[Collection]", getEntityTypeName(), getFieldName()));
       }
     }
 
@@ -383,6 +392,10 @@ public class EntityHolder {
 
     public String getFieldTypeName() {
       return this.fieldType.getName();
+    }
+
+    public String getEntityTypeName() {
+      return this.entityType.getName();
     }
 
     /**

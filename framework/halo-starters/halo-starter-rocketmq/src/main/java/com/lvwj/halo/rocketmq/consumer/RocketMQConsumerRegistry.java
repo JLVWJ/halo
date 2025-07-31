@@ -104,6 +104,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
             }
             String[] split = tag.split("\\|\\|");
             for (String s : split) {
+                s = s.trim();
                 if (!StringUtils.hasText(s)) {
                     String msg = String.format("Bean[%s] Method[%s] @TagHandler's value[%s] format error", beanName, method, tag);
                     throw new RuntimeException(msg);

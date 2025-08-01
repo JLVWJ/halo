@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.lvwj.halo.common.models.entity.IEntity;
 import com.lvwj.halo.common.utils.CharPool;
 import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.common.utils.StringUtil;
 import com.lvwj.halo.mybatisplus.annotation.JoinEntity;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
@@ -185,9 +186,9 @@ public class EntityHolder {
     //循环处理加@JoinEntity的字段
     for (EntityField entityField : fieldList) {
       Class<?> fieldActualType = entityField.getFieldActualType();//字段实际类型
-      String primaryKey = entityField.getJoinEntity().primaryKey();
-      String foreignKey = entityField.getJoinEntity().foreignKey();
-      String extraCondition = parseExtraCondition(fieldActualType, entityField.getJoinEntity().extraCondition());
+      String primaryKey = entityField.getJoinEntity().primaryKey().trim();
+      String foreignKey = entityField.getJoinEntity().foreignKey().trim();
+      String extraCondition = parseExtraCondition(fieldActualType, entityField.getJoinEntity().extraCondition().trim());
 
       //获取primaryKey集合
       Set<Object> pks = entities.stream().map(entityField::getPrimaryKeyValue).filter(Func::isNotEmpty).collect(Collectors.toSet());
@@ -248,34 +249,47 @@ public class EntityHolder {
       return null;
     }
     Map<String, String> fieldNameMap = new HashMap<>();
-    List<Character> ignore = Arrays.asList(CharPool.EQUAL_TO, CharPool.LEFT_BRACKET, CharPool.RIGHT_BRACKET, CharPool.SPACE, CharPool.QUOTE, CharPool.SINGLE_QUOTE, CharPool.NEWLINE);
+    List<Character> ignoreChar = Arrays.asList(CharPool.EQUAL_TO, CharPool.LEFT_BRACKET, CharPool.RIGHT_BRACKET, CharPool.SPACE, CharPool.QUOTE, CharPool.SINGLE_QUOTE, CharPool.NEWLINE);
+    List<String> ignoreStr = Arrays.asList(StringPool.AND, StringPool.OR, StringPool.NULL, StringPool.FALSE, StringPool.TRUE, "where", "order", "by", "group", "having", "limit", "offset");
     List<Character> chars = new ArrayList<>();
     extraCondition.chars().forEach(c -> {
       char ch = (char) c;
-      if (!ignore.contains(ch)) {
+      if (!ignoreChar.contains(ch)) {
         chars.add(ch);
       } else {
         if (!chars.isEmpty()) {
-          String fieldName = String.valueOf(chars);
-          String columnName = getColumnName(fieldActualType, fieldName);
-          if (Func.isNotEmpty(columnName)) {
-            fieldNameMap.put(fieldName, columnName);
-          }
-          //fieldName.indexOf(CharPool.UNDERSCORE) > -1 表示用的可能是表字段名
-          else if (fieldName.indexOf(CharPool.UNDERSCORE) > -1) {
-            if (Func.isNotEmpty(getColumnName(fieldActualType, StringUtil.underlineToHump(fieldName)))) {
-              fieldNameMap.put(fieldName, fieldName);
+          String fieldName = chars.stream().map(String::valueOf).collect(Collectors.joining());
+          if (!ignoreStr.contains(fieldName.toLowerCase())) {
+            String columnName = getColumnName(fieldActualType, fieldName);
+            if (Func.isNotEmpty(columnName)) {
+              fieldNameMap.put(fieldName, columnName);
+            }
+            //fieldName.indexOf(CharPool.UNDERSCORE) > -1 表示用的可能是表字段名
+            else if (fieldName.indexOf(CharPool.UNDERSCORE) > -1) {
+              if (Func.isNotEmpty(getColumnName(fieldActualType, StringUtil.underlineToHump(fieldName)))) {
+                fieldNameMap.put(fieldName, fieldName);
+              }
             }
           }
           chars.clear();
         }
       }
     });
+
+    return getResult(extraCondition, fieldNameMap);
+  }
+
+  private static String getResult(String extraCondition, Map<String, String> fieldNameMap) {
     String result = extraCondition;
     for (Map.Entry<String, String> entry : fieldNameMap.entrySet()) {
       if (!entry.getKey().equals(entry.getValue())) {
         result = result.replace(entry.getKey(), entry.getValue());
       }
+    }
+    String subFour = result.substring(0, 4);
+    String subSix = result.substring(0, 6);
+    if (!subFour.equalsIgnoreCase("and ") && !subSix.equalsIgnoreCase("order ") && !subSix.equalsIgnoreCase("limit ")) {
+      result = StringPool.AND + StringPool.SPACE + result;
     }
     return result;
   }
@@ -322,7 +336,7 @@ public class EntityHolder {
         throw new RuntimeException(String.format("Entity[%s] Field[%s]: @JoinEntity isn't support type[%s]  ", getEntityTypeName(), getFieldName(), getFieldTypeName()));
       }
       //@JoinEntity 加了这个注解的数据实体类必须实现IEntity
-      if(!IEntity.class.isAssignableFrom(fieldActualType)) {
+      if (!IEntity.class.isAssignableFrom(fieldActualType)) {
         throw new RuntimeException(String.format("Entity[%s] Field[%s]: should implements IEntity", getEntityTypeName(), getFieldName()));
       }
 

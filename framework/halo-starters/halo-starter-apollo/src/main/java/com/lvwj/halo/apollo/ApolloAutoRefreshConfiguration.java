@@ -16,7 +16,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.PropertySource;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
@@ -48,15 +47,15 @@ public class ApolloAutoRefreshConfiguration {
   private ApolloAutoRefreshProperties properties;
 
   @Bean
-  @ConditionalOnProperty(prefix = ApolloAutoRefreshProperties.PREFIX, name = "enabled", matchIfMissing = true)
+  @ConditionalOnProperty(prefix = "apollo.bootstrap", name = "enabled", havingValue = "true")
   public CommandLineRunner autoRefreshChangeListener() {
     return args -> {
-      Map<String, Object> beanMap = applicationContext.getBeansWithAnnotation(ConfigurationProperties.class);
-      if (beanMap.isEmpty()) {
-        return;
-      }
       Set<String> namespaces = getAllNamespaces();
       if (namespaces.isEmpty()) {
+        return;
+      }
+      Map<String, Object> beanMap = applicationContext.getBeansWithAnnotation(ConfigurationProperties.class);
+      if (beanMap.isEmpty()) {
         return;
       }
       //创建监听器

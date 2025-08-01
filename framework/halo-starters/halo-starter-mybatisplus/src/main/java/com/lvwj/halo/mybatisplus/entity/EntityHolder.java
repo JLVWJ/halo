@@ -275,14 +275,20 @@ public class EntityHolder {
         }
       }
     });
+
+    return getResult(extraCondition, fieldNameMap);
+  }
+
+  private static String getResult(String extraCondition, Map<String, String> fieldNameMap) {
     String result = extraCondition;
     for (Map.Entry<String, String> entry : fieldNameMap.entrySet()) {
       if (!entry.getKey().equals(entry.getValue())) {
         result = result.replace(entry.getKey(), entry.getValue());
       }
     }
-    String and = result.substring(0, 3);
-    if (!and.equalsIgnoreCase(StringPool.AND)) {
+    String subFour = result.substring(0, 4);
+    String subSix = result.substring(0, 6);
+    if (!subFour.equalsIgnoreCase("and ") && !subSix.equalsIgnoreCase("order ") && !subSix.equalsIgnoreCase("limit ")) {
       result = StringPool.AND + StringPool.SPACE + result;
     }
     return result;
@@ -330,7 +336,7 @@ public class EntityHolder {
         throw new RuntimeException(String.format("Entity[%s] Field[%s]: @JoinEntity isn't support type[%s]  ", getEntityTypeName(), getFieldName(), getFieldTypeName()));
       }
       //@JoinEntity 加了这个注解的数据实体类必须实现IEntity
-      if(!IEntity.class.isAssignableFrom(fieldActualType)) {
+      if (!IEntity.class.isAssignableFrom(fieldActualType)) {
         throw new RuntimeException(String.format("Entity[%s] Field[%s]: should implements IEntity", getEntityTypeName(), getFieldName()));
       }
 

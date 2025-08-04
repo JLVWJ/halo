@@ -8,7 +8,7 @@ import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.rocketmq.annotation.AsyncRocketMQ;
 import com.lvwj.halo.rocketmq.annotation.MessageMode;
-import jakarta.annotation.Resource;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -41,16 +41,14 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 
 @Slf4j
+@AllArgsConstructor
 public class AsyncRocketMQProducerInterceptor implements MethodInterceptor {
 
-    @Resource
-    private RocketMQTemplate rocketMQTemplate;
+    private final RocketMQTemplate rocketMQTemplate;
 
-    @Resource
-    private Environment environment;
+    private final Environment environment;
 
-    @Resource
-    private Executor asyncRocketMQThreadPool;
+    private final Executor asyncRocketMQThreadPool;
 
     private final Map<Method, InvokeCacheItem> invokeCache = Maps.newConcurrentMap();
 
@@ -105,18 +103,18 @@ public class AsyncRocketMQProducerInterceptor implements MethodInterceptor {
                     sendResult = this.rocketMQTemplate.syncSend(destination, message, timeout, delayLevel);
                 }
                 String result = sendResult.getSendStatus().equals(SendStatus.SEND_OK) ? "成功" : "失败";
-                log.info("[SYNC]MQ发送{}: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", result, topic, tag, sendResult.getMsgId(), key, JsonUtil.toJson(message), sendResult);
+                log.info("[SYNC]MQ发送{}: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", result, topic, tag, sendResult.getMsgId(), key, JsonUtil.toJson(message.getPayload()), sendResult);
                 break;
             case ASYNC:
                 SendCallback sendCallback = new SendCallback() {
                     @Override
                     public void onSuccess(SendResult sendResult) {
-                        log.info("[ASYNC]MQ发送成功: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", topic, tag, sendResult.getMsgId(), key, JsonUtil.toJson(message), sendResult);
+                        log.info("[ASYNC]MQ发送成功: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", topic, tag, sendResult.getMsgId(), key, JsonUtil.toJson(message.getPayload()), sendResult);
                     }
 
                     @Override
                     public void onException(Throwable e) {
-                        log.error("[ASYNC]MQ发送失败: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, key, JsonUtil.toJson(message), e);
+                        log.error("[ASYNC]MQ发送失败: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, key, JsonUtil.toJson(message.getPayload()), e);
                     }
                 };
                 if (messageMode == MessageMode.ORDER && StringUtils.hasText(key)) {
@@ -131,7 +129,7 @@ public class AsyncRocketMQProducerInterceptor implements MethodInterceptor {
                 } else {
                     this.rocketMQTemplate.sendOneWay(destination, message);
                 }
-                log.info("[ONEWAY]MQ发送成功: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, key, JsonUtil.toJson(message));
+                log.info("[ONEWAY]MQ发送成功: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, key, JsonUtil.toJson(message.getPayload()));
                 break;
         }
     }
@@ -191,7 +189,7 @@ public class AsyncRocketMQProducerInterceptor implements MethodInterceptor {
         String topic = this.resolve(asyncRocketMQ.topic());
         String tag = this.resolve(asyncRocketMQ.tag());
         if (Func.isEmpty(tag) || tag.equals("*")) {
-            tag = method.getDeclaringClass().getSimpleName() + "_" + method.getName();
+            tag = method.getDeclaringClass().getSimpleName() + "." + method.getName();
         }
 
         Expression keyExp = null;

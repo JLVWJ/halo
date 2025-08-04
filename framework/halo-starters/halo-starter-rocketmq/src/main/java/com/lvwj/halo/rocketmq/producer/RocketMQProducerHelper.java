@@ -6,7 +6,7 @@ import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.StringPool;
 import com.lvwj.halo.rocketmq.annotation.MessageMode;
-import jakarta.annotation.Resource;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.rocketmq.client.impl.CommunicationMode;
@@ -28,10 +28,10 @@ import java.util.Map;
  * @date 2023年12月05日 17:32
  */
 @Slf4j
+@AllArgsConstructor
 public class RocketMQProducerHelper {
 
-    @Resource
-    private RocketMQTemplate rocketMQTemplate;
+    private final RocketMQTemplate rocketMQTemplate;
 
     public void apply(Long msgPK, String msgKey, String topic, String tag, String body, Integer delayLevel,
                       MessageMode msgMode, CommunicationMode communicationMode, Long timeout, boolean bodyWithHeader, boolean isStoreMsg) {
@@ -48,18 +48,18 @@ public class RocketMQProducerHelper {
                     sendResult = this.rocketMQTemplate.syncSend(destination, message, timeout, delayLevel);
                 }
                 String result = sendResult.getSendStatus().equals(SendStatus.SEND_OK) ? "成功" : "失败";
-                log.info("[SYNC]MQ发送{}: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", result, topic, tag, sendResult.getMsgId(), msgKey, JsonUtil.toJson(message), sendResult);
+                log.info("[SYNC]MQ发送{}: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", result, topic, tag, sendResult.getMsgId(), msgKey, JsonUtil.toJson(message.getPayload()), sendResult);
                 break;
             case ASYNC:
                 SendCallback sendCallback = new SendCallback() {
                     @Override
                     public void onSuccess(SendResult sendResult) {
-                        log.info("[ASYNC]MQ发送成功: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", topic, tag, sendResult.getMsgId(), msgKey, JsonUtil.toJson(message), sendResult);
+                        log.info("[ASYNC]MQ发送成功: [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [Msg:{}], [Result:{}]", topic, tag, sendResult.getMsgId(), msgKey, JsonUtil.toJson(message.getPayload()), sendResult);
                     }
 
                     @Override
                     public void onException(Throwable e) {
-                        log.error("[ASYNC]MQ发送失败: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, msgKey, JsonUtil.toJson(message), e);
+                        log.error("[ASYNC]MQ发送失败: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, msgKey, JsonUtil.toJson(message.getPayload()), e);
                     }
                 };
                 if (msgMode == MessageMode.ORDER && StringUtils.hasText(msgKey)) {
@@ -74,7 +74,7 @@ public class RocketMQProducerHelper {
                 } else {
                     this.rocketMQTemplate.sendOneWay(destination, message);
                 }
-                log.info("[ONEWAY]MQ发送成功: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, msgKey, JsonUtil.toJson(message));
+                log.info("[ONEWAY]MQ发送成功: [Topic:{}], [Tag:{}], [Key:{}], [Msg:{}]", topic, tag, msgKey, JsonUtil.toJson(message.getPayload()));
                 break;
         }
     }

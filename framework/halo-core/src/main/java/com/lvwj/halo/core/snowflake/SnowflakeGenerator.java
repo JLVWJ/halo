@@ -85,7 +85,7 @@ public class SnowflakeGenerator {
    */
   public synchronized long nextId() {
     if (shardingBits > 0) {
-      log.warn("[shardingBits:" + shardingBits + "] ==> 分表场景需要有shardValue，建议使用方法:nextId(long shardValue) ");
+      //log.warn("[shardingBits:" + shardingBits + "] ==> 分表场景需要有shardValue，建议使用方法:nextId(long shardValue) ");
     }
     return nextId(0L);
   }

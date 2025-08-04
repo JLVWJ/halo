@@ -4,6 +4,7 @@ import com.lvwj.halo.core.threadpool.ThreadPoolCache;
 import com.lvwj.halo.rocketmq.annotation.AsyncRocketMQ;
 import com.lvwj.halo.rocketmq.async.AsyncRocketMQConsumerContainerRegistry;
 import com.lvwj.halo.rocketmq.async.AsyncRocketMQProducerInterceptor;
+import jakarta.annotation.Resource;
 import org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.aop.PointcutAdvisor;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 
 import java.util.concurrent.Executor;
 
@@ -25,6 +27,12 @@ import java.util.concurrent.Executor;
 @ConditionalOnBean(RocketMQTemplate.class)
 @AutoConfigureAfter(RocketMQAutoConfiguration.class)
 public class AsyncRocketMQConfiguration {
+
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
+
+    @Resource
+    private Environment environment;
 
     @Value("${halo.async.rocketmq.threadPool.corePoolSize:5}")
     private Integer corePoolSize;
@@ -42,12 +50,12 @@ public class AsyncRocketMQConfiguration {
 
     @Bean
     public AsyncRocketMQConsumerContainerRegistry asyncRocketMQConsumerContainerRegistry() {
-        return new AsyncRocketMQConsumerContainerRegistry();
+        return new AsyncRocketMQConsumerContainerRegistry(environment, false);
     }
 
     @Bean
     public AsyncRocketMQProducerInterceptor asyncRocketMQProducerInterceptor() {
-        return new AsyncRocketMQProducerInterceptor();
+        return new AsyncRocketMQProducerInterceptor(rocketMQTemplate, environment, asyncRocketMQThreadPool());
     }
 
     @Bean

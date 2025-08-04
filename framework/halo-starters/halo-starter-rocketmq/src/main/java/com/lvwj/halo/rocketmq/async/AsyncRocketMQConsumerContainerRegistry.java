@@ -1,10 +1,9 @@
 package com.lvwj.halo.rocketmq.async;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.lvwj.halo.rocketmq.annotation.AsyncRocketMQ;
-import jakarta.annotation.Resource;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +22,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
+@AllArgsConstructor
 public class AsyncRocketMQConsumerContainerRegistry implements BeanPostProcessor, SmartLifecycle {
 
     @Getter(AccessLevel.PROTECTED)
     private final List<AsyncRocketMQConsumerContainer> consumerContainers = Lists.newArrayList();
 
-    @Resource
-    private Environment environment;
+    private final Environment environment;
 
     private volatile boolean running;
-
-    public AsyncRocketMQConsumerContainerRegistry() {
-    }
 
     @SneakyThrows
     @Override

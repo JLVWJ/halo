@@ -101,7 +101,7 @@ public class AsyncRocketMQConsumerContainer implements InitializingBean, SmartLi
 
     private String getTag(String tag) {
         if (Func.isEmpty(tag) || tag.equals("*")) {
-            tag = method.getDeclaringClass().getSimpleName() + "_" + method.getName();
+            tag = method.getDeclaringClass().getSimpleName() + "." + method.getName();
         }
         return tag;
     }
@@ -126,7 +126,7 @@ public class AsyncRocketMQConsumerContainer implements InitializingBean, SmartLi
                 String tag = messageExt.getTags();
                 String msgId = messageExt.getMsgId();
                 String msgKey = messageExt.getKeys();
-                byte[] msgBody = messageExt.getBody();
+                String msgBody = new String(messageExt.getBody(), StandardCharsets.UTF_8);
                 String traceId = messageExt.getUserProperty("tid");
                 int reconsumeTimes = messageExt.getReconsumeTimes();
                 String methodName = getMethod().getDeclaringClass().getSimpleName() + "." + getMethod().getName();
@@ -142,10 +142,10 @@ public class AsyncRocketMQConsumerContainer implements InitializingBean, SmartLi
                     getMethod().invoke(getBean(), methodParameters);
                     long costTime = System.currentTimeMillis() - now;
 
-                    log.info("MQ消费成功:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [耗时:{}毫秒]{}", methodName, topic, tag, msgId, msgKey, new String(msgBody, StandardCharsets.UTF_8), costTime, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "");
+                    log.info("MQ消费成功:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [耗时:{}毫秒]{}", methodName, topic, tag, msgId, msgKey, msgBody, costTime, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "");
                 } catch (Exception e) {
                     Throwable t = Exceptions.unwrap(e);
-                    log.error("MQ消费失败:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [异常:{}], [重试:{}次]{}", methodName, topic, tag, msgId, msgKey, new String(msgBody, StandardCharsets.UTF_8), t.getMessage(), reconsumeTimes, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "", t);
+                    log.error("MQ消费失败:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [异常:{}], [重试:{}次]{}", methodName, topic, tag, msgId, msgKey, msgBody, t.getMessage(), reconsumeTimes, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "", t);
 
                     ConsumeOrderlyStatus consumeOrderlyStatus;
                     if (skipWhenException || reconsumeTimes >= maxReconsumeTimes) {
@@ -188,7 +188,7 @@ public class AsyncRocketMQConsumerContainer implements InitializingBean, SmartLi
                 String tag = messageExt.getTags();
                 String msgId = messageExt.getMsgId();
                 String msgKey = messageExt.getKeys();
-                byte[] msgBody = messageExt.getBody();
+                String msgBody = new String(messageExt.getBody(), StandardCharsets.UTF_8);
                 String traceId = messageExt.getUserProperty("tid");
                 int reconsumeTimes = messageExt.getReconsumeTimes();
                 String methodName = getMethod().getDeclaringClass().getSimpleName() + "." + getMethod().getName();
@@ -204,10 +204,10 @@ public class AsyncRocketMQConsumerContainer implements InitializingBean, SmartLi
                     getMethod().invoke(getBean(), methodParameters);
                     long costTime = System.currentTimeMillis() - now;
 
-                    log.info("MQ消费成功:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [耗时:{}毫秒]{}", methodName, topic, tag, msgId, msgKey, new String(msgBody, StandardCharsets.UTF_8), costTime, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "");
+                    log.info("MQ消费成功:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [耗时:{}毫秒]{}", methodName, topic, tag, msgId, msgKey, msgBody, costTime, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "");
                 } catch (Exception e) {
                     Throwable t = Exceptions.unwrap(e);
-                    log.error("MQ消费失败:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [异常:{}], [重试:{}次]{}", methodName, topic, tag, msgId, msgKey, new String(msgBody, StandardCharsets.UTF_8), t.getMessage(), reconsumeTimes, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "", t);
+                    log.error("MQ消费失败:[Method:{}], [Topic:{}], [Tag:{}], [Id:{}], [Key:{}], [消息体:{}], [异常:{}], [重试:{}次]{}", methodName, topic, tag, msgId, msgKey, msgBody, t.getMessage(), reconsumeTimes, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "", t);
 
                     if (skipWhenException) {
                         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
@@ -227,9 +227,8 @@ public class AsyncRocketMQConsumerContainer implements InitializingBean, SmartLi
         }
     }
 
-    private Object[] getMethodParameters(byte[] body) {
-        String bodyAsStr = new String(body, StandardCharsets.UTF_8);
-        Map<String, String> deserialize = JsonUtil.parse(bodyAsStr, new TypeReference<>() {
+    private Object[] getMethodParameters(String body) {
+        Map<String, String> deserialize = JsonUtil.parse(body, new TypeReference<>() {
         });
         Object[] params = new Object[getMethod().getParameterCount()];
         if (Func.isEmpty(deserialize)) {

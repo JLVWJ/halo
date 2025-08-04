@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.lvwj.halo.common.utils.Exceptions;
 import com.lvwj.halo.common.utils.Func;
+import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.rocketmq.annotation.RocketMQConsumer;
 import com.lvwj.halo.rocketmq.annotation.TagHandler;
 import jakarta.annotation.Resource;
@@ -294,10 +295,12 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     //保存消息消费成功记录
 
                     long costTime = System.currentTimeMillis() - now;
-                    log.info("MQ消费成功: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, {}[耗时]:{}毫秒", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", costTime);
+
+                    log.info("MQ消费成功:[Method:{}], [Topic:{}], [Tag:{}], {}[Id:{}], [Key:{}], [消息体:{}], [耗时:{}毫秒]{}", methodName, topic, tag, StringUtils.hasText(msgPK) ? "[PK:" + msgPK + "], " : "", msgId, msgKey, JsonUtil.toJson(payload), costTime, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "");
                 } catch (Exception e) {
                     Throwable t = Exceptions.unwrap(e);
-                    log.warn("MQ消费失败: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, [异常]:{}, {}[重试]:{}次", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), t.getMessage(), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", reconsumeTimes, t);
+                    log.error("MQ消费失败:[Method:{}], [Topic:{}], [Tag:{}],{} [Id:{}], [Key:{}], [消息体:{}], [异常:{}], [重试:{}次]{}", methodName, topic, tag, StringUtils.hasText(msgPK) ? "[PK:" + msgPK + "], " : "", msgId, msgKey, JsonUtil.toJson(payload), t.getMessage(), reconsumeTimes, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "", t);
+
                     ConsumeOrderlyStatus consumeOrderlyStatus;
                     if (getSkipWhenException(tag) || reconsumeTimes >= enableReconsumeTimes) {
                         consumeOrderlyStatus = ConsumeOrderlyStatus.SUCCESS;
@@ -434,10 +437,12 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     //保存消息消费成功记录
 
                     long costTime = System.currentTimeMillis() - now;
-                    log.info("MQ消费成功: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, {}[耗时]:{}毫秒", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", costTime);
+
+                    log.info("MQ消费成功:[Method:{}], [Topic:{}], [Tag:{}], {}[Id:{}], [Key:{}], [消息体:{}], [耗时:{}毫秒]{}", methodName, topic, tag, StringUtils.hasText(msgPK) ? "[PK:" + msgPK + "], " : "", msgId, msgKey, JsonUtil.toJson(payload), costTime, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "");
                 } catch (Exception e) {
                     Throwable t = Exceptions.unwrap(e);
-                    log.warn("MQ消费失败: [方法]:{}, {}[MsgId]:{}, [MsgKey]:{}, [Topic]:{}, [Tag]:{}, [消息体]:{}, [异常]:{}, {}[重试]:{}次", methodName, StringUtils.hasText(msgPK) ? "[MsgPK]:" + msgPK + ", " : "", msgId, msgKey, topic, tag, JSON.toJSONString(payload), t.getMessage(), StringUtils.hasText(traceId) ? "[TraceId]:" + traceId + ", " : "", reconsumeTimes, t);
+                    log.error("MQ消费失败:[Method:{}], [Topic:{}], [Tag:{}],{} [Id:{}], [Key:{}], [消息体:{}], [异常:{}], [重试:{}次]{}", methodName, topic, tag, StringUtils.hasText(msgPK) ? "[PK:" + msgPK + "], " : "", msgId, msgKey, JsonUtil.toJson(payload), t.getMessage(), reconsumeTimes, StringUtils.hasText(traceId) ? "[TraceId:" + traceId + "]" : "", t);
+
                     ConsumeConcurrentlyStatus consumeConcurrentlyStatus;
                     if (getSkipWhenException(tag) || reconsumeTimes >= enableReconsumeTimes) {
                         consumeConcurrentlyStatus = ConsumeConcurrentlyStatus.CONSUME_SUCCESS;

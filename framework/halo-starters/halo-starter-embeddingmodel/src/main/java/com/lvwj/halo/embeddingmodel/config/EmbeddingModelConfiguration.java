@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
  * @date 2024年07月06日 15:10
  */
 @AutoConfiguration
-public class EmbeddingModelConfigration {
+public class EmbeddingModelConfiguration {
 
     @Bean
     public EmbeddingModel embeddingModel(){return new BgeM3QuantizedEmbeddingModelFactory().create();

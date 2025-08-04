@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
  * @date 2024年10月12日 15:53
  */
 @AutoConfiguration
-public class JiebaConfigration {
+public class JiebaConfiguration {
 
     @Bean
     public JiebaSegmenter jiebaSegmenter(){

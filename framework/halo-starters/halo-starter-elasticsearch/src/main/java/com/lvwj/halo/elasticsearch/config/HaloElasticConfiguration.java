@@ -24,7 +24,7 @@ import java.util.Optional;
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "easy-es", name = {"enable"}, havingValue = "true")
 @EnableConfigurationProperties(HaloElasticProperties.class)
-public class HaloElasticConfigration {
+public class HaloElasticConfiguration {
 
     @Resource
     private HaloElasticProperties properties;

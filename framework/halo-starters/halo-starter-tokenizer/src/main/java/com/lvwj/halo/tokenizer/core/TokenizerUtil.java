@@ -2,7 +2,7 @@ package com.lvwj.halo.tokenizer.core;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.lvwj.halo.common.utils.Func;
-import com.lvwj.halo.tokenizer.config.TokenizerConfigration;
+import com.lvwj.halo.tokenizer.config.TokenizerConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class TokenizerUtil {
         if (null == qwenTokenizer) {
             synchronized (TokenizerUtil.class) {
                 if (null == qwenTokenizer) {
-                    qwenTokenizer = SpringUtil.getBean(TokenizerConfigration.QWEN_TOKENIZER);
+                    qwenTokenizer = SpringUtil.getBean(TokenizerConfiguration.QWEN_TOKENIZER);
                 }
             }
         }

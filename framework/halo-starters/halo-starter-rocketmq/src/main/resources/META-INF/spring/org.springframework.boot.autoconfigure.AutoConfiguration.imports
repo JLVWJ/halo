@@ -1,2 +1,3 @@
 com.lvwj.halo.rocketmq.config.RocketMQProducerConfiguration
 com.lvwj.halo.rocketmq.config.RocketMQConsumerConfiguration
+com.lvwj.halo.rocketmq.config.AsyncRocketMQConfiguration

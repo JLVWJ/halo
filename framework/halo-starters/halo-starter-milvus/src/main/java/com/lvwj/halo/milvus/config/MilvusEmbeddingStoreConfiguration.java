@@ -19,7 +19,7 @@ import java.util.Map;
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "halo.milvus", value = "enabled", havingValue = "true")
 @EnableConfigurationProperties(MilvusEmbeddingStoreProperties.class)
-public class MilvusEmbeddingStoreConfigration {
+public class MilvusEmbeddingStoreConfiguration {
 
     @Resource
     private MilvusEmbeddingStoreProperties properties;

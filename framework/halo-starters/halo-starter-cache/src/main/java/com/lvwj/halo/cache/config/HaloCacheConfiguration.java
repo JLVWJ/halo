@@ -50,7 +50,7 @@ import java.util.Objects;
 @AutoConfiguration(after = {RedisTemplateConfiguration.class})
 @ConditionalOnProperty(prefix = HaloCacheProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({CacheProperties.class, HaloCacheProperties.class})
-public class HaloCacheConfigration {
+public class HaloCacheConfiguration {
 
     private final CacheProperties cacheProperties;
 
@@ -71,7 +71,7 @@ public class HaloCacheConfigration {
 
 
 
-    public HaloCacheConfigration(CacheProperties cacheProperties,
+    public HaloCacheConfiguration(CacheProperties cacheProperties,
                                  HaloCacheProperties haloCacheProperties,
                                  ObjectProvider<Caffeine<Object, Object>> caffeine,
                                  ObjectProvider<CaffeineSpec> caffeineSpec,

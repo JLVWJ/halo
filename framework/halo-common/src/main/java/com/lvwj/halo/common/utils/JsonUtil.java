@@ -1,5 +1,6 @@
 package com.lvwj.halo.common.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
@@ -251,127 +252,6 @@ public class JsonUtil {
     Objects.requireNonNull(jsonParser, "jsonParser is null");
     try {
       return getInstance().readTree(jsonParser);
-    } catch (IOException e) {
-      throw Exceptions.unchecked(e);
-    }
-  }
-
-
-  /**
-   * 将json byte 数组反序列化成对象
-   *
-   * @param content   json bytes
-   * @param valueType class
-   * @param <T>       T 泛型标记
-   * @return Bean
-   */
-  @Nullable
-  public static <T> T readValue(@Nullable byte[] content, Class<T> valueType) {
-    if (ObjectUtil.isEmpty(content)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(content, valueType);
-    } catch (IOException e) {
-      throw Exceptions.unchecked(e);
-    }
-  }
-
-  /**
-   * 将json反序列化成对象
-   *
-   * @param jsonString jsonString
-   * @param valueType  class
-   * @param <T>        T 泛型标记
-   * @return Bean
-   */
-  @Nullable
-  public static <T> T readValue(@Nullable String jsonString, Class<T> valueType) {
-    if (StringUtil.isBlank(jsonString)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(jsonString, valueType);
-    } catch (IOException e) {
-      throw Exceptions.unchecked(e);
-    }
-  }
-
-  /**
-   * 将json反序列化成对象
-   *
-   * @param in        InputStream
-   * @param valueType class
-   * @param <T>       T 泛型标记
-   * @return Bean
-   */
-  @Nullable
-  public static <T> T readValue(@Nullable InputStream in, Class<T> valueType) {
-    if (in == null) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(in, valueType);
-    } catch (IOException e) {
-      throw Exceptions.unchecked(e);
-    }
-  }
-
-  /**
-   * 将json反序列化成对象
-   *
-   * @param content       bytes
-   * @param typeReference 泛型类型
-   * @param <T>           T 泛型标记
-   * @return Bean
-   */
-  @Nullable
-  public static <T> T readValue(@Nullable byte[] content, TypeReference<T> typeReference) {
-    if (ObjectUtil.isEmpty(content)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(content, typeReference);
-    } catch (IOException e) {
-      throw Exceptions.unchecked(e);
-    }
-  }
-
-  /**
-   * 将json反序列化成对象
-   *
-   * @param jsonString    jsonString
-   * @param typeReference 泛型类型
-   * @param <T>           T 泛型标记
-   * @return Bean
-   */
-  @Nullable
-  public static <T> T readValue(@Nullable String jsonString, TypeReference<T> typeReference) {
-    if (StringUtil.isBlank(jsonString)) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(jsonString, typeReference);
-    } catch (IOException e) {
-      throw Exceptions.unchecked(e);
-    }
-  }
-
-  /**
-   * 将json反序列化成对象
-   *
-   * @param in            InputStream
-   * @param typeReference 泛型类型
-   * @param <T>           T 泛型标记
-   * @return Bean
-   */
-  @Nullable
-  public static <T> T readValue(@Nullable InputStream in, TypeReference<T> typeReference) {
-    if (in == null) {
-      return null;
-    }
-    try {
-      return getInstance().readValue(in, typeReference);
     } catch (IOException e) {
       throw Exceptions.unchecked(e);
     }
@@ -648,7 +528,7 @@ public class JsonUtil {
       //去掉默认的时间戳格式
       super.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
       //设置为零时区
-      super.setTimeZone(TimeZone.getTimeZone("UTC"));
+      super.setTimeZone(DateTimeConstant.TIME_ZONE_UTC);
       //序列化时，日期的统一格式
       super.setDateFormat(new SimpleDateFormat(DateTimeConstant.PATTERN_DATETIME, locale));
       //禁用时区调整特性
@@ -662,6 +542,7 @@ public class JsonUtil {
       //失败处理
       super.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
       super.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      super.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       //日期格式化
       super.registerModule(new JavaTimeModule());
       super.registerModule(new BigNumberModule());
@@ -690,12 +571,12 @@ public class JsonUtil {
 
     public JavaTimeModule() {
       super(PackageVersion.VERSION);
-      this.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeConstant.FORMAT_DATETIME));
-      this.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeConstant.FORMAT_DATE));
-      this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeConstant.FORMAT_TIME));
-      this.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeConstant.FORMAT_DATETIME));
-      this.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeConstant.FORMAT_DATE));
-      this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeConstant.FORMAT_TIME));
+      this.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeConstant.FORMAT_DATETIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeConstant.FORMAT_DATE.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeConstant.FORMAT_TIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeConstant.FORMAT_DATETIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeConstant.FORMAT_DATE.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeConstant.FORMAT_TIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
     }
   }
 }

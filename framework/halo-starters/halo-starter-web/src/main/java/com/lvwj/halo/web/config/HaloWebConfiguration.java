@@ -20,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-public class HaloWebConfigration implements WebMvcConfigurer {
+public class HaloWebConfiguration implements WebMvcConfigurer {
 
    /* @Resource
     private ObjectMapper objectMapper;*/

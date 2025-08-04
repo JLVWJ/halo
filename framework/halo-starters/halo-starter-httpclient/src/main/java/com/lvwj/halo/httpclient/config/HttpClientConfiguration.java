@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2024年03月21日 15:50
  */
 @AutoConfiguration
-public class HttpClientConfigration {
+public class HttpClientConfiguration {
 
     @Value("${halo.http.client.okHttp3.readTimeout:120}")
     private Integer readTimeout;

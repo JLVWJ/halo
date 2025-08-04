@@ -1,13 +1,11 @@
 package com.lvwj.halo.rocketmq.producer;
 
-
 import com.google.common.collect.Maps;
 import com.lvwj.halo.common.constants.NumberConstant;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.domain.event.IntegrationEvent;
-import com.lvwj.halo.core.threadpool.ThreadPoolCache;
 import com.lvwj.halo.rocketmq.annotation.MessageMode;
 import com.lvwj.halo.rocketmq.annotation.RocketMQProducer;
 import lombok.Data;
@@ -49,13 +47,14 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
 
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    private final Executor executor = ThreadPoolCache.getCustomizeThreadPool("RocketMQProducer", 2, 4, 5000);
-
     @Autowired
     private Environment environment;
 
     @Autowired
     private RocketMQProducerHelper producerHelper;
+
+    @Autowired
+    private Executor rocketMQProducerThreadPool;
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -83,7 +82,7 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
             producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore());
         } else {
-            executor.execute(() -> producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
+            rocketMQProducerThreadPool.execute(() -> producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore()));
         }
     }

@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Primary;
  * @date 2024年07月06日 15:02
  */
 @AutoConfiguration
-public class HaloJacksonConfigration {
+public class HaloJacksonConfiguration {
 
     @Bean
     @Primary

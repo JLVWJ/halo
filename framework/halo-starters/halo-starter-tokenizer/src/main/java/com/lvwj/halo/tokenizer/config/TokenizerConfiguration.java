@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
  * @date 2024年08月02日 15:16
  */
 @AutoConfiguration
-public class TokenizerConfigration {
+public class TokenizerConfiguration {
 
     public static final String QWEN_TOKENIZER = "qwenTokenizer";
 

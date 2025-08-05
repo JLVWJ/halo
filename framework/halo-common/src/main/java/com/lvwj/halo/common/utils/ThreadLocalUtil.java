@@ -115,35 +115,11 @@ public class ThreadLocalUtil {
   }
 
   /**
-   * 设置当前用户
-   *
-   * @author lvweijie
-   * @date 2024/8/31 17:58
-   * @param currentUser 当前用户
-   */
-  @Deprecated
-  public static void putCurrentUser(String currentUser) {
-    putIfNotEmpty(CURRENT_USERNAME, currentUser);
-  }
-
-  /**
-   * 获取当前用户
-   *
-   * @author lvweijie
-   * @date 2024/8/31 17:58
-   * @return java.lang.String
-   */
-  @Deprecated
-  public static String getCurrentUser() {
-    return get(CURRENT_USERNAME);
-  }
-
-  /**
    * 设置当前用户名称
    *
+   * @param currentUser 当前用户
    * @author lvweijie
    * @date 2024/8/31 17:58
-   * @param currentUser 当前用户
    */
   public static void putCurrentUserName(String currentUser) {
     putIfNotEmpty(CURRENT_USERNAME, currentUser);
@@ -152,9 +128,9 @@ public class ThreadLocalUtil {
   /**
    * 获取当前用户名称
    *
+   * @return java.lang.String
    * @author lvweijie
    * @date 2024/8/31 17:58
-   * @return java.lang.String
    */
   public static String getCurrentUserName() {
     return get(CURRENT_USERNAME);
@@ -163,9 +139,9 @@ public class ThreadLocalUtil {
   /**
    * 设置当前用户ID
    *
+   * @param userId 当前用户
    * @author lvweijie
    * @date 2024/8/31 17:58
-   * @param userId 当前用户
    */
   public static void putCurrentUserId(Long userId) {
     putIfNotEmpty(CURRENT_USERID, userId);
@@ -174,9 +150,9 @@ public class ThreadLocalUtil {
   /**
    * 获取当前用户ID
    *
+   * @return java.lang.String
    * @author lvweijie
    * @date 2024/8/31 17:58
-   * @return java.lang.String
    */
   public static Long getCurrentUserId() {
     return get(CURRENT_USERID);

@@ -68,8 +68,8 @@ public class LogicDeleteInnerInterceptor extends JsqlParserSupport implements In
             if (tableInfo.getFieldList().stream().anyMatch(s -> s.getColumn().equals(DELETE_TIME))) {
                 update.addUpdateSet(new UpdateSet(new Column(DELETE_TIME), new StringValue(DateTimeUtil.formatDateTime(LocalDateTime.now()))));
             }
-            if (tableInfo.getFieldList().stream().anyMatch(s -> s.getColumn().equals(DELETE_BY)) && Func.isNotBlank(ThreadLocalUtil.getCurrentUser())) {
-                update.addUpdateSet(new UpdateSet(new Column(DELETE_BY), new StringValue(ThreadLocalUtil.getCurrentUser())));
+            if (tableInfo.getFieldList().stream().anyMatch(s -> s.getColumn().equals(DELETE_BY)) && Func.isNotBlank(ThreadLocalUtil.getCurrentUserName())) {
+                update.addUpdateSet(new UpdateSet(new Column(DELETE_BY), new StringValue(ThreadLocalUtil.getCurrentUserName())));
             }
         }
     }

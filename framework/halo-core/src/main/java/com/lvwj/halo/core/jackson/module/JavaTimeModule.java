@@ -39,12 +39,12 @@ public class JavaTimeModule extends SimpleModule {
       this.addDeserializer(LocalDateTime.class, new LocalDateTimeFromUnixTimeDeserializer());
       this.addDeserializer(LocalDate.class, new LocalDateFromUnixTimeDeserializer());
     } else {
-      this.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeConstant.FORMAT_DATETIME));
-      this.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeConstant.FORMAT_DATE));
-      this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeConstant.FORMAT_TIME));
-      this.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeConstant.FORMAT_DATETIME));
-      this.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeConstant.FORMAT_DATE));
-      this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeConstant.FORMAT_TIME));
+      this.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeConstant.FORMAT_DATETIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeConstant.FORMAT_DATE.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeConstant.FORMAT_TIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeConstant.FORMAT_DATETIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeConstant.FORMAT_DATE.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
+      this.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeConstant.FORMAT_TIME.withZone(DateTimeConstant.TIME_ZONE_UTC.toZoneId())));
     }
   }
 }

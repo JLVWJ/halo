@@ -3,6 +3,7 @@ package com.lvwj.halo.common.constants;
 import com.lvwj.halo.common.utils.ConcurrentDateFormat;
 
 import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 /**
  * 时间
@@ -10,6 +11,9 @@ import java.time.format.DateTimeFormatter;
 public class DateTimeConstant {
 
     private DateTimeConstant(){}
+
+    public static final TimeZone TIME_ZONE_UTC = TimeZone.getTimeZone("UTC");
+    public static final TimeZone TIME_ZONE_CN = TimeZone.getTimeZone("GMT+8");
 
     //=================================== 标准时间格式 =========================================//
 

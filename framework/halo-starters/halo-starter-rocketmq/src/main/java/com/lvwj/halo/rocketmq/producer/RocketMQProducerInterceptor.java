@@ -1,15 +1,14 @@
 package com.lvwj.halo.rocketmq.producer;
 
-
 import com.google.common.collect.Maps;
 import com.lvwj.halo.common.constants.NumberConstant;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.TransactionUtil;
 import com.lvwj.halo.core.domain.event.IntegrationEvent;
-import com.lvwj.halo.core.threadpool.ThreadPoolCache;
 import com.lvwj.halo.rocketmq.annotation.MessageMode;
 import com.lvwj.halo.rocketmq.annotation.RocketMQProducer;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -18,7 +17,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.rocketmq.client.impl.CommunicationMode;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.env.Environment;
@@ -41,6 +39,7 @@ import java.util.concurrent.Executor;
  * @date 2023年11月20日 18:37
  */
 @Slf4j
+@AllArgsConstructor
 public class RocketMQProducerInterceptor implements MethodInterceptor {
 
     private final Map<Method, InvokeCacheItem> invokeCache = Maps.newConcurrentMap();
@@ -49,13 +48,11 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
 
     private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    private final Executor executor = ThreadPoolCache.getCustomizeThreadPool("RocketMQProducer", 2, 4, 5000);
+    private final Environment environment;
 
-    @Autowired
-    private Environment environment;
+    private final RocketMQProducerHelper producerHelper;
 
-    @Autowired
-    private RocketMQProducerHelper producerHelper;
+    private final Executor rocketMQProducerThreadPool;
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -83,7 +80,7 @@ public class RocketMQProducerInterceptor implements MethodInterceptor {
             producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore());
         } else {
-            executor.execute(() -> producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
+            rocketMQProducerThreadPool.execute(() -> producerHelper.apply(msgPK, msgKey, invokeItem.getTopic(), invokeItem.getTag(), msgBody, delayLevel,
                     invokeItem.getMessageMode(), invokeItem.getCommunicationMode(), invokeItem.getTimeout(), invokeItem.bodyWithHeader, event.isStore()));
         }
     }

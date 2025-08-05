@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(value = {Swagger3Properties.class})
-public class Swagger3Configration {
+public class Swagger3Configuration {
 
     @Resource
     private Swagger3Properties swagger3Properties;

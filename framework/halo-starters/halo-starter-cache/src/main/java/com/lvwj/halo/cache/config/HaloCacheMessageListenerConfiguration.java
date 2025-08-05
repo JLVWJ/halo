@@ -15,9 +15,9 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 
 import java.util.Objects;
 
-@AutoConfiguration(after = {HaloCacheConfigration.class})
+@AutoConfiguration(after = {HaloCacheConfiguration.class})
 @ConditionalOnProperty(prefix = HaloCacheProperties.PREFIX, value = "enabled", havingValue = "true")
-public class HaloCacheMessageListenerConfigration {
+public class HaloCacheMessageListenerConfiguration {
 
     @Resource
     private RedisSerializer<Object> redisSerializer;

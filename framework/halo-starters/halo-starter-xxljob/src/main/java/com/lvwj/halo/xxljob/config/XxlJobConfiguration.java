@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 @Slf4j
 @AutoConfiguration
 @ConditionalOnProperty(prefix = "halo.xxlJob", value = "enabled", havingValue = "true")
-public class XxlJobConfigration {
+public class XxlJobConfiguration {
 
     @Value("${halo.xxlJob.admin.addresses}")
     private String adminAddresses;

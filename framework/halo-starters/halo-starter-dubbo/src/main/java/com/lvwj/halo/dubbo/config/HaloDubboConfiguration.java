@@ -21,7 +21,7 @@ import static org.apache.dubbo.spring.boot.util.DubboUtils.DUBBO_PREFIX;
 @AutoConfiguration
 @ConditionalOnProperty(prefix = DUBBO_PREFIX, name = "registry.address")
 @EnableConfigurationProperties({HaloDubboProperties.class})
-public class HaloDubboConfigration {
+public class HaloDubboConfiguration {
 
     @Bean
     @ConditionalOnBean(MeterRegistry.class)

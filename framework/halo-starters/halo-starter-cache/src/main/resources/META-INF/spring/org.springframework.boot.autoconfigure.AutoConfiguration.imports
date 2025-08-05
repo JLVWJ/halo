@@ -1,2 +1,2 @@
-com.lvwj.halo.cache.config.HaloCacheConfigration
-com.lvwj.halo.cache.config.HaloCacheMessageListenerConfigration
+com.lvwj.halo.cache.config.HaloCacheConfiguration
+com.lvwj.halo.cache.config.HaloCacheMessageListenerConfiguration

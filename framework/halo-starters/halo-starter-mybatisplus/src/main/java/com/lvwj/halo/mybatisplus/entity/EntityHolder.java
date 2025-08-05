@@ -8,11 +8,9 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.sql.StringEscape;
 import com.lvwj.halo.common.models.entity.IEntity;
-import com.lvwj.halo.common.utils.CharPool;
-import com.lvwj.halo.common.utils.Func;
-import com.lvwj.halo.common.utils.StringPool;
-import com.lvwj.halo.common.utils.StringUtil;
+import com.lvwj.halo.common.utils.*;
 import com.lvwj.halo.mybatisplus.annotation.JoinEntity;
 import com.lvwj.halo.mybatisplus.mapper.CustomMapper;
 import jakarta.annotation.PostConstruct;
@@ -188,7 +186,7 @@ public class EntityHolder {
       Class<?> fieldActualType = entityField.getFieldActualType();//字段实际类型
       String primaryKey = entityField.getJoinEntity().primaryKey().trim();
       String foreignKey = entityField.getJoinEntity().foreignKey().trim();
-      String extraCondition = parseExtraCondition(fieldActualType, entityField.getJoinEntity().extraCondition().trim());
+      String extraCondition = parseExtraCondition(fieldActualType, entityField.getJoinEntity().extraCondition().trim(), entities);
 
       //获取primaryKey集合
       Set<Object> pks = entities.stream().map(entityField::getPrimaryKeyValue).filter(Func::isNotEmpty).collect(Collectors.toSet());
@@ -244,48 +242,75 @@ public class EntityHolder {
     }
   }
 
-  private static String parseExtraCondition(Class<?> fieldActualType, String extraCondition) {
+  private static String getFieldValue(String fieldName, List<IEntity<?>> entities) {
+    Object fieldValue = ThreadLocalUtil.get(fieldName);
+    if (fieldValue == null) {
+      String field = fieldName.substring(1);
+      fieldValue = entities.stream().map(s -> EntityHolder.getFieldValue(s, field)).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+    if (Func.isEmpty(fieldValue)) {
+      throw new RuntimeException("@JoinEntity(extraCondition[" + fieldName + "])'s value is not found");
+    }
+
+    Collection<Object> list;
+    Class<?> argument;
+    if (Collection.class.isAssignableFrom(fieldValue.getClass())) {
+      argument = ((Collection<Object>) fieldValue).iterator().next().getClass();
+      list = (Collection<Object>) fieldValue;
+    } else {
+      argument = fieldValue.getClass();
+      list = Arrays.asList(fieldValue);
+    }
+
+    return list.stream().map(s -> argument.equals(String.class) ? StringEscape.escapeString(((String) s).trim()) : String.valueOf(s)).collect(Collectors.joining(","));
+  }
+
+  private static final List<Character> ignoreChar = Arrays.asList(CharPool.EQUAL_TO, CharPool.LEFT_BRACKET, CharPool.RIGHT_BRACKET, CharPool.SPACE, CharPool.QUOTE, CharPool.SINGLE_QUOTE, CharPool.NEWLINE, CharPool.COMMA, CharPool.AMPERSAND);
+  private static final List<String> ignoreStr = Arrays.asList(StringPool.AND, StringPool.OR, StringPool.NULL, StringPool.FALSE, StringPool.TRUE, "where", "order", "by", "group", "having", "limit", "offset");
+
+  private static String parseExtraCondition(Class<?> fieldActualType, String extraCondition, List<IEntity<?>> entities) {
     if (Func.isEmpty(extraCondition)) {
       return null;
     }
-    Map<String, String> fieldNameMap = new HashMap<>();
-    List<Character> ignoreChar = Arrays.asList(CharPool.EQUAL_TO, CharPool.LEFT_BRACKET, CharPool.RIGHT_BRACKET, CharPool.SPACE, CharPool.QUOTE, CharPool.SINGLE_QUOTE, CharPool.NEWLINE);
-    List<String> ignoreStr = Arrays.asList(StringPool.AND, StringPool.OR, StringPool.NULL, StringPool.FALSE, StringPool.TRUE, "where", "order", "by", "group", "having", "limit", "offset");
-    List<Character> chars = new ArrayList<>();
+    List<Character> allChars = new ArrayList<>();
+
+    List<Character> tempChars = new ArrayList<>();
     extraCondition.chars().forEach(c -> {
       char ch = (char) c;
       if (!ignoreChar.contains(ch)) {
-        chars.add(ch);
+        tempChars.add(ch);
       } else {
-        if (!chars.isEmpty()) {
-          String fieldName = chars.stream().map(String::valueOf).collect(Collectors.joining());
-          if (!ignoreStr.contains(fieldName.toLowerCase())) {
-            String columnName = getColumnName(fieldActualType, fieldName);
-            if (Func.isNotEmpty(columnName)) {
-              fieldNameMap.put(fieldName, columnName);
-            }
-            //fieldName.indexOf(CharPool.UNDERSCORE) > -1 表示用的可能是表字段名
-            else if (fieldName.indexOf(CharPool.UNDERSCORE) > -1) {
-              if (Func.isNotEmpty(getColumnName(fieldActualType, StringUtil.underlineToHump(fieldName)))) {
-                fieldNameMap.put(fieldName, fieldName);
+        if (!tempChars.isEmpty()) {
+          String fieldName = tempChars.stream().map(String::valueOf).collect(Collectors.joining());
+          //上下文变量 #userId
+          if (tempChars.get(0).equals(CharPool.HASH)) {
+            String fieldValue = getFieldValue(fieldName, entities);
+            fieldValue.chars().forEach(b -> allChars.add((char) b));
+          } else {
+            if (!ignoreStr.contains(fieldName.toLowerCase())) {
+              //获取fieldName对应的columnName
+              String columnName = getColumnName(fieldActualType, fieldName);
+              if (Func.isEmpty(columnName)) {
+                if (fieldName.indexOf(CharPool.UNDERSCORE) > -1) {
+                  columnName = getColumnName(fieldActualType, StringUtil.underlineToHump(fieldName));
+                }
               }
+              if (Func.isNotEmpty(columnName)) {
+                columnName.chars().forEach(b -> allChars.add((char) b));
+              } else {
+                allChars.addAll(tempChars);
+              }
+            } else {
+              allChars.addAll(tempChars);
             }
           }
-          chars.clear();
+          tempChars.clear();
         }
+        allChars.add(ch);
       }
     });
 
-    return getResult(extraCondition, fieldNameMap);
-  }
-
-  private static String getResult(String extraCondition, Map<String, String> fieldNameMap) {
-    String result = extraCondition;
-    for (Map.Entry<String, String> entry : fieldNameMap.entrySet()) {
-      if (!entry.getKey().equals(entry.getValue())) {
-        result = result.replace(entry.getKey(), entry.getValue());
-      }
-    }
+    String result = allChars.stream().map(String::valueOf).collect(Collectors.joining());
     String subFour = result.substring(0, 4);
     String subSix = result.substring(0, 6);
     if (!subFour.equalsIgnoreCase("and ") && !subSix.equalsIgnoreCase("order ") && !subSix.equalsIgnoreCase("limit ")) {

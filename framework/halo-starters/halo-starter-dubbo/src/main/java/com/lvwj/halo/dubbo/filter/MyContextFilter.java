@@ -22,7 +22,6 @@ public class MyContextFilter implements Filter, Filter.Listener {
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         RpcContextUtil.setLocaleContextHolder();
         MDC.put(SystemConstant.TRACE_ID, RpcContextUtil.getTraceId());
-        ThreadLocalUtil.putCurrentUser(RpcContextUtil.getUserName());
         ThreadLocalUtil.putCurrentUserName(RpcContextUtil.getUserName());
         ThreadLocalUtil.putCurrentUserId(RpcContextUtil.getUserId());
         return invoker.invoke(invocation);

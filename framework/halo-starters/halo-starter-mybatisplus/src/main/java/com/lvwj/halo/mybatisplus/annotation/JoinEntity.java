@@ -35,7 +35,10 @@ public @interface JoinEntity {
   String foreignKey() default "";
 
   /**
-   * 查询关联实体的额外条件(例如: 主表关联查询明细表,额外条件是明细表的状态等于1且类型等于2，extraCondition="status=1 and type=2")
+   * 查询关联实体的额外条件
+   * 例如: 主表关联查询明细表,额外条件是明细表的状态等于1且类型等于2，extraCondition="status=1 and type=2"
+   * 例如: 主表关联查询明细表,额外条件是明细表的状态等于主表字段值，extraCondition="status=#orderStatus" (orderStatus是主表字段)
+   * 例如: 主表关联查询明细表,额外条件是明细表的状态等于线程上下文的值，extraCondition="status=#status" (ThreadLocalUtil.get("#status"))
    */
   String extraCondition() default "";
 }

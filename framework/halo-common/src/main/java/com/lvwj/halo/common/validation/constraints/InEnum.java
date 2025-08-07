@@ -1,6 +1,5 @@
 package com.lvwj.halo.common.validation.constraints;
 
-import com.lvwj.halo.common.constants.ValidateConstant;
 import com.lvwj.halo.common.enums.IEnum;
 import com.lvwj.halo.common.validation.validators.InEnumValidator;
 

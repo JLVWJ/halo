@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.1</version>
+        <version>3.3.13</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
@@ -20,17 +20,19 @@
         <revision>1.0.0-SNAPSHOT</revision>
 
         <!-- spring boot cloud/cloud alibaba -->
-        <spring.boot.version>3.3.1</spring.boot.version>
+        <spring.boot.version>3.3.13</spring.boot.version>
         <spring.cloud.version>2022.0.0</spring.cloud.version>
         <spring.cloud.alibaba.version>2023.0.1.0</spring.cloud.alibaba.version>
 
-        <maven-compiler-plugin>3.12.1</maven-compiler-plugin>
-        <maven-archetype-plugin>3.2.0</maven-archetype-plugin>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven-compiler-plugin>3.13.0</maven-compiler-plugin>
+        <maven-archetype-plugin>3.2.1</maven-archetype-plugin>
         <dockerfile-maven-plugin>1.4.13</dockerfile-maven-plugin>
         <flatten-maven-plugin.version>1.6.0</flatten-maven-plugin.version>
 
-        <lombok.version>1.18.30</lombok.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <lombok.version>1.18.38</lombok.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 
         <auto-service.version>1.1.1</auto-service.version>
@@ -39,29 +41,28 @@
         <mysql.version>9.0.0</mysql.version>
         <hutool.version>5.8.32</hutool.version>
         <guava.version>33.2.1-jre</guava.version>
-        <jackson.version>2.17.2</jackson.version>
+        <jackson.version>2.17.3</jackson.version>
         <fastjson.version>2.0.52</fastjson.version>
         <fastjson2.version>2.0.52</fastjson2.version>
         <javers.version>7.8.0</javers.version>
         <slf4j.version>2.0.7</slf4j.version>
-        <commons.lang3.version>3.15.0</commons.lang3.version>
-        <commons.pool2.version>2.12.0</commons.pool2.version>
-        <commons.compress.version>1.26.2</commons.compress.version>
+        <commons.lang3.version>3.18.0</commons.lang3.version>
+        <commons.pool2.version>2.12.1</commons.pool2.version>
+        <commons.compress.version>1.28.0</commons.compress.version>
         <commons.text.version>1.12.0</commons.text.version>
         <commons.math3.version>3.6.1</commons.math3.version>
         <commons.exec.version>1.4.0</commons.exec.version>
-        <commons.collections4.version>4.5.0-M2</commons.collections4.version>
+        <commons.collections4.version>4.5.0</commons.collections4.version>
         <commons.collections.version>3.2.2</commons.collections.version>
-        <alibaba.ttl.version>2.14.2</alibaba.ttl.version>
+        <alibaba.ttl.version>2.14.5</alibaba.ttl.version>
 
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
 
         <xxljob.version>2.1.2</xxljob.version>
         <zookeeper.version>3.8.4</zookeeper.version>
-        <rocketmq.starter.version>2.3.0</rocketmq.starter.version>
-        <apollo.client.version>2.2.0</apollo.client.version>
+        <rocketmq.starter.version>2.3.4</rocketmq.starter.version>
+        <apollo.client.version>2.4.0</apollo.client.version>
         <milvus.version>2.4.1</milvus.version>
-        <dubbo.version>3.2.18</dubbo.version>
         <curator.version>5.4.0</curator.version>
         <redisson.version>3.18.0</redisson.version>
         <jsqlparser.version>5.0</jsqlparser.version>
@@ -70,13 +71,16 @@
         <okhttp3.version>4.12.0</okhttp3.version>
         <caffeine.version>3.1.8</caffeine.version>
 
-        <shenyu-spring-boot-starter-client-apache-dubbo.version>2.5.0</shenyu-spring-boot-starter-client-apache-dubbo.version>
+        <dubbo.version>3.3.5</dubbo.version>
+        <dubbo-dependencies-zookeeper-curator5.version>3.3.2</dubbo-dependencies-zookeeper-curator5.version>
+        <dubbo-spring-boot-observability-starter.version>3.2.18</dubbo-spring-boot-observability-starter.version>
+        <shenyu-spring-boot-starter-client-apache-dubbo.version>2.6.1</shenyu-spring-boot-starter-client-apache-dubbo.version>
 
-        <protobuf-java.version>3.24.2</protobuf-java.version>
+        <protobuf-java.version>3.25.8</protobuf-java.version>
 
         <javax.servlet-api>4.0.1</javax.servlet-api>
 
-        <log.record.version>1.6.3</log.record.version>
+        <log.record.version>1.7.1</log.record.version>
         <sentry.version>7.11.0</sentry.version>
 
         <mybatis.plus.version>3.5.7</mybatis.plus.version>
@@ -98,13 +102,12 @@
         <shardingsphere-jdbc-core.version>5.3.2</shardingsphere-jdbc-core.version>
 
         <skywalking-toolkit.version>9.3.0</skywalking-toolkit.version>
-        <liteflow.starter.version>2.12.2</liteflow.starter.version>
+        <liteflow.starter.version>2.13.2.1</liteflow.starter.version>
         <langchain4j.version>0.32.0</langchain4j.version>
 
         <knife4j-openapi3-jakarta-starter.version>4.5.0</knife4j-openapi3-jakarta-starter.version>
 
-        <es-rest-high-level-client.version>7.14.0</es-rest-high-level-client.version>
-        <es.version>7.14.0</es.version>
+        <elasticsearch.version>7.17.28</elasticsearch.version>
         <easy-es.version>2.0.0</easy-es.version>
     </properties>
 
@@ -287,16 +290,25 @@
                 <version>${easy-es.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.elasticsearch.client</groupId>
-                <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>${es-rest-high-level-client.version}</version>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>co.elastic.clients</groupId>
+                <artifactId>elasticsearch-java</artifactId>
+                <version>${elasticsearch.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>${es.version}</version>
+                <artifactId>elasticsearch-geo</artifactId>
+                <version>${elasticsearch.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
 
             <!-- operation log -->
             <dependency>
@@ -617,13 +629,48 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-common</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-rpc-api</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-rest-openapi</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-spring-boot-starter</artifactId>
                 <version>${dubbo.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
-                <artifactId>dubbo-dependencies-zookeeper-curator5</artifactId>
+                <artifactId>dubbo-spring-boot-actuator</artifactId>
                 <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-actuator-compatible</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-autoconfigure</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-autoconfigure-compatible</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-dependencies-zookeeper-curator5</artifactId>
+                <version>${dubbo-dependencies-zookeeper-curator5.version}</version>
                 <type>pom</type>
                 <exclusions>
                     <exclusion>
@@ -639,7 +686,7 @@
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-spring-boot-observability-starter</artifactId>
-                <version>${dubbo.version}</version>
+                <version>${dubbo-spring-boot-observability-starter.version}</version>
             </dependency>
             <!-- curator -->
             <dependency>
@@ -1173,8 +1220,8 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>qudian</id>
-            <name>qudian maven</name>
+            <id>lvwj</id>
+            <name>lvwj maven</name>
             <url>http://120.26.50.3:8081/repository/maven-releases/</url>
             <releases>
             </releases>

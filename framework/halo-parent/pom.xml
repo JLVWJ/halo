@@ -84,6 +84,7 @@
 
         <mybatis.plus.version>3.5.7</mybatis.plus.version>
         <mybatis.spring.version>3.0.3</mybatis.spring.version>
+        <velocity.engine.version>2.4.1</velocity.engine.version>
 
         <swagger.version>3.0.0</swagger.version>
         <swagger2.version>1.6.14</swagger2.version>
@@ -520,6 +521,12 @@
                 <artifactId>mybatis-spring</artifactId>
                 <version>${mybatis.spring.version}</version>
                 <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-engine-core</artifactId>
+                <version>${velocity.engine.version}</version>
             </dependency>
 
             <!-- mapstruct -->

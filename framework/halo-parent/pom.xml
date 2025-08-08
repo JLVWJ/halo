@@ -37,7 +37,7 @@
 
         <auto-service.version>1.1.1</auto-service.version>
         <javapoet.version>1.13.0</javapoet.version>
-        <netty.version>4.1.113.Final</netty.version>
+        <netty.version>4.2.3.Final</netty.version>
         <mysql.version>9.0.0</mysql.version>
         <hutool.version>5.8.32</hutool.version>
         <guava.version>33.2.1-jre</guava.version>
@@ -73,7 +73,6 @@
 
         <dubbo.version>3.3.5</dubbo.version>
         <dubbo-dependencies-zookeeper-curator5.version>3.3.2</dubbo-dependencies-zookeeper-curator5.version>
-        <dubbo-spring-boot-observability-starter.version>3.2.18</dubbo-spring-boot-observability-starter.version>
         <shenyu-spring-boot-starter-client-apache-dubbo.version>2.6.1</shenyu-spring-boot-starter-client-apache-dubbo.version>
 
         <protobuf-java.version>3.25.8</protobuf-java.version>
@@ -629,16 +628,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
-                <artifactId>dubbo-common</artifactId>
-                <version>${dubbo.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.dubbo</groupId>
-                <artifactId>dubbo-rpc-api</artifactId>
-                <version>${dubbo.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-rest-openapi</artifactId>
                 <version>${dubbo.version}</version>
             </dependency>
@@ -669,6 +658,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-observability-spring-boot-starter</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-dependencies-zookeeper-curator5</artifactId>
                 <version>${dubbo-dependencies-zookeeper-curator5.version}</version>
                 <type>pom</type>
@@ -683,11 +677,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.apache.dubbo</groupId>
-                <artifactId>dubbo-spring-boot-observability-starter</artifactId>
-                <version>${dubbo-spring-boot-observability-starter.version}</version>
-            </dependency>
+
             <!-- curator -->
             <dependency>
                 <groupId>org.apache.curator</groupId>

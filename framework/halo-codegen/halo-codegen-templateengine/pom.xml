@@ -12,12 +12,6 @@
     <artifactId>halo-codegen-templateengine</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <mybatis.plus.version>3.5.7</mybatis.plus.version>
-        <velocity.engine.version>2.4.1</velocity.engine.version>
-        <mysql.version>9.0.0</mysql.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -29,7 +23,6 @@
             <artifactId>mybatis-plus-generator</artifactId>
             <version>${mybatis.plus.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.velocity/velocity-engine-core -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>

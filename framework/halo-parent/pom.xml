@@ -1088,6 +1088,11 @@
                 <artifactId>halo-starter-tokenizer</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>com.lvwj.halo</groupId>
+                <artifactId>halo-codegen-templateengine</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

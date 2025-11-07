@@ -1,9 +1,11 @@
 package com.lvwj.halo.dubbo.util;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lvwj.halo.common.constants.SystemConstant;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
+import com.lvwj.halo.common.utils.StringPool;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.slf4j.MDC;
@@ -12,9 +14,11 @@ import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -57,7 +61,27 @@ public class RpcContextUtil {
         if (Func.isBlank(zoneId)) {
             zoneId = RpcContext.getServerAttachment().getAttachment(SystemConstant.ZONE_ID);
         }
+        if (Func.isBlank(zoneId)) {
+            zoneId = RpcContext.getServerAttachment().getAttachment(SystemConstant.X_TIME_ZONE);
+        }
+        if (Func.isBlank(zoneId)) {
+            zoneId = RpcContext.getServerAttachment().getAttachment(SystemConstant.TIME_ZONE);
+        }
+        zoneId = parseZoneId(zoneId);
         return StringUtils.hasLength(zoneId) ? ZoneId.of(zoneId) : ZoneId.systemDefault();
+    }
+
+    private static String parseZoneId(String zoneId) {
+        if (Func.isBlank(zoneId)) return StringPool.EMPTY;
+        zoneId = zoneId.replaceAll(StringPool.SPACE, StringPool.EMPTY);
+        String prefix = zoneId.substring(0, 3);
+        if (prefix.equalsIgnoreCase(StringPool.UTC) || prefix.equalsIgnoreCase(StringPool.GMT)) {
+            zoneId = zoneId.substring(3);
+        }
+        if ((zoneId.startsWith(StringPool.PLUS) || zoneId.startsWith(StringPool.DASH)) && zoneId.contains(StringPool.COLON)) {
+            zoneId = zoneId.charAt(0) + Arrays.stream(zoneId.substring(1).split(StringPool.COLON)).map(a -> String.format("%02d", Integer.parseInt(a))).collect(Collectors.joining(StringPool.COLON));
+        }
+        return zoneId;
     }
 
     /**
@@ -73,7 +97,7 @@ public class RpcContextUtil {
     public static Long getUserId() {
         Long userId = Func.toLong(RpcContext.getServerAttachment().getAttachment(SystemConstant.USER_ID));
         if (Func.isEmpty(userId)) {
-            userId = Optional.ofNullable(getUserInfo()).map(UserInfo::authId).orElse(null);
+            userId = Optional.ofNullable(getUserInfo()).map(UserInfo::getUserId).orElse(null);
         }
         return userId;
     }
@@ -186,12 +210,26 @@ public class RpcContextUtil {
 
     private static UserInfo getUserInfo() {
         Object employeeInfo = RpcContext.getServerAttachment().getObjectAttachment(SystemConstant.EMPLOYEE_INFO);
+        if (employeeInfo == null) {
+            employeeInfo = RpcContext.getServerAttachment().getObjectAttachment(SystemConstant.USER_INFO);
+        }
         if (Func.isNotEmpty(employeeInfo)) {
             return JsonUtil.parse(JsonUtil.toJson(employeeInfo), UserInfo.class);
         }
         return null;
     }
 
-    record UserInfo(String name, String alias, String email, Long authId, Long syncStaffId) implements Serializable {
+    record UserInfo(Integer id, String name, String alias, String email, String mobile,
+                    @JsonProperty("auth_id") Long authId,
+                    @JsonProperty("sync_staff_id") Long syncStaffId) implements Serializable {
+
+        public Long getUserId() {
+            if (Func.isNotEmpty(authId)) {
+                return authId;
+            } else if (Func.isNotEmpty(id)) {
+                return Long.valueOf(id);
+            }
+            return null;
+        }
     }
 }

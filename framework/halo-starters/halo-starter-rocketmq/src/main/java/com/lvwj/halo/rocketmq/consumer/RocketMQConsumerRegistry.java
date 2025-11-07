@@ -3,9 +3,11 @@ package com.lvwj.halo.rocketmq.consumer;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
+import com.lvwj.halo.common.constants.SystemConstant;
 import com.lvwj.halo.common.utils.Exceptions;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
+import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import com.lvwj.halo.rocketmq.annotation.RocketMQConsumer;
 import com.lvwj.halo.rocketmq.annotation.TagHandler;
 import jakarta.annotation.Resource;
@@ -262,7 +264,8 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                 String msgKey = messageExt.getKeys();
                 String msgPK = messageExt.getUserProperty("msgPK");
                 String traceId = messageExt.getUserProperty("tid");
-                //String operator = messageExt.getUserProperty("operator");
+                Long userId = Func.toLong(messageExt.getUserProperty(SystemConstant.USER_ID));
+                String userName = messageExt.getUserProperty(SystemConstant.USER_NAME);
                 String methodName = "";
                 int reconsumeTimes = messageExt.getReconsumeTimes();
                 int enableReconsumeTimes = getEnableReconsumeTimes(tag);
@@ -271,8 +274,11 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     if (StringUtils.hasLength(traceId)) {
                         ThreadContext.put("traceId", traceId);
                         MDC.put("traceId", traceId);
+                        ThreadLocalUtil.putTraceId(traceId);
                     }
                     //取出消息头的操作人信息，放到上下文
+                    ThreadLocalUtil.putCurrentUserId(userId);
+                    ThreadLocalUtil.putCurrentUserName(userName);
 
                     //根据tag去找对应加了@TageHandler注解的方法
                     MethodInvoker methodInvoker = getMethodInvoker(tag);
@@ -316,6 +322,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                         ThreadContext.clearAll();
                         MDC.clear();
                     }
+                    ThreadLocalUtil.clear();
                 }
             }
 
@@ -403,7 +410,8 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                 String msgKey = messageExt.getKeys();
                 String msgPK = messageExt.getUserProperty("msgPK");
                 String traceId = messageExt.getUserProperty("tid");
-                //String operator = messageExt.getUserProperty("operator");
+                Long userId = Func.toLong(messageExt.getUserProperty(SystemConstant.USER_ID));
+                String userName = messageExt.getUserProperty(SystemConstant.USER_NAME);
                 String methodName = "";
                 int reconsumeTimes = messageExt.getReconsumeTimes();
                 int enableReconsumeTimes = getEnableReconsumeTimes(tag);
@@ -413,8 +421,11 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                     if (StringUtils.hasLength(traceId)) {
                         ThreadContext.put("traceId", traceId);
                         MDC.put("traceId", traceId);
+                        ThreadLocalUtil.putTraceId(traceId);
                     }
                     //取出消息头的操作人信息，放到上下文
+                    ThreadLocalUtil.putCurrentUserId(userId);
+                    ThreadLocalUtil.putCurrentUserName(userName);
 
                     //根据tag去找对应加了@TageHandler注解的方法
                     MethodInvoker methodInvoker = getMethodInvoker(tag);
@@ -458,6 +469,7 @@ public class RocketMQConsumerRegistry implements BeanPostProcessor, SmartLifecyc
                         ThreadContext.clearAll();
                         MDC.clear();
                     }
+                    ThreadLocalUtil.clear();
                 }
             }
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;

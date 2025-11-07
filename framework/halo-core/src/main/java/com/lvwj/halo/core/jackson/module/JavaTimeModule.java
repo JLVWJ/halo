@@ -32,7 +32,7 @@ public class JavaTimeModule extends SimpleModule {
   }
 
   public JavaTimeModule(boolean isTimestamp) {
-    super(PackageVersion.VERSION);
+    super(JavaTimeModule.class.getName(), com.fasterxml.jackson.core.Version.unknownVersion());
     if (isTimestamp) {
       this.addSerializer(LocalDateTime.class, new LocalDateTimeToUnixTimeSerializer());
       this.addSerializer(LocalDate.class, new LocalDateToUnixTimeSerializer());

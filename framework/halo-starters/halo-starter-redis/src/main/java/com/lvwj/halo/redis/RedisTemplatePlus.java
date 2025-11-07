@@ -72,8 +72,6 @@ public class RedisTemplatePlus {
     this.rateLimiterScript.setResultType(Long.class);
   }
 
-  private final Function<Long, Long> TIME_RANDOM = sec -> sec + ThreadLocalRandom.current().nextLong(1, 10);
-
   /**
    * 存放 key value 对到 redis。 默认过期时间30秒
    */
@@ -108,7 +106,7 @@ public class RedisTemplatePlus {
       timeout = timeUnit.toSeconds(timeout);
       timeUnit = TimeUnit.SECONDS;
     }
-    valueOps.set(RedisKeyGenerator.gen(key), value, TIME_RANDOM.apply(timeout), timeUnit);
+    valueOps.set(RedisKeyGenerator.gen(key), value, timeout, timeUnit);
   }
 
   /**
@@ -137,7 +135,7 @@ public class RedisTemplatePlus {
       timeout = timeUnit.toSeconds(timeout);
       timeUnit = TimeUnit.SECONDS;
     }
-    return Boolean.TRUE.equals(valueOps.setIfAbsent(RedisKeyGenerator.gen(key), value, TIME_RANDOM.apply(timeout), timeUnit));
+    return Boolean.TRUE.equals(valueOps.setIfAbsent(RedisKeyGenerator.gen(key), value, timeout, timeUnit));
   }
 
   /**
@@ -169,7 +167,7 @@ public class RedisTemplatePlus {
       timeout = timeUnit.toSeconds(timeout);
       timeUnit = TimeUnit.SECONDS;
     }
-    return Boolean.TRUE.equals(valueOps.setIfPresent(RedisKeyGenerator.gen(key), value, TIME_RANDOM.apply(timeout), timeUnit));
+    return Boolean.TRUE.equals(valueOps.setIfPresent(RedisKeyGenerator.gen(key), value, timeout, timeUnit));
   }
 
   /**
@@ -1084,7 +1082,7 @@ public class RedisTemplatePlus {
         @Override
         public String execute(RedisOperations operations) throws DataAccessException {
           for (Map.Entry<String, Object> entry : keyValues.entrySet()) {
-            operations.opsForValue().set(RedisKeyGenerator.gen(entry.getKey()), entry.getValue(), TIME_RANDOM.apply(seconds), TimeUnit.SECONDS);
+            operations.opsForValue().set(RedisKeyGenerator.gen(entry.getKey()), entry.getValue(), seconds, TimeUnit.SECONDS);
           }
           return null;
         }

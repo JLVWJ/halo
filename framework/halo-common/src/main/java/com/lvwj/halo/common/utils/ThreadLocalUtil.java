@@ -1,6 +1,7 @@
 package com.lvwj.halo.common.utils;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
+import com.lvwj.halo.common.constants.SystemConstant;
 import org.springframework.lang.Nullable;
 
 import java.util.HashMap;
@@ -122,7 +123,7 @@ public class ThreadLocalUtil {
    * @date 2024/8/31 17:58
    */
   public static void putCurrentUserName(String currentUser) {
-    putIfNotEmpty(CURRENT_USERNAME, currentUser);
+    putIfNotEmpty(SystemConstant.USER_NAME, currentUser);
   }
 
   /**
@@ -133,7 +134,7 @@ public class ThreadLocalUtil {
    * @date 2024/8/31 17:58
    */
   public static String getCurrentUserName() {
-    return get(CURRENT_USERNAME);
+    return get(SystemConstant.USER_NAME);
   }
 
   /**
@@ -144,7 +145,7 @@ public class ThreadLocalUtil {
    * @date 2024/8/31 17:58
    */
   public static void putCurrentUserId(Long userId) {
-    putIfNotEmpty(CURRENT_USERID, userId);
+    putIfNotEmpty(SystemConstant.USER_ID, userId);
   }
 
   /**
@@ -155,10 +156,14 @@ public class ThreadLocalUtil {
    * @date 2024/8/31 17:58
    */
   public static Long getCurrentUserId() {
-    return get(CURRENT_USERID);
+    return get(SystemConstant.USER_ID);
   }
 
-  private static final String CURRENT_USERNAME = "currentUserName";
-  private static final String CURRENT_USERID = "currentUserId";
+  public static void putTraceId(String traceId) {
+    putIfNotEmpty(SystemConstant.TRACE_ID, traceId);
+  }
 
+  public static String getTraceId() {
+    return get(SystemConstant.TRACE_ID);
+  }
 }

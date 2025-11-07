@@ -456,6 +456,11 @@
                 <artifactId>jackson-module-kotlin</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml</groupId>
+                <artifactId>classmate</artifactId>
+                <version>1.7.0</version>
+            </dependency>
 
             <!-- jsqlparser -->
             <dependency>

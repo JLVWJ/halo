@@ -5,6 +5,7 @@ import com.lvwj.halo.common.constants.SystemConstant;
 import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.StringPool;
+import com.lvwj.halo.common.utils.ThreadLocalUtil;
 import com.lvwj.halo.rocketmq.annotation.MessageMode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -102,6 +103,14 @@ public class RocketMQProducerHelper {
         }
         if (StringUtils.hasText(tag)) {
             builder.setHeader(MessageConst.PROPERTY_TAGS, tag);
+        }
+        Long userId = ThreadLocalUtil.getCurrentUserId();
+        String userName = ThreadLocalUtil.getCurrentUserName();
+        if (Func.isNotEmpty(userName)) {
+            builder.setHeader(SystemConstant.USER_NAME, userName);
+        }
+        if (Func.toLong(userId, 0L) > 0) {
+            builder.setHeader(SystemConstant.USER_ID, userId);
         }
         if (delayLevel > 0) {
             builder.setHeader(MessageConst.PROPERTY_DELAY_TIME_LEVEL, delayLevel);

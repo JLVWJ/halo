@@ -77,7 +77,7 @@ public class R<T> implements Serializable {
   }
 
   public boolean isSuccess() {
-    return BaseErrorEnum.SUCCESS.getCode() == code;
+    return BaseErrorEnum.SUCCESS.getCode() == code || code == 200;
   }
 
   @Transient

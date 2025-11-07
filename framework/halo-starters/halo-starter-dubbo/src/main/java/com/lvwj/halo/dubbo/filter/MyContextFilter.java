@@ -24,6 +24,7 @@ public class MyContextFilter implements Filter, Filter.Listener {
         MDC.put(SystemConstant.TRACE_ID, RpcContextUtil.getTraceId());
         ThreadLocalUtil.putCurrentUserName(RpcContextUtil.getUserName());
         ThreadLocalUtil.putCurrentUserId(RpcContextUtil.getUserId());
+        ThreadLocalUtil.putTraceId(RpcContextUtil.getTraceId());
         return invoker.invoke(invocation);
     }
 

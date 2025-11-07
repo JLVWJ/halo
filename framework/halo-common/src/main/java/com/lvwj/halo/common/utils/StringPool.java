@@ -71,4 +71,6 @@ public interface StringPool {
   String POST = "POST";
   String PUT = "PUT";
   String DELETE = "DELETE";
+  String UTC = "UTC";
+  String GMT = "GMT";
 }

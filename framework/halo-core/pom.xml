@@ -11,6 +11,7 @@
     </parent>
     <artifactId>halo-core</artifactId>
     <name>halo-core</name>
+    <packaging>jar</packaging>
     <version>${revision}</version>
 
     <dependencies>

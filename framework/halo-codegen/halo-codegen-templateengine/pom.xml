@@ -10,7 +10,9 @@
     </parent>
 
     <artifactId>halo-codegen-templateengine</artifactId>
+    <name>halo-codegen-templateengine</name>
     <packaging>jar</packaging>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <mybatis.plus.version>3.5.7</mybatis.plus.version>

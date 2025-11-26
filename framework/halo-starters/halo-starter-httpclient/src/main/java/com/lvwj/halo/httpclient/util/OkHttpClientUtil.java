@@ -2,6 +2,9 @@ package com.lvwj.halo.httpclient.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.lvwj.halo.common.enums.BaseErrorEnum;
+import com.lvwj.halo.common.exceptions.BusinessException;
+import com.lvwj.halo.common.utils.Func;
 import com.lvwj.halo.common.utils.JsonUtil;
 import com.lvwj.halo.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,8 @@ public class OkHttpClientUtil {
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final MediaType XML = MediaType.parse("application/xml; charset=utf-8");
+    private static final MediaType MULTIPART = MediaType.parse("multipart/form-data; charset=utf-8");
+
     private static volatile OkHttpClient okHttpClient;
 
     public static OkHttpClient okHttpClient() {
@@ -222,11 +227,11 @@ public class OkHttpClientUtil {
     /**
      * 异步post请求，请求体为json格式
      *
-     * @author lvweijie
-     * @date 2024/7/26 16:13
-     * @param url 请求url地址
+     * @param url  请求url地址
      * @param json 请求数据, json 字符串
      * @return java.util.concurrent.CompletableFuture<java.lang.String>
+     * @author lvweijie
+     * @date 2024/7/26 16:13
      */
     public static CompletableFuture<String> doPostJsonAsync(String url, String json) {
         return doPostJsonAsync(url, json, null);
@@ -248,12 +253,12 @@ public class OkHttpClientUtil {
     /**
      * 异步post请求，请求体为json格式
      *
+     * @param url     请求url地址
+     * @param json    请求数据, json 字符串
+     * @param headers 请求头字段
+     * @return java.util.concurrent.CompletableFuture<java.lang.String>
      * @author lvweijie
      * @date 2024/7/26 16:13
-     * @param url 请求url地址
-     * @param json 请求数据, json 字符串
-     * @param headers  请求头字段
-     * @return java.util.concurrent.CompletableFuture<java.lang.String>
      */
     public static CompletableFuture<String> doPostJsonAsync(String url, String json, Map<String, String> headers) {
         Request request = getRequestBodyPostRequest(url, json, headers, JSON);
@@ -272,100 +277,121 @@ public class OkHttpClientUtil {
     }
 
 
-
     private static String executePost(String url, String data, MediaType contentType) {
         Request request = getRequestBodyPostRequest(url, data, null, contentType);
         return execute(request);
     }
 
     private static String execute(Request request) {
+        String method = request.method();
+        String url = request.url().toString();
         try (Response response = okHttpClient().newCall(request).execute()) {
-            if (response.isSuccessful() && null != response.body()) {
-                return response.body().string();
+            String resp = response.body().string();
+            if (response.isSuccessful()) {
+                logResponse(method, resp);
             } else {
-                String str = null != response.body() ? response.body().string() : response.toString();
-                log.error("OkHttpClientUtil execute fail: " + str);
+                String message = String.format("[%s]请求失败, code:%d, message:%s, body:%s", url, response.code(), response.message(), resp);
+                logError(method, message, null);
             }
+            return resp;
         } catch (Exception e) {
-            log.error("OkHttpClientUtil execute error: " + e.getMessage(), e);
+            logError(method, e.getMessage(), e);
+            if (e instanceof BusinessException) {
+                throw (BusinessException) e;
+            } else {
+                throw new BusinessException(BaseErrorEnum.HTTP_REQUEST_ERROR, e.getMessage());
+            }
         }
-        return "";
     }
 
     private static byte[] executeByte(Request request) {
+        String method = request.method();
+        String url = request.url().toString();
         try (Response response = okHttpClient().newCall(request).execute()) {
-            if (response.isSuccessful() && response.body() != null) {
-                return response.body().bytes();
+            String resp = response.body().string();
+            if (response.isSuccessful()) {
+                logResponse(method, resp);
             } else {
-                String str = null != response.body() ? response.body().string() : response.toString();
-                log.error("OkHttpClientUtil execute fail: " + str);
+                String message = String.format("[%s]请求失败, code:%d, message:%s, body:%s", url, response.code(), response.message(), resp);
+                logError(method, message, null);
             }
+            return response.body().bytes();
         } catch (Exception e) {
-            log.error("OkHttpClientUtil execute error: " + e.getMessage(), e);
+            logError(method, e.getMessage(), e);
+            if (e instanceof BusinessException) {
+                throw (BusinessException) e;
+            } else {
+                throw new BusinessException(BaseErrorEnum.HTTP_REQUEST_ERROR, e.getMessage());
+            }
         }
-        return null;
     }
 
     private static InputStream executeStream(Request request) throws IOException {
         Response response = okHttpClient().newCall(request).execute();
-        if (response.isSuccessful() && response.body() != null) {
+        if (response.isSuccessful()) {
             return response.body().byteStream();
         }
         return null;
     }
 
     private static CompletableFuture<String> executeAsync(Request request) {
+        String method = request.method();
+        String url = request.url().toString();
         CompletableFuture<String> cf = new CompletableFuture<>();
         okHttpClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                cf.completeExceptionally(e);
+                logError(method, e.getMessage(), e);
+                cf.completeExceptionally(new BusinessException(BaseErrorEnum.HTTP_REQUEST_ERROR, e.getMessage()));
             }
 
             @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String res = Optional.ofNullable(response.body()).map(Object::toString).orElse("");
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                String body = Optional.of(response.body()).map(Object::toString).orElse("");
                 if (response.isSuccessful()) {
-                    cf.complete(res);
+                    logResponse(method, body);
                 } else {
-                    cf.completeExceptionally(new RuntimeException("OkHttpClientUtil execute fail:" + res));
+                    String message = String.format("[%s]请求失败, code:%d, message:%s, body:%s", url, response.code(), response.message(), body);
+                    logError(method, message, null);
                 }
+                cf.complete(body);
             }
         });
         return cf;
     }
 
-
     private static Request getFormBodyPostRequest(String url, Map<String, String> params, Map<String, String> headers) {
         FormBody.Builder builder = new FormBody.Builder();
-        if (params != null && !params.keySet().isEmpty()) {
+        if (Func.isNotEmpty(params)) {
             for (String key : params.keySet()) {
                 builder.add(key, params.get(key));
             }
         }
         Request.Builder requestBuilder = new Request.Builder();
-        if (headers != null && !headers.isEmpty()) {
+        if (Func.isNotEmpty(headers)) {
             for (String header : headers.keySet()) {
                 requestBuilder.addHeader(header, headers.get(header));
             }
         }
+        logRequest(true, url, null, params, headers);
         return requestBuilder.url(url).post(builder.build()).build();
     }
 
     private static Request getRequestBodyPostRequest(String url, String data, Map<String, String> headers, MediaType contentType) {
         RequestBody requestBody = RequestBody.create(data, contentType);
         Request.Builder requestBuilder = new Request.Builder();
-        if (headers != null && !headers.isEmpty()) {
+        if (Func.isNotEmpty(headers)) {
             for (String header : headers.keySet()) {
                 requestBuilder.addHeader(header, headers.get(header));
             }
         }
+        logRequest(true, url, data, null, headers);
         return requestBuilder.url(url).post(requestBody).build();
     }
 
     private static Request getGetRequest(String url, Map<String, String> params, Map<String, String> headers) {
         StringBuilder sb = new StringBuilder(url);
-        if (params != null && !params.keySet().isEmpty()) {
+        if (Func.isNotEmpty(params)) {
             boolean firstFlag = true;
             for (String key : params.keySet()) {
                 if (firstFlag) {
@@ -377,11 +403,34 @@ public class OkHttpClientUtil {
             }
         }
         Request.Builder requestBuilder = new Request.Builder();
-        if (headers != null && !headers.isEmpty()) {
+        if (Func.isNotEmpty(headers)) {
             for (String header : headers.keySet()) {
                 requestBuilder.addHeader(header, headers.get(header));
             }
         }
+        logRequest(false, url, null, params, headers);
         return requestBuilder.url(sb.toString()).build();
+    }
+
+    private static void logRequest(boolean post, String url, String data, Map<String, String> params, Map<String, String> headers) {
+        String method = post ? "POST" : "GET";
+        log.info("[{} REQUEST] Url ==> {}", method, url);
+        if (Func.isNotEmpty(headers)) {
+            log.info("[{} REQUEST] Header ==> {}", method, JsonUtil.toJson(headers));
+        }
+        if (Func.isNotEmpty(params)) {
+            log.info("[{} REQUEST] Param ==> {}", method, JsonUtil.toJson(params));
+        }
+        if (Func.isNotEmpty(data)) {
+            log.info("[{} REQUEST] Body ==> {}", method, data);
+        }
+    }
+
+    private static void logResponse(String method, String response) {
+        log.info("[{} RESPONSE] Resp ==> {}", method.toUpperCase(), response);
+    }
+
+    private static void logError(String method, String error, Exception e) {
+        log.error("[{} RESPONSE] Error ==> {}", method.toUpperCase(), error, e);
     }
 }

@@ -130,14 +130,14 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public R<?> illegalStateException(IllegalStateException ex) {
     log.warn("IllegalStateException:", ex);
-    return R.fail(BaseErrorEnum.ILLEGAL_ARGUMENT_ERROR, ex.getMessage());
+    return R.fail(BaseErrorEnum.PARAM_ILLEGAL_ERROR, ex.getMessage());
   }
 
   @ExceptionHandler(MissingServletRequestParameterException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public R<?> missingServletRequestParameterException(MissingServletRequestParameterException ex) {
     log.warn("MissingServletRequestParameterException:", ex);
-    return R.fail(BaseErrorEnum.ILLEGAL_ARGUMENT_ERROR,
+    return R.fail(BaseErrorEnum.PARAM_ILLEGAL_ERROR,
             "缺少必须的[" + ex.getParameterType() + "]类型的参数[" + ex.getParameterName() + "]");
   }
 
@@ -152,7 +152,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public R<?> illegalArgumentException(IllegalArgumentException ex) {
     log.warn("IllegalArgumentException:", ex);
-    return R.fail(BaseErrorEnum.ILLEGAL_ARGUMENT_ERROR, ex.getMessage());
+    return R.fail(BaseErrorEnum.PARAM_ILLEGAL_ERROR, ex.getMessage());
   }
 
   @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -171,7 +171,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public R<?> missingServletRequestPartException(MissingServletRequestPartException ex) {
     log.warn("MissingServletRequestPartException:", ex);
-    return R.fail(BaseErrorEnum.REQUIRED_FILE_PARAM_ERROR, ex.getMessage());
+    return R.fail(BaseErrorEnum.MULTIPART_PARAM_ERROR, ex.getMessage());
   }
 
   @ExceptionHandler(ServletException.class)
@@ -180,7 +180,7 @@ public class GlobalExceptionHandler {
     log.warn("ServletException:", ex);
     String msg = "UT010016: Not a multi part request";
     if (msg.equalsIgnoreCase(ex.getMessage())) {
-      return R.fail(BaseErrorEnum.REQUIRED_FILE_PARAM_ERROR, msg);
+      return R.fail(BaseErrorEnum.MULTIPART_PARAM_ERROR, msg);
     }
     return R.fail(BaseErrorEnum.INTERNAL_SERVER_ERROR, ex.getMessage());
   }
@@ -189,7 +189,7 @@ public class GlobalExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public R<?> multipartException(MultipartException ex) {
     log.warn("MultipartException:", ex);
-    return R.fail(BaseErrorEnum.REQUIRED_FILE_PARAM_ERROR, ex.getMessage());
+    return R.fail(BaseErrorEnum.MULTIPART_PARAM_ERROR, ex.getMessage());
   }
 
   /**
